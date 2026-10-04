@@ -76,7 +76,7 @@ def composite_at_original(
 
 
 def restore_inpaint_output(job: ResolvedJob, image: bytes) -> bytes:
-    """For inpaint jobs, return the result at the source's resolution (see composite_at_original)."""
+    """For inpaint jobs, return the result at the source resolution (see composite_at_original)."""
     source = job.image_input
     if job.task.id != "inpaint" or source is None or source.mask_path is None:
         return image
