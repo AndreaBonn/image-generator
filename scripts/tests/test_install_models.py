@@ -32,19 +32,30 @@ def make_entry(**overrides):
 
 
 def test_has_room_true_when_margin_is_left():
-    assert install_models.has_room(free_bytes=10 * GB, size_bytes=4 * GB, min_free_gb=5) is True
+    assert (
+        install_models.has_room(free_bytes=10 * GB, size_bytes=4 * GB, min_free_gb=5)
+        is True
+    )
 
 
 def test_has_room_true_at_exact_margin():
-    assert install_models.has_room(free_bytes=9 * GB, size_bytes=4 * GB, min_free_gb=5) is True
+    assert (
+        install_models.has_room(free_bytes=9 * GB, size_bytes=4 * GB, min_free_gb=5)
+        is True
+    )
 
 
 def test_has_room_false_when_margin_would_be_eaten():
-    assert install_models.has_room(free_bytes=8 * GB, size_bytes=4 * GB, min_free_gb=5) is False
+    assert (
+        install_models.has_room(free_bytes=8 * GB, size_bytes=4 * GB, min_free_gb=5)
+        is False
+    )
 
 
 def test_model_status_reports_installed_and_missing(tmp_path):
-    paths = install_models.Paths(fooocus_dir=tmp_path / "fooocus", models_dir=tmp_path / "models")
+    paths = install_models.Paths(
+        fooocus_dir=tmp_path / "fooocus", models_dir=tmp_path / "models"
+    )
     entry = make_entry()
     assert install_models.model_status(entry, paths) == "missing"
     target = paths.models_dir / "loras" / "demo.safetensors"
@@ -54,8 +65,12 @@ def test_model_status_reports_installed_and_missing(tmp_path):
 
 
 def test_model_status_reads_fooocus_tree_for_reused_models(tmp_path):
-    paths = install_models.Paths(fooocus_dir=tmp_path / "fooocus", models_dir=tmp_path / "models")
-    entry = make_entry(source="fooocus", folder="checkpoints", filename="jug.safetensors")
+    paths = install_models.Paths(
+        fooocus_dir=tmp_path / "fooocus", models_dir=tmp_path / "models"
+    )
+    entry = make_entry(
+        source="fooocus", folder="checkpoints", filename="jug.safetensors"
+    )
     assert install_models.model_status(entry, paths) == "reused-missing"
     target = paths.fooocus_dir / "models" / "checkpoints" / "jug.safetensors"
     target.parent.mkdir(parents=True)

@@ -56,14 +56,20 @@ def load_registry(path: Path = REGISTRY_PATH) -> list[ModelEntry]:
     for entry in entries:
         if entry.source not in ("fooocus", "huggingface"):
             raise ValueError(f"Model {entry.id}: unknown source '{entry.source}'")
-        if entry.source == "huggingface" and not (entry.repo and entry.repo_path and entry.sha256):
-            raise ValueError(f"Model {entry.id}: huggingface entries need repo, repo_path and sha256")
+        if entry.source == "huggingface" and not (
+            entry.repo and entry.repo_path and entry.sha256
+        ):
+            raise ValueError(
+                f"Model {entry.id}: huggingface entries need repo, repo_path and sha256"
+            )
     return entries
 
 
 def target_path(entry: ModelEntry, paths: Paths) -> Path:
     """Where the model file lives (Fooocus tree for reused models, MODELS_DIR otherwise)."""
-    base = paths.fooocus_dir / "models" if entry.source == "fooocus" else paths.models_dir
+    base = (
+        paths.fooocus_dir / "models" if entry.source == "fooocus" else paths.models_dir
+    )
     return base / entry.folder / entry.filename
 
 
@@ -104,7 +110,9 @@ def print_listing(entries: list[ModelEntry], paths: Paths) -> None:
         size = f"{entry.size_bytes / GB:.2f}" if entry.size_bytes else "-"
         enabled = "yes" if entry.enabled else "no"
         status = model_status(entry, paths)
-        print(f"{entry.id:<22} {entry.family:<12} {status:<15} {size:>6}  {enabled:<7}  {entry.license}")
+        print(
+            f"{entry.id:<22} {entry.family:<12} {status:<15} {size:>6}  {enabled:<7}  {entry.license}"
+        )
 
 
 def download(entry: ModelEntry, paths: Paths, min_free_gb: float) -> None:
@@ -116,7 +124,9 @@ def download(entry: ModelEntry, paths: Paths, min_free_gb: float) -> None:
         print(f"{entry.id}: already installed at {destination}")
         return
     free = shutil.disk_usage(paths.models_dir).free
-    if not has_room(free_bytes=free, size_bytes=entry.size_bytes, min_free_gb=min_free_gb):
+    if not has_room(
+        free_bytes=free, size_bytes=entry.size_bytes, min_free_gb=min_free_gb
+    ):
         raise SystemExit(
             f"{entry.id}: not enough space. Free {free / GB:.1f} GB, needed "
             f"{entry.size_bytes / GB:.2f} GB + {min_free_gb:.0f} GB margin. Nothing was downloaded."
@@ -124,7 +134,9 @@ def download(entry: ModelEntry, paths: Paths, min_free_gb: float) -> None:
     staging = paths.models_dir / DOWNLOAD_STAGING
     staging.mkdir(parents=True, exist_ok=True)
     print(f"{entry.id}: downloading {entry.size_bytes / GB:.2f} GB from {entry.repo}")
-    downloaded = Path(hf_hub_download(repo_id=entry.repo, filename=entry.repo_path, local_dir=staging))
+    downloaded = Path(
+        hf_hub_download(repo_id=entry.repo, filename=entry.repo_path, local_dir=staging)
+    )
     actual = sha256_of(downloaded)
     if actual != entry.sha256:
         downloaded.unlink()
@@ -136,7 +148,9 @@ def download(entry: ModelEntry, paths: Paths, min_free_gb: float) -> None:
 
 def remove(entry: ModelEntry, paths: Paths, assume_yes: bool) -> None:
     if entry.source == "fooocus":
-        raise SystemExit(f"{entry.id}: reused from Fooocus, never removed by this script")
+        raise SystemExit(
+            f"{entry.id}: reused from Fooocus, never removed by this script"
+        )
     destination = target_path(entry, paths)
     if not destination.is_file():
         print(f"{entry.id}: not installed")
@@ -154,10 +168,18 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("--list", action="store_true", help="show status of every model")
-    group.add_argument("--install", nargs="+", metavar="ID", help="download the given models")
-    group.add_argument("--install-enabled", action="store_true", help="download every enabled model")
-    group.add_argument("--remove", nargs="+", metavar="ID", help="delete the given models")
-    parser.add_argument("--yes", action="store_true", help="do not ask for confirmation on --remove")
+    group.add_argument(
+        "--install", nargs="+", metavar="ID", help="download the given models"
+    )
+    group.add_argument(
+        "--install-enabled", action="store_true", help="download every enabled model"
+    )
+    group.add_argument(
+        "--remove", nargs="+", metavar="ID", help="delete the given models"
+    )
+    parser.add_argument(
+        "--yes", action="store_true", help="do not ask for confirmation on --remove"
+    )
     return parser
 
 
@@ -185,7 +207,9 @@ def main(argv: list[str] | None = None) -> int:
             download(entry=entry, paths=paths, min_free_gb=min_free_gb)
     else:
         for model_id in args.remove:
-            remove(entry=find_entry(entries, model_id), paths=paths, assume_yes=args.yes)
+            remove(
+                entry=find_entry(entries, model_id), paths=paths, assume_yes=args.yes
+            )
     return 0
 
 

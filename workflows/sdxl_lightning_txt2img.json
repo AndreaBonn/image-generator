@@ -1,0 +1,59 @@
+{
+  "1": {
+    "class_type": "CheckpointLoaderSimple",
+    "_meta": { "title": "@checkpoint" },
+    "inputs": { "ckpt_name": "juggernautXL_v8Rundiffusion.safetensors" }
+  },
+  "2": {
+    "class_type": "LoraLoader",
+    "_meta": { "title": "@lora" },
+    "inputs": {
+      "model": ["1", 0],
+      "clip": ["1", 1],
+      "lora_name": "sdxl_lightning_4step_lora.safetensors",
+      "strength_model": 1.0,
+      "strength_clip": 1.0
+    }
+  },
+  "3": {
+    "class_type": "CLIPTextEncode",
+    "_meta": { "title": "@prompt_pos" },
+    "inputs": { "text": "", "clip": ["2", 1] }
+  },
+  "4": {
+    "class_type": "CLIPTextEncode",
+    "_meta": { "title": "@prompt_neg" },
+    "inputs": { "text": "", "clip": ["2", 1] }
+  },
+  "5": {
+    "class_type": "EmptyLatentImage",
+    "_meta": { "title": "@latent" },
+    "inputs": { "width": 1152, "height": 896, "batch_size": 1 }
+  },
+  "6": {
+    "class_type": "KSampler",
+    "_meta": { "title": "@sampler" },
+    "inputs": {
+      "model": ["2", 0],
+      "positive": ["3", 0],
+      "negative": ["4", 0],
+      "latent_image": ["5", 0],
+      "seed": 0,
+      "steps": 4,
+      "cfg": 1.0,
+      "sampler_name": "euler",
+      "scheduler": "sgm_uniform",
+      "denoise": 1.0
+    }
+  },
+  "7": {
+    "class_type": "VAEDecode",
+    "_meta": { "title": "VAE Decode" },
+    "inputs": { "samples": ["6", 0], "vae": ["1", 2] }
+  },
+  "8": {
+    "class_type": "SaveImage",
+    "_meta": { "title": "@output" },
+    "inputs": { "images": ["7", 0], "filename_prefix": "studio/sdxl_lightning" }
+  }
+}
