@@ -43,6 +43,7 @@ def test_settings_read_environment_and_dotenv(
         ("job_timeout_s", 0),
         ("min_free_disk_gb", -1),
         ("comfy_url", "https://example.com"),
+        ("comfy_url", "http://127.0.0.1:0"),
     ],
 )
 def test_settings_invalid_values_fail(field: str, value: object) -> None:

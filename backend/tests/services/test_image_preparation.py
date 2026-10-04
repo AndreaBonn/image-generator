@@ -3,6 +3,7 @@ from io import BytesIO
 from pathlib import Path
 from uuid import uuid4
 
+import pytest
 from PIL import Image
 
 from app.config import Settings
@@ -41,3 +42,15 @@ def test_prepare_images_keeps_image_and_mask_coordinates(tmp_path: Path) -> None
         assert binary.getpixel(xy=(0, 0)) == (255, 255, 255)
         assert binary.getpixel(xy=(0, 1)) == (0, 0, 0)
         assert binary.getpixel(xy=(0, 2)) == (255, 255, 255)
+
+
+def test_prepare_images_without_resolved_source_rejects() -> None:
+    job = resolve_job(
+        request=JobRequest(task_id="bozza", prompt="cat"),
+        catalog=load_catalog(settings=Settings()),
+        styles=StyleService(styles=()),
+        is_fake=True,
+    )
+    assert job.image_input is None
+    with pytest.raises(ValueError, match="requires a resolved source"):
+        prepare_images(job=job)

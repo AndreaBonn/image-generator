@@ -2,7 +2,7 @@ import pytest
 
 from app.errors import ValidationError
 from app.models.style import Style
-from app.services.style_service import StyleService
+from app.services.style_service import StyleService, split_negative_terms
 
 
 @pytest.fixture
@@ -53,3 +53,11 @@ def test_search_styles_query_matches_name_case_insensitively(service: StyleServi
     assert [style.name for style in service.search_styles(query="PHO")] == ["Photo"]
     assert service.search_styles(query="missing") == ()
     assert len(service.search_styles(query="")) == 3
+
+
+def test_split_negative_terms_treats_escaped_comma_as_literal() -> None:
+    assert split_negative_terms(text="a\\,b, c") == ("a\\,b", "c")
+
+
+def test_split_negative_terms_without_escape_splits_on_every_comma() -> None:
+    assert split_negative_terms(text="a,b, c") == ("a", "b", "c")

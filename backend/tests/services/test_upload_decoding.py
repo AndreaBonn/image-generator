@@ -1,7 +1,9 @@
 from io import BytesIO
 
+import pytest
 from PIL import Image
 
+from app.errors import ValidationError
 from app.services.upload_service import decode_upload
 
 EXIF_ORIENTATION_TAG = 0x0112
@@ -40,3 +42,15 @@ def test_decode_upload_flattens_transparency_on_white() -> None:
     assert decoded.mode == "RGB"
     assert decoded.getpixel(xy=(0, 0)) == (255, 255, 255)
     assert decoded.getpixel(xy=(5, 5)) == (0, 0, 255)
+
+
+def test_decode_upload_rejects_disallowed_format() -> None:
+    buffer = BytesIO()
+    Image.new(mode="RGB", size=(10, 10)).save(fp=buffer, format="GIF")
+    buffer.seek(0)
+    with pytest.raises(ValidationError) as error:
+        decode_upload(content=buffer)
+    assert error.value.details[0] == {
+        "field": "file",
+        "message": "Sono ammesse solo immagini PNG, JPEG e WebP.",
+    }

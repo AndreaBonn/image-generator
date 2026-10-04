@@ -16,14 +16,15 @@ function renderGpuWarning() {
 }
 
 describe("GpuWarning", () => {
-  it("stays silent when only our own engine holds the VRAM", async () => {
+  it("renders nothing when no other process is using the GPU, regardless of free VRAM", async () => {
     const fetchSystem = vi.spyOn(queries, "fetchSystem").mockResolvedValue(
       buildSystemInfo({ gpu: buildGpuInfo({ vram_free_mb: 2000, other_processes: [] }) }),
     );
 
-    renderGpuWarning();
+    const { client } = renderGpuWarning();
 
     await waitFor(() => expect(fetchSystem).toHaveBeenCalled());
+    await waitFor(() => expect(client.getQueryState(["system"])?.status).toBe("success"));
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });
 
@@ -42,16 +43,5 @@ describe("GpuWarning", () => {
     const alert = await screen.findByRole("alert");
     expect(alert).toHaveTextContent("ollama");
     expect(alert).toHaveTextContent("6000 MB");
-  });
-
-  it("renders nothing when the GPU is free and no other process is running", async () => {
-    vi.spyOn(queries, "fetchSystem").mockResolvedValue(
-      buildSystemInfo({ gpu: buildGpuInfo({ vram_free_mb: 7000, other_processes: [] }) }),
-    );
-
-    const { client } = renderGpuWarning();
-
-    await waitFor(() => expect(client.getQueryState(["system"])?.status).toBe("success"));
-    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });
 });

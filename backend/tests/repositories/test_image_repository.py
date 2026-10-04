@@ -50,3 +50,15 @@ def test_save_disk_full_leaves_no_partial_files(tmp_path: Path, race: bool) -> N
     assert list(tmp_path.rglob("*.webp")) == []
     saved = repository.save(image=image, metadata={"seed": 1})
     assert (tmp_path / saved.image_path).is_file()
+
+
+def test_save_reraises_unrelated_oserror_without_wrapping(tmp_path: Path) -> None:
+    repository = ImageRepository(data_dir=tmp_path)
+    image = render_image(width=32, height=32, seed=2)
+    with patch(target="pathlib.Path.write_bytes", side_effect=OSError(errno.EACCES, "denied")):
+        with pytest.raises(OSError) as error:
+            repository.save(image=image, metadata={"seed": 2})
+    assert error.value.errno == errno.EACCES
+    assert not isinstance(error.value, DiskFullError)
+    assert list(tmp_path.rglob("*.png")) == []
+    assert list(tmp_path.rglob("*.webp")) == []

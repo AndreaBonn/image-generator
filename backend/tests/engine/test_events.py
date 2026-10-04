@@ -5,8 +5,8 @@ from typing import Any
 import pytest
 
 from app.config import REPO_ROOT
-from app.engine.events import EventParser
-from app.engine.types import Failed, OutputImages, Progress, Started, Succeeded
+from app.engine.events import EventParser, find_node
+from app.engine.types import Failed, Interrupted, OutputImages, Progress, Started, Succeeded
 
 FIXTURE = Path(__file__).parents[1] / "fixtures/ws/bozza_run.json"
 PROMPT_ID = "c5a3efdb-d76c-42dc-9f2f-7b136d816d73"
@@ -33,6 +33,16 @@ def test_parser_real_run_filters_vae_progress_and_extracts_output() -> None:
     outputs = [event for event in events if isinstance(event, OutputImages)]
     raw = next(m for m in json.loads(FIXTURE.read_text()) if m["type"] == "executed")
     assert [image.model_dump() for image in outputs[0].images] == raw["data"]["output"]["images"]
+
+
+def test_find_node_returns_none_when_no_title_match_and_no_fallback() -> None:
+    graph = {"1": {"class_type": "KSamplerAdvanced", "_meta": {"title": "sampler"}}}
+    assert find_node(graph=graph, title="@output") is None
+
+
+def test_parser_execution_interrupted_maps_to_interrupted_event() -> None:
+    message: dict[str, Any] = {"type": "execution_interrupted", "data": {"prompt_id": PROMPT_ID}}
+    assert make_parser().parse(message=message) == Interrupted()
 
 
 def test_parser_flux_fallback_and_foreign_prompt_filter() -> None:

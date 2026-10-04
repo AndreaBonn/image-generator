@@ -1,12 +1,15 @@
+import errno
 from datetime import timedelta
 from io import BytesIO
 from pathlib import Path
 from typing import Literal
+from unittest.mock import patch
 
 import pytest
 from PIL import Image
 
 from app.config import Settings
+from app.errors import DiskFullError
 from app.lifespan import initialize_resources
 from app.models.job import JobRequest
 from app.models.records import UploadRecord, utc_now
@@ -79,5 +82,16 @@ def test_upload_failed_transaction_removes_written_file(tmp_path: Path) -> None:
 
     with pytest.raises(OperationalError):
         create_upload(service=service)
+    assert list((tmp_path / "uploads").iterdir()) == []
+    database.close()
+
+
+def test_save_disk_full_removes_partial_file(tmp_path: Path) -> None:
+    database = Database(data_dir=tmp_path)
+    database.migrate()
+    service = UploadService(repository=UploadRepository(database=database), data_dir=tmp_path)
+    with patch(target="pathlib.Path.write_bytes", side_effect=OSError(errno.ENOSPC, "full")):
+        with pytest.raises(DiskFullError):
+            create_upload(service=service)
     assert list((tmp_path / "uploads").iterdir()) == []
     database.close()

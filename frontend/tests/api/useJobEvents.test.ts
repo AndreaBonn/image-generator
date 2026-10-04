@@ -43,4 +43,34 @@ describe("useJobEvents", () => {
     renderHook(() => useJobEvents(null));
     expect(() => latestEventSource()).toThrow();
   });
+
+  it("drops a frame whose data is not valid JSON instead of recording an event", async () => {
+    const { result } = renderHook(() => useJobEvents("job-2"));
+    const source = latestEventSource();
+
+    // MockEventSource.emit JSON.stringifies its payload; passing undefined
+    // makes `ev.data` undefined, which JSON.parse cannot parse (it coerces
+    // to the string "undefined" and throws), exercising parseEvent's catch.
+    act(() => source.emit("progress", undefined));
+
+    expect(result.current.events).toEqual([]);
+    expect(result.current.latest).toBeNull();
+
+    // Prove the handler still works afterwards (paired positive case).
+    act(() => source.emit("progress", { step: 1, total: 4 }));
+    await waitFor(() =>
+      expect(result.current.latest).toEqual({ type: "progress", step: 1, total: 4 }),
+    );
+  });
+
+  it("flags a connection error reported by the EventSource", () => {
+    const { result } = renderHook(() => useJobEvents("job-3"));
+    const source = latestEventSource();
+
+    expect(result.current.connectionError).toBe(false);
+
+    act(() => source.onerror?.(new Event("error")));
+
+    expect(result.current.connectionError).toBe(true);
+  });
 });

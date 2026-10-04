@@ -15,7 +15,7 @@ from sqlalchemy import select
 from app.api.v1.jobs import get_engine
 from app.config import Settings
 from app.engine.fake_engine import FakeEngine
-from app.engine.types import EngineEvent, EngineRequest, Failed
+from app.engine.types import EngineEvent, EngineRequest, Failed, Generated, Queued, Started
 from app.errors import AppError, EngineRejectedError, EngineUnavailableError, OutOfMemoryError
 from app.main import create_app
 from app.models.records import GenerationRecord
@@ -111,6 +111,50 @@ async def test_jobs_map_engine_failures_and_replay_terminal(
     assert result["error_code"] == error.code
     replay = await client.get(url=f"/api/v1/jobs/{job_id}/events")
     assert "event: failed" in replay.text and error.code in replay.text
+
+
+async def test_jobs_unexpected_engine_exception_fails_with_generic_internal_error(
+    job_app: JobApp,
+) -> None:
+    application, client = job_app
+
+    class CrashingEngine(FakeEngine):
+        async def run(self, request: EngineRequest) -> AsyncGenerator[EngineEvent, None]:
+            yield Queued(prompt_id="p")
+            yield Started()
+            raise RuntimeError("boom: unmapped engine failure")
+
+    application.dependency_overrides[get_engine] = lambda: CrashingEngine()
+    response = await client.post(url="/api/v1/jobs", json={"task_id": "bozza", "prompt": "cat"})
+    job_id = response.json()["data"]["job_id"]
+    result = await wait_terminal(client=client, job_id=job_id)
+    assert result["status"] == "failed"
+    assert result["error_code"] == "INTERNAL_ERROR"
+    assert result["error_message"] == "Si è verificato un errore interno."
+
+
+async def test_jobs_engine_batch_size_mismatch_fails_as_engine_execution_error(
+    job_app: JobApp,
+) -> None:
+    application, client = job_app
+
+    class ShortBatchEngine(FakeEngine):
+        async def run(self, request: EngineRequest) -> AsyncGenerator[EngineEvent, None]:
+            async for event in super().run(request=request):
+                if isinstance(event, Generated):
+                    yield Generated(images=event.images[:-1])
+                else:
+                    yield event
+
+    application.dependency_overrides[get_engine] = lambda: ShortBatchEngine(step_delay_s=0)
+    response = await client.post(
+        url="/api/v1/jobs", json={"task_id": "bozza", "prompt": "cat", "params": {"batch": 2}}
+    )
+    job_id = response.json()["data"]["job_id"]
+    result = await wait_terminal(client=client, job_id=job_id)
+    assert result["status"] == "failed"
+    assert result["error_code"] == "ENGINE_EXECUTION_FAILED"
+    assert result["error_message"] == "Il motore ha restituito un numero di immagini inatteso."
 
 
 async def test_jobs_concurrent_idempotent_submission_returns_single_job(job_app: JobApp) -> None:

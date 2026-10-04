@@ -31,3 +31,14 @@ def test_load_styles_malformed_file_rejects(tmp_path: Path, content: str) -> Non
     (tmp_path / "invalid.json").write_text(content, encoding="utf-8")
     with pytest.raises(ValueError):
         load_styles(directory=tmp_path)
+
+
+def test_load_styles_duplicate_name_across_files_rejects(tmp_path: Path) -> None:
+    (tmp_path / "styles_0.json").write_text(
+        json.dumps([{"name": "Photo", "negative_prompt": "blur"}]), encoding="utf-8"
+    )
+    (tmp_path / "styles_1.json").write_text(
+        json.dumps([{"name": "Photo", "negative_prompt": "noise"}]), encoding="utf-8"
+    )
+    with pytest.raises(ValueError, match="Duplicate style name: Photo"):
+        load_styles(directory=tmp_path)

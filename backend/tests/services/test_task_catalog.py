@@ -175,6 +175,40 @@ def test_load_catalog_invalid_schema_names_field(
         load_catalog(settings=catalog_settings)
 
 
+def test_load_catalog_aspect_ratio_id_mismatch_stops_loading(catalog_settings: Settings) -> None:
+    rewrite_task(
+        settings=catalog_settings,
+        field="aspect_ratios",
+        value=[
+            {"id": "999*999", "width": 1152, "height": 896, "label": "Quadrato", "featured": True}
+        ],
+    )
+    with pytest.raises(ValidationError, match="aspect_ratios.id must match"):
+        load_catalog(settings=catalog_settings)
+
+
+def test_load_catalog_duplicate_aspect_ratios_stops_loading(catalog_settings: Settings) -> None:
+    rewrite_task(
+        settings=catalog_settings,
+        field="aspect_ratios",
+        value=[
+            {"id": "1152*896", "width": 1152, "height": 896, "label": "A", "featured": True},
+            {"id": "1152*896", "width": 1152, "height": 896, "label": "B", "featured": False},
+        ],
+    )
+    with pytest.raises(ValidationError, match="aspect_ratios must be distinct"):
+        load_catalog(settings=catalog_settings)
+
+
+def test_load_catalog_default_styles_without_supports_styles_stops_loading(
+    catalog_settings: Settings,
+) -> None:
+    rewrite_task(settings=catalog_settings, field="default_styles", value=["Fooocus Enhance"])
+    rewrite_task(settings=catalog_settings, field="supports_styles", value=False)
+    with pytest.raises(ValidationError, match="default_styles requires supports_styles"):
+        load_catalog(settings=catalog_settings)
+
+
 def test_load_catalog_rejects_duplicate_task_ids(catalog_settings: Settings) -> None:
     path = catalog_settings.config_dir / "tasks.yaml"
     data = TASK_DATA.validate_python(read_yaml(path.read_text(encoding="utf-8")))

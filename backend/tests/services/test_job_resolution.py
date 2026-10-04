@@ -1,4 +1,5 @@
 from typing import Any
+from uuid import uuid4
 
 import pytest
 
@@ -6,7 +7,8 @@ from app.config import Settings
 from app.errors import ValidationError
 from app.models.job import JobRequest, ResolvedJob
 from app.models.style import Style
-from app.services.job_resolution import resolve_job
+from app.models.task import ParameterLimit
+from app.services.job_resolution import resolve_job, validate_limits
 from app.services.style_service import StyleService
 from app.services.task_catalog import load_catalog
 
@@ -64,3 +66,49 @@ def test_resolve_job_requires_image_for_inpaint() -> None:
     with pytest.raises(ValidationError) as error:
         resolve({"task_id": "inpaint", "prompt": "cat"})
     assert error.value.details[0]["field"] == "input_upload_id"
+
+
+def test_resolve_job_rejects_task_present_in_catalog_but_not_yet_supported() -> None:
+    # "foto" is declared in config/tasks.yaml but is not in job_resolution.SUPPORTED_TASKS.
+    with pytest.raises(ValidationError) as error:
+        resolve({"task_id": "foto", "prompt": "cat"})
+    assert error.value.message == "Questo compito non è ancora supportato."
+
+
+def test_resolve_job_rejects_both_upload_and_generation_source() -> None:
+    with pytest.raises(ValidationError) as error:
+        resolve(
+            {
+                "task_id": "inpaint",
+                "prompt": "cat",
+                "input_upload_id": str(uuid4()),
+                "source_generation_id": str(uuid4()),
+                "mask_upload_id": str(uuid4()),
+            }
+        )
+    assert error.value.details[0]["field"] == "input_upload_id"
+
+
+def test_validate_limits_skips_a_parameter_without_a_submitted_value() -> None:
+    bozza = next(
+        task
+        for task in load_catalog(settings=Settings(engine_mode="fake")).tasks
+        if task.id == "bozza"
+    )
+    assert "steps" in bozza.limits
+    validate_limits(task=bozza, values={})  # no "steps" key: must not raise
+
+
+def test_validate_limits_checks_non_numeric_value_only_against_options() -> None:
+    bozza = next(
+        task
+        for task in load_catalog(settings=Settings(engine_mode="fake")).tasks
+        if task.id == "bozza"
+    )
+    task = bozza.model_copy(
+        update={"limits": {**bozza.limits, "theme": ParameterLimit(options=["warm", "cool"])}}
+    )
+    validate_limits(task=task, values={"theme": "warm"})  # non-numeric, within options
+    with pytest.raises(ValidationError) as error:
+        validate_limits(task=task, values={"theme": "ice"})
+    assert error.value.details[0]["field"] == "params.theme"

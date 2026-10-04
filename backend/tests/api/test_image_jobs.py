@@ -5,6 +5,7 @@ from uuid import uuid4
 import httpx
 import pytest
 from PIL import Image
+from test_generations import generate
 from test_jobs import JobApp, wait_terminal
 from test_jobs import job_app as job_app
 from test_uploads import image_bytes
@@ -100,6 +101,35 @@ async def test_image_job_requires_mask_directions_and_single_batch(job_app: JobA
         response = await client.post(url="/api/v1/jobs", json={**body, "input_upload_id": image_id})
         assert response.status_code == 422, response.text
         assert response.json()["error"]["details"][0]["field"] == field
+
+
+async def test_source_generation_id_unknown_generation_fails_not_found(job_app: JobApp) -> None:
+    # job_resolution.validate_image_request only checks that *a* source is present; resolving
+    # the actual parent generation (job_inputs.resolve_source) runs synchronously inside
+    # JobService._resolve, before the job record even exists, so this 404s the POST itself
+    # instead of surfacing as a later async job failure.
+    _, client = job_app
+    response = await client.post(
+        url="/api/v1/jobs",
+        json={"task_id": "variazione_sottile", "source_generation_id": str(uuid4())},
+    )
+    assert response.status_code == 404
+    assert response.json()["error"]["code"] == "NOT_FOUND"
+
+
+async def test_source_generation_id_soft_deleted_generation_fails_not_found(
+    job_app: JobApp,
+) -> None:
+    _, client = job_app
+    generation_id = await generate(client=client)
+    deleted = await client.delete(url=f"/api/v1/generations/{generation_id}")
+    assert deleted.status_code == 204
+    response = await client.post(
+        url="/api/v1/jobs",
+        json={"task_id": "variazione_sottile", "source_generation_id": generation_id},
+    )
+    assert response.status_code == 404
+    assert response.json()["error"]["code"] == "NOT_FOUND"
 
 
 async def test_source_parent_and_rerun_keep_original_input(job_app: JobApp) -> None:

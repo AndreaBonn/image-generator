@@ -146,3 +146,11 @@ async def test_fake_interrupt_and_delete_stop_generation() -> None:
     assert [event async for event in stream] == [Interrupted()]
     await fake.free()
     assert fake.family is None
+
+
+async def test_fake_engine_system_stats_reports_fake_identity() -> None:
+    # Consumed by SystemService.status (app/services/system_service.py:61) behind /api/v1/system.
+    assert await FakeEngine().system_stats() == {
+        "system": {"comfyui_version": "fake"},
+        "devices": [],
+    }

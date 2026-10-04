@@ -1,11 +1,12 @@
 from datetime import timedelta
 from pathlib import Path
+from time import monotonic
 
 import pytest
 from alembic import command
 from sqlalchemy import inspect, select, text
 
-from app.errors import AppError
+from app.errors import AppError, JobTimeoutError
 from app.models.records import JobRecord, utc_now
 from app.repositories.database import Database
 from app.repositories.job_repository import JobRepository
@@ -56,4 +57,51 @@ def test_repository_idempotency_conflict_expiry_and_restart(tmp_path: Path) -> N
             ("failed", "ENGINE_RESTARTED"),
             ("failed", "ENGINE_RESTARTED"),
         ]
+    db.close()
+
+
+def test_complete_rejects_missing_or_terminal_job(tmp_path: Path) -> None:
+    db = Database(data_dir=tmp_path)
+    db.migrate()
+    repository = JobRepository(database=db)
+    with pytest.raises(RuntimeError):
+        repository.complete(job_id="missing", generations=[], deadline=monotonic() + 10)
+    job, _ = repository.create(request={"task_id": "bozza", "prompt": "cat"}, idempotency_key=None)
+    repository.set_running(job_id=job.id)
+    repository.complete(job_id=job.id, generations=[], deadline=monotonic() + 10)
+    assert repository.get(job_id=job.id).status == "completed"
+    with pytest.raises(RuntimeError):
+        repository.complete(job_id=job.id, generations=[], deadline=monotonic() + 10)
+    db.close()
+
+
+def test_complete_raises_timeout_when_deadline_already_passed(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    db = Database(data_dir=tmp_path)
+    db.migrate()
+    repository = JobRepository(database=db)
+    job, _ = repository.create(request={"task_id": "bozza", "prompt": "cat"}, idempotency_key=None)
+    repository.set_running(job_id=job.id)
+    monkeypatch.setattr("app.repositories.job_repository.monotonic", lambda: 100.0)
+    with pytest.raises(JobTimeoutError):
+        repository.complete(job_id=job.id, generations=[], deadline=50.0)
+    assert repository.get(job_id=job.id).status == "running"
+    db.close()
+
+
+def test_complete_raises_timeout_when_deadline_passes_during_write(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    db = Database(data_dir=tmp_path)
+    db.migrate()
+    repository = JobRepository(database=db)
+    job, _ = repository.create(request={"task_id": "bozza", "prompt": "cat"}, idempotency_key=None)
+    repository.set_running(job_id=job.id)
+    clock = iter([0.0, 100.0])
+    monkeypatch.setattr("app.repositories.job_repository.monotonic", lambda: next(clock))
+    with pytest.raises(JobTimeoutError):
+        repository.complete(job_id=job.id, generations=[], deadline=50.0)
+    # the transaction must roll back: the job is left exactly as before the call
+    assert repository.get(job_id=job.id).status == "running"
     db.close()

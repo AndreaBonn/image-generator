@@ -18,6 +18,19 @@ async def test_missing_dist_explains_build(tmp_path: Path, monkeypatch: pytest.M
         assert (await client.get(url="/api/unknown")).status_code == 404
 
 
+async def test_missing_dist_with_nested_path_returns_not_found(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr("app.api.spa.REPO_ROOT", tmp_path)
+    application = create_app()
+    async with httpx.AsyncClient(
+        transport=httpx.ASGITransport(app=application), base_url="http://test"
+    ) as client:
+        response = await client.get(url="/galleria")
+        assert response.status_code == 404
+        assert response.json()["error"]["message"] == "Pagina non trovata."
+
+
 async def test_spa_assets_fallback_and_api_exclusion(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

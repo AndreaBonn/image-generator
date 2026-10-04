@@ -2,6 +2,8 @@ import asyncio
 from dataclasses import dataclass
 from typing import cast
 
+import pytest
+
 from app.repositories.job_repository import JobRepository
 from app.services.job_events import JobEvent, JobEvents
 
@@ -28,11 +30,24 @@ def make_events() -> JobEvents:
     return JobEvents(repository=cast(JobRepository, RunningJobRepository()))
 
 
-async def test_stream_does_not_repeat_an_event_published_while_subscribing() -> None:
+async def test_stream_does_not_repeat_an_event_published_while_subscribing(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     events = make_events()
+    subscribed = asyncio.Event()
+    original_snapshot = events.snapshot
+
+    async def snapshot_after_subscribing(job_id: str) -> JobEvent:
+        # self.subscribers already holds our queue by the time stream() calls
+        # snapshot() (see app/services/job_events.py); set() here is the
+        # deterministic signal that the race window the test targets is open.
+        subscribed.set()
+        return await original_snapshot(job_id=job_id)
+
+    monkeypatch.setattr(events, "snapshot", snapshot_after_subscribing)
     stream = events.stream(job_id="job-1")
     first_pending = asyncio.ensure_future(coro_or_future=anext(stream))
-    await asyncio.sleep(0)  # let the stream subscribe and start its snapshot
+    await subscribed.wait()
     events.publish(job_id="job-1", event=JobEvent(event="progress", data={"step": 1, "total": 4}))
 
     first = await first_pending

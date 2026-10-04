@@ -165,6 +165,22 @@ describe("mask history (undo/redo)", () => {
     expect(Array.from(currentMask(history))).toEqual([5]);
     expect(canUndoMaskHistory(history)).toBe(false);
   });
+
+  it("currentMask throws on a history whose index points outside its entries", () => {
+    const corrupt = { entries: [fill(0)], index: 5 };
+    expect(() => currentMask(corrupt)).toThrow("Invalid mask history: index out of range.");
+  });
+
+  it("undoMaskHistory at the oldest entry is a no-op (nothing left to undo)", () => {
+    const history = createMaskHistory(fill(0));
+    expect(undoMaskHistory(history)).toBe(history);
+  });
+
+  it("redoMaskHistory at the newest entry is a no-op (nothing left to redo)", () => {
+    let history = createMaskHistory(fill(0));
+    history = pushMaskHistory(history, fill(1));
+    expect(redoMaskHistory(history)).toBe(history);
+  });
 });
 
 describe("paintStroke continuity", () => {

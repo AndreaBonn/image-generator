@@ -1,13 +1,17 @@
 import asyncio
+import logging
 from collections.abc import AsyncGenerator
 from dataclasses import replace
+from unittest.mock import AsyncMock
 
+import pytest
 from test_jobs import JobApp, wait_terminal
 from test_jobs import job_app as job_app
 
 from app.api.v1.jobs import get_engine
 from app.engine.fake_engine import FakeEngine
-from app.engine.types import EngineEvent, EngineRequest, Queued, Started
+from app.engine.types import EngineEvent, EngineRequest, Interrupted, Queued, Started
+from app.errors import EngineUnavailableError
 
 
 class PausedEngine(FakeEngine):
@@ -106,3 +110,93 @@ async def test_timeout_interrupts_and_persists_failure(job_app: JobApp) -> None:
     result = await wait_terminal(client=client, job_id=response.json()["data"]["job_id"])
     assert result["status"] == "failed" and result["error_code"] == "JOB_TIMEOUT"
     assert engine.interrupts == 1
+
+
+class InterruptingEngine(FakeEngine):
+    async def run(self, request: EngineRequest) -> AsyncGenerator[EngineEvent, None]:
+        yield Queued(prompt_id="p")
+        yield Started()
+        yield Interrupted()
+
+
+async def test_engine_reported_interruption_finishes_cancelled_without_calling_stop(
+    job_app: JobApp, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    application, client = job_app
+    engine = InterruptingEngine(step_delay_s=0)
+    interrupt = AsyncMock(wraps=engine.interrupt)
+    delete_from_queue = AsyncMock(wraps=engine.delete_from_queue)
+    monkeypatch.setattr(engine, "interrupt", interrupt)
+    monkeypatch.setattr(engine, "delete_from_queue", delete_from_queue)
+    application.dependency_overrides[get_engine] = lambda: engine
+    response = await client.post("/api/v1/jobs", json={"task_id": "bozza", "prompt": "cat"})
+    job_id = response.json()["data"]["job_id"]
+    result = await wait_terminal(client=client, job_id=job_id)
+    assert result["status"] == "cancelled"
+    # The engine already reported the interruption itself: job_runner must not
+    # ask it to stop again.
+    interrupt.assert_not_awaited()
+    delete_from_queue.assert_not_awaited()
+
+
+class FailingInterruptEngine(FakeEngine):
+    def __init__(self) -> None:
+        super().__init__(step_delay_s=0)
+        self.entered = asyncio.Event()
+
+    async def run(self, request: EngineRequest) -> AsyncGenerator[EngineEvent, None]:
+        yield Queued(prompt_id="p")
+        yield Started()
+        self.entered.set()
+        async for event in super().run(request=request):
+            yield event
+
+    async def interrupt(self) -> None:
+        raise EngineUnavailableError()
+
+
+async def test_cancel_logs_and_still_finishes_when_engine_interrupt_raises(
+    job_app: JobApp, caplog: pytest.LogCaptureFixture
+) -> None:
+    application, client = job_app
+    engine = FailingInterruptEngine()
+    application.dependency_overrides[get_engine] = lambda: engine
+    response = await client.post("/api/v1/jobs", json={"task_id": "bozza", "prompt": "cat"})
+    await engine.entered.wait()
+    job_id = response.json()["data"]["job_id"]
+    with caplog.at_level(logging.ERROR):
+        result = await client.post(f"/api/v1/jobs/{job_id}/cancel")
+    assert result.json()["data"]["status"] == "cancelled"
+    assert "Engine cancellation failed" in caplog.text
+
+
+async def test_cancel_after_completion_is_a_no_op(job_app: JobApp) -> None:
+    application, client = job_app
+    response = await client.post("/api/v1/jobs", json={"task_id": "bozza", "prompt": "cat"})
+    job_id = response.json()["data"]["job_id"]
+    completed = await wait_terminal(client=client, job_id=job_id)
+    assert completed["status"] == "completed"
+    result = await client.post(f"/api/v1/jobs/{job_id}/cancel")
+    assert result.json()["data"]["status"] == "completed"
+
+
+async def test_cancel_request_disconnect_still_lets_the_job_settle_to_cancelled(
+    job_app: JobApp,
+) -> None:
+    application, client = job_app
+    service = application.state.job_service
+    engine = PausedEngine()
+    application.dependency_overrides[get_engine] = lambda: engine
+    first = await client.post("/api/v1/jobs", json={"task_id": "bozza", "prompt": "first"})
+    await engine.entered.wait()
+    job_id = first.json()["data"]["job_id"]
+    cancellation = asyncio.create_task(coro=service.cancel(job_id=job_id))
+    await engine.stop_entered.wait()
+    # The underlying job task is shielded inside _stop(); cancelling the caller
+    # here must only abort *our* wait on it, not the job's own cancellation.
+    cancellation.cancel()
+    with pytest.raises(asyncio.CancelledError):
+        await cancellation
+    engine.allow_stop.set()
+    engine.release.set()
+    assert (await wait_terminal(client=client, job_id=job_id))["status"] == "cancelled"

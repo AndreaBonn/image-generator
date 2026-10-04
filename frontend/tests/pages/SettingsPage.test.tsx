@@ -36,7 +36,8 @@ describe("SettingsPage", () => {
     renderSettingsPage();
 
     const diskText = await screen.findByText(/40,0 GB liberi/);
-    expect(diskText).not.toHaveClass("text-danger");
+    expect(diskText).toHaveTextContent("40,0 GB liberi");
+    expect(diskText).not.toHaveTextContent(/minimo consigliato/);
   });
 
   it("translates model status to Italian in the table", async () => {
