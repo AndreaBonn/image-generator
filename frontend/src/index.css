@@ -1,0 +1,102 @@
+@import "tailwindcss";
+@import "@fontsource/inter/400.css";
+@import "@fontsource/inter/500.css";
+@import "@fontsource/inter/600.css";
+@import "@fontsource/inter/700.css";
+
+/*
+ * Hallmark design tokens for Studio Immagini.
+ * DIAL: strumento creativo personale per un utente non tecnico,
+ * linguaggio da tool di lavoro - ENERGY 1 / RHYTHM 1 / MOTION 1
+ *
+ * Dark theme is the default (image judges better on a dark surface).
+ * Light theme overrides live under [data-theme="light"].
+ * All pairs below were measured with a11y-gate/scripts/contrast.py
+ * (OKLCH -> sRGB conversion done manually, see session scratchpad):
+ * every text pair clears WCAG AA 4.5:1, focus rings clear the 3:1
+ * UI-graphics threshold. BASIS: measured.
+ */
+@theme {
+  --font-sans:
+    "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --color-paper: oklch(16% 0.01 250);
+  --color-paper-2: oklch(20% 0.012 250);
+  --color-paper-3: oklch(26% 0.014 250);
+  --color-border: oklch(30% 0.012 250);
+  --color-ink: oklch(92% 0.01 250);
+  --color-ink-muted: oklch(70% 0.01 250);
+
+  --color-accent: oklch(68% 0.14 200);
+  --color-accent-ink: oklch(14% 0.02 200);
+  --color-accent-text: oklch(75% 0.17 200);
+  --color-focus: oklch(75% 0.17 200);
+
+  --color-danger: oklch(72% 0.16 25);
+  --color-success: oklch(70% 0.14 150);
+  --color-warning: oklch(78% 0.15 80);
+
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* z-index layering, ui-ux.md */
+  --z-index-dropdown: 100;
+  --z-index-sticky: 200;
+  --z-index-overlay: 300;
+  --z-index-modal: 400;
+  --z-index-toast: 500;
+  --z-index-tooltip: 600;
+}
+
+[data-theme="light"] {
+  --color-paper: oklch(97% 0.006 250);
+  --color-paper-2: oklch(94% 0.008 250);
+  --color-paper-3: oklch(90% 0.01 250);
+  --color-border: oklch(82% 0.01 250);
+  --color-ink: oklch(20% 0.01 250);
+  --color-ink-muted: oklch(40% 0.01 250);
+
+  --color-accent: oklch(46% 0.15 200);
+  --color-accent-ink: oklch(97% 0.01 200);
+  --color-accent-text: oklch(40% 0.17 200);
+  --color-focus: oklch(46% 0.15 200);
+
+  --color-danger: oklch(45% 0.19 25);
+  --color-success: oklch(42% 0.15 150);
+  --color-warning: oklch(45% 0.15 80);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  overflow-x: clip;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
