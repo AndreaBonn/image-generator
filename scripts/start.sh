@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Starts Studio Immagini: the ComfyUI engine (unless already running) and the backend,
+# Starts Image Generator: the ComfyUI engine (unless already running) and the backend,
 # which also serves the built frontend. Ctrl+C stops only the processes started here.
 set -euo pipefail
 

@@ -1,4 +1,4 @@
-# Studio Immagini: specifica tecnica e funzionale
+# Image Generator: specifica tecnica e funzionale
 
 Versione 1.0 del 2026-10-04. Documento destinato a Claude Code, che svilupperà il sistema in autonomia partendo da questa specifica. Dove la specifica lascia un'incognita, la marca come **DA VERIFICARE** e indica la fase in cui va risolta: non va riempita con un valore plausibile. I DA VERIFICARE tecnici (sampler, nomi di nodi, schemi di messaggi, limiti di memoria) si chiudono con una misura nella fase indicata. Quelli sulle licenze non bloccano lo sviluppo: si annotano nel report per l'utente (§ 14, AS5).
 
@@ -16,7 +16,7 @@ L'utente usa [Fooocus](https://github.com/lllyasviel/Fooocus) (clonato in locale
 
 ### 1.2 La soluzione
 
-Un'applicazione web locale, **Studio Immagini**, con interfaccia in italiano, che:
+Un'applicazione web locale, **Image Generator**, con interfaccia in italiano, che:
 
 1. fa scegliere all'utente **il compito** ("bozza veloce", "foto di qualità", "immagine con testo", "modifica una parte", ...) invece del modello;
 2. associa a ogni compito il modello e i parametri giusti tramite una tabella di configurazione;
@@ -44,7 +44,7 @@ I due vincoli che guidano l'architettura sono **8 GB di VRAM** (un modello grand
 
 Nel clone di Fooocus, `models/`:
 
-| Risorsa | Path relativo | Dimensione | Uso in Studio Immagini |
+| Risorsa | Path relativo | Dimensione | Uso in Image Generator |
 |---|---|---|---|
 | Juggernaut XL v8 | `models/checkpoints/juggernautXL_v8Rundiffusion.safetensors` | 6,7 GB | checkpoint SDXL di tutti i compiti SDXL |
 | Offset LoRA | `models/loras/sd_xl_offset_example-lora_1.0.safetensors` | 48 MB | LoRA di default a peso 0.1, come Fooocus |

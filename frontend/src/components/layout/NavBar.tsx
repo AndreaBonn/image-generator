@@ -25,7 +25,7 @@ export function NavBar() {
       aria-label="Navigazione principale"
       className="flex flex-wrap items-center gap-1 border-b border-border bg-paper-2 px-4 py-2"
     >
-      <span className="order-1 mr-4 text-sm font-semibold text-ink">Studio Immagini</span>
+      <span className="order-1 mr-4 text-sm font-semibold text-ink">Image Generator</span>
       <ul className="order-3 -mx-1 flex w-full gap-1 overflow-x-auto px-1 sm:order-2 sm:mx-0 sm:w-auto sm:px-0">
         {NAV_ITEMS.map((item) => (
           <li key={item.to}>

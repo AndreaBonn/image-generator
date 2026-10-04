@@ -13,7 +13,7 @@ BLOCKED_FETCH_SITES = frozenset({"cross-site", "same-site"})
 class CrossSiteRequestError(AppError):
     code = "CROSS_SITE_REQUEST"
     http_status = 403
-    default_message = "Richiesta rifiutata: arriva da un sito diverso da Studio Immagini."
+    default_message = "Richiesta rifiutata: arriva da un sito diverso da Image Generator."
 
 
 def is_cross_site(headers: Mapping[str, str]) -> bool:

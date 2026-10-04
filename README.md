@@ -1,4 +1,4 @@
-# Studio Immagini
+# Image Generator
 
 Un'applicazione locale, in italiano, per creare e modificare immagini con l'intelligenza artificiale sul proprio computer. Invece di scegliere un modello e regolare decine di parametri, si sceglie il lavoro da fare: una bozza veloce, un'immagine curata, una scritta, la modifica di una parte. L'app usa il modello adatto e dice in che lingua scrivere la descrizione.
 
