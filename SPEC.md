@@ -70,6 +70,12 @@ Fooocus è GPL-3.0: gli stili si **leggono dal path configurato**, non si copian
 | FN6 | Galleria e storico: archivio locale con prompt, parametri, seed, "rigenera", "usa come input" |
 | FN7 | Guida al prompt per compito: lingua richiesta, consigli, esempi, avviso se la lingua sembra sbagliata |
 | FN8 | Stato del sistema: motore attivo, VRAM, disco libero, modello caricato, modelli installati |
+| FN9 | (v1.1) Modifica con le parole: istruzione testuale su un'immagine, senza maschera (FLUX.2 klein) |
+| FN10 | (v1.1) Rimozione dello sfondo con PNG trasparente (BiRefNet) |
+| FN11 | (v1.1) Ingrandimento ×2 con rifinitura a tasselli (SDXL) |
+| FN12 | (v1.1) Cestino con ripristino e svuotamento che libera il disco |
+| FN13 | (v1.1) Importazione della ricetta da un PNG creato dall'app |
+| FN14 | (v1.1) Anteprima live durante la generazione; aiuto contestuale su ogni impostazione |
 
 ### 2.2 Fuori dalla v1 (decisioni prese, non dimenticanze)
 
@@ -79,7 +85,6 @@ Fooocus è GPL-3.0: gli stili si **leggono dal path configurato**, non si copian
 | Prompt expansion GPT-2 stile "Fooocus V2" | Nessun nodo ComfyUI mantenuto che la replichi in modo affidabile; rivalutare dopo la v1 |
 | Accesso da LAN, autenticazione, multi-utente | Uso solo locale; ComfyUI non ha autenticazione reale (§ 9) |
 | Gestione LoRA da UI, training, video | Non richiesti |
-| Upscale "con rifinitura" (img2img a 2048 px su SDXL) | Rischio di out-of-memory su 8 GB; candidato v1.1 dopo misura |
 | Replica identica dell'output Fooocus | Fooocus applica correzioni di sampling proprie (sharpness, adaptive CFG) che ComfyUI non ha: le immagini SDXL saranno simili, non identiche |
 
 ---
@@ -113,6 +118,9 @@ Note:
 | `variazione_sottile` | Variazione leggera | img2img sul checkpoint SDXL | denoise 0.5 (valore Fooocus "Vary Subtle") | Inglese, facoltativo |
 | `variazione_forte` | Variazione forte | img2img sul checkpoint SDXL | denoise 0.85 (valore Fooocus "Vary Strong") | Inglese, facoltativo |
 | `upscale` | Ingrandisci | Modello 4x-UltraSharp, nodi core `UpscaleModelLoader` + `ImageUpscaleWithModel`, poi ridimensionamento al fattore scelto | fattore ×2 o ×4 | Nessun prompt |
+| `modifica_libera` (v1.1) | Modifica con le parole | FLUX.2 klein 4B con `ReferenceLatent` sul positivo e sul negativo azzerato (grafo del template ufficiale image edit distilled) | 4 passi, CFG 1.0; input a circa 1 MP, lati multipli di 16 | Italiano o inglese, obbligatorio |
+| `rimuovi_sfondo` (v1.1) | Rimuovi lo sfondo | Nodi core `LoadBackgroundRemovalModel` + `RemoveBackground` (BiRefNet), `InvertMask`, `JoinImageWithAlpha`; famiglia `background` | dimensione originale, PNG RGBA, miniatura WEBP con alfa | Nessun prompt |
+| `ingrandisci_rifinito` (v1.1) | Ingrandisci con rifinitura | 4x-UltraSharp, ridimensionamento a 2× la dimensione di lavoro (circa 1 MP), poi img2img SDXL su tasselli da 1024 px (sovrapposizione 128) uniti con sfumatura (`SplitImageToTileList`, `ImageMergeTileList`) | 12 passi, CFG 4.0, denoise 0.3 (0.1-0.5); misurato 94-109 s e 7,7 GB di picco per 1152×896 → 2304×1792 | Inglese, facoltativo |
 
 Le variazioni si applicano a qualsiasi immagine (anche non generata da SDXL), ma passano sempre dal checkpoint SDXL. Il bordo dell'immagine di input si adatta alle proporzioni SDXL più vicine (§ 3.4).
 
@@ -211,6 +219,9 @@ foocus-personal/
     flux2_klein_txt2img.json
     zimage_txt2img.json
     upscale.json
+    flux2_klein_edit.json        # v1.1
+    background_removal.json      # v1.1
+    sdxl_upscale_refine.json     # v1.1
   backend/
     pyproject.toml
     app/
@@ -338,6 +349,7 @@ Conseguenza sul catalogo: il compito del candidato scartato resta in `tasks.yaml
 | VAE FLUX.2 | `flux2-vae.safetensors` | `vae` | 0,34 | come FLUX.2 | serve ad A |
 | Z-Image Turbo int8 | `z_image_turbo_int8_convrot.safetensors` ([Comfy-Org/z_image_turbo](https://huggingface.co/Comfy-Org/z_image_turbo), ufficiale) | `diffusion_models` | 6,2 | Apache 2.0 (da fonte secondaria) | candidato B |
 | VAE Z-Image | `ae.safetensors` ([Comfy-Org/z_image_turbo](https://huggingface.co/Comfy-Org/z_image_turbo)) | `vae` | 0,34 | Apache 2.0 | serve a B; verificare se identico al VAE FLUX.2 |
+| BiRefNet (v1.1) | `birefnet.safetensors` ([Comfy-Org/BiRefNet](https://huggingface.co/Comfy-Org/BiRefNet)) | `background_removal` | 0,44 | MIT | attivo |
 
 **Non usare FLUX.2 [klein] 9B**: licenza non commerciale BFL.
 
@@ -396,16 +408,21 @@ Base `/api/v1`. Formato di successo `{"data": ..., "meta": {...}}`, di errore `{
 | GET | `/system` | VRAM totale/libera, disco libero, famiglia di modello caricata, modelli installati |
 | GET | `/tasks` | Catalogo compiti con disponibilità, guida al prompt, schema parametri (default, min, max, opzioni) |
 | GET | `/styles` | Stili SDXL `{id, name, source_file}` con ricerca `?q=` |
-| POST | `/uploads` | Multipart `file`, `kind=image\|mask` → `{upload_id, width, height}`. Solo PNG/JPEG/WebP, massimo 20 MB, massimo 4096 px per lato |
+| POST | `/uploads` | Multipart `file`, `kind=image\|mask` → `{upload_id, width, height, recipe}`. Solo PNG/JPEG/WebP, massimo 20 MB, massimo 4096 px per lato. `recipe` (v1.1) è la ricetta letta dal chunk `studio_immagini` di un PNG creato dall'app (`task_id`, prompt, negativo, `params` con proporzioni, seed, stili, passi, cfg) oppure `null`; massimo 64 KB, un campo non valido scarta tutta la ricetta |
 | POST | `/jobs` | Crea un job (corpo in § 7.3) → `202` con `{job_id}` |
 | GET | `/jobs/{id}` | Stato del job |
-| GET | `/jobs/{id}/events` | SSE: `queued{position}`, `model_switch{family, eta_s}`, `progress{step, total, preview_url?}`, `completed{generation_ids}`, `failed{code, message}`, `cancelled` |
+| GET | `/jobs/{id}/events` | SSE: `queued{position}`, `model_switch{family, eta_s}`, `progress{step, total}`, `preview{url}` (v1.1), `completed{generation_ids}`, `failed{code, message}`, `cancelled` |
+| GET | `/jobs/{id}/preview` | (v1.1) Ultima anteprima del job in esecuzione (JPEG, `Cache-Control: no-store`), 404 quando non c'è o il job è finito. Il backend chiede le anteprime a ComfyUI con `extra_data.preview_method` (`PREVIEW_METHOD`, default `latent2rgb`, `none` le disattiva) |
 | POST | `/jobs/{id}/cancel` | Annulla: rimuove dalla coda o interrompe |
 | GET | `/generations` | Galleria paginata: `page`, `per_page` (default 24, massimo 100), filtri `task_id`, `q` (testo nel prompt), `favorite`. `meta`: `page`, `per_page`, `total`, `total_pages` |
 | GET | `/generations/{id}` | Dettaglio con parametri completi e `parent_id` |
 | GET | `/generations/{id}/image` e `/thumbnail` | File |
 | PATCH | `/generations/{id}` | `{"favorite": bool}` |
-| DELETE | `/generations/{id}` | Soft delete (`deleted_at`) |
+| DELETE | `/generations/{id}` | Soft delete (`deleted_at`): sposta nel cestino |
+| GET | `/generations?trashed=true` | (v1.1) Cestino paginato, dal più recente eliminato |
+| POST | `/generations/{id}/restore` | (v1.1) Ripristina dal cestino |
+| GET | `/generations/trash/summary` | (v1.1) `{count, bytes}` del cestino |
+| POST | `/generations/trash/empty` | (v1.1) Elimina righe e file del cestino (prima il database, poi i file dentro `DATA_DIR`), azzera `parent_id` dei figli → `{purged, freed_bytes}` |
 | POST | `/generations/{id}/rerun` | Nuovo job con gli stessi parametri; `{"new_seed": bool}` |
 | POST | `/maintenance/clear-engine-output` | Svuota la cartella output di ComfyUI |
 
