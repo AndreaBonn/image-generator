@@ -1,0 +1,35 @@
+[project]
+name = "studio-immagini-backend"
+version = "0.1.0"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+  "fastapi", "uvicorn", "httpx", "websockets", "pydantic>=2,<3",
+  "pydantic-settings", "sqlalchemy>=2,<3", "alembic", "pillow",
+  "sse-starlette", "pyyaml",
+]
+
+[dependency-groups]
+dev = ["pytest", "pytest-asyncio", "respx", "ruff", "mypy", "pytest-cov"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = '-m "not engine"'
+asyncio_mode = "auto"
+markers = ["engine: contract tests requiring a running ComfyUI engine"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+plugins = ["pydantic.mypy"]
+
+[[tool.mypy.overrides]]
+module = "yaml.*"
+follow_untyped_imports = true
