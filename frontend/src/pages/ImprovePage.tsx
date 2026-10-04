@@ -116,6 +116,17 @@ export function ImprovePage() {
 
         {isLoadingSource ? <p className="text-sm text-ink-muted">Caricamento immagine...</p> : null}
 
+        {image ? (
+          <figure className="flex flex-col gap-1">
+            <img
+              src={image.url}
+              alt="Immagine di partenza"
+              className="max-h-80 w-full rounded-md border border-border bg-paper-2 object-contain"
+            />
+            <figcaption className="text-xs text-ink-muted">Immagine di partenza</figcaption>
+          </figure>
+        ) : null}
+
         {!hasImage && !isLoadingSource ? (
           <div className="flex flex-col gap-2">
             <p className="text-sm text-ink-muted">
@@ -173,12 +184,14 @@ export function ImprovePage() {
             label="Variazione leggera"
             disabledReason={disabledReasonFor(subtleTask)}
             isGenerating={isGenerating}
+            isActive={activeAction === "variazione_sottile"}
             onClick={() => handleAction("variazione_sottile")}
           />
           <ActionButton
             label="Variazione forte"
             disabledReason={disabledReasonFor(strongTask)}
             isGenerating={isGenerating}
+            isActive={activeAction === "variazione_forte"}
             onClick={() => handleAction("variazione_forte")}
           />
         </div>
@@ -193,6 +206,7 @@ export function ImprovePage() {
             label="Ingrandisci"
             disabledReason={disabledReasonFor(upscaleTask)}
             isGenerating={isGenerating}
+            isActive={activeAction === "upscale"}
             onClick={() => handleAction("upscale")}
           />
         </fieldset>
@@ -238,11 +252,13 @@ function ActionButton({
   label,
   disabledReason,
   isGenerating,
+  isActive,
   onClick,
 }: {
   label: string;
   disabledReason: string | null;
   isGenerating: boolean;
+  isActive: boolean;
   onClick: () => void;
 }) {
   return (
@@ -253,7 +269,7 @@ function ActionButton({
         disabled={disabledReason !== null || isGenerating}
         className="min-h-11 w-fit rounded-md bg-accent px-4 py-2 text-sm font-semibold text-accent-ink disabled:opacity-60"
       >
-        {isGenerating ? "Generazione in corso..." : label}
+        {isGenerating && isActive ? "Generazione in corso..." : label}
       </button>
       {disabledReason && !isGenerating ? <p className="text-xs text-ink-muted">{disabledReason}</p> : null}
     </div>

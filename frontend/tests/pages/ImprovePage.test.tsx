@@ -105,6 +105,22 @@ describe("ImprovePage", () => {
     expect(body).not.toHaveProperty("upscale_factor");
   });
 
+  it("shows the starting image and marks only the running action as busy", async () => {
+    vi.spyOn(queries, "fetchTasks").mockResolvedValue(improveTasks());
+    vi.spyOn(queries, "createJob").mockResolvedValue({ job_id: "job-3" });
+    renderImprovePage();
+    await screen.findByRole("button", { name: "Variazione leggera" });
+    await uploadImage();
+
+    expect(screen.getByAltText("Immagine di partenza")).toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: "Variazione leggera" }));
+
+    await screen.findByRole("button", { name: "Generazione in corso..." });
+    expect(screen.getAllByRole("button", { name: "Generazione in corso..." })).toHaveLength(1);
+    expect(screen.getByRole("button", { name: "Variazione forte" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Ingrandisci" })).toBeDisabled();
+  });
+
   it("sends an upscale job with factor 4 and no prompt", async () => {
     vi.spyOn(queries, "fetchTasks").mockResolvedValue(improveTasks());
     const createJob = vi.spyOn(queries, "createJob").mockResolvedValue({ job_id: "job-2" });
