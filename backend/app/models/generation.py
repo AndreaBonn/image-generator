@@ -16,6 +16,7 @@ class GalleryQuery(BaseModel):
     task_id: str | None = None
     q: str | None = None
     favorite: bool | None = None
+    trashed: bool = False
 
 
 class GenerationSummary(BaseModel):

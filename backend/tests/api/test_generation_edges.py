@@ -40,10 +40,10 @@ async def test_gallery_literal_search_and_deleted_routes(job_app: JobApp) -> Non
     page = (await client.get(url="/api/v1/generations", params={"q": "%"})).json()
     assert page["meta"]["total"] == 1 and page["data"][0]["id"] == generation_id
     await client.delete(url=f"/api/v1/generations/{generation_id}")
-    for suffix in ("", "/image", "/thumbnail"):
+    for suffix, status in (("", 404), ("/image", 200), ("/thumbnail", 200)):
         assert (
             await client.get(url=f"/api/v1/generations/{generation_id}{suffix}")
-        ).status_code == 404
+        ).status_code == status
     assert (
         await client.patch(url=f"/api/v1/generations/{generation_id}", json={"favorite": False})
     ).status_code == 404

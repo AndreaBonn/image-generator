@@ -27,6 +27,16 @@ def list_generations(
     return service.list(query=query)
 
 
+@router.get(path="/trash/summary")
+def get_trash_summary(service: GenerationDependency) -> dict[str, dict[str, int]]:
+    return {"data": service.trash_summary()}
+
+
+@router.post(path="/trash/empty")
+def empty_trash(service: GenerationDependency) -> dict[str, dict[str, int]]:
+    return {"data": service.empty_trash()}
+
+
 @router.get(path="/{generation_id}")
 def get_generation(generation_id: UUID, service: GenerationDependency) -> dict[str, Any]:
     return {"data": service.detail(generation_id=str(generation_id))}
@@ -55,6 +65,11 @@ def update_generation(
 def delete_generation(generation_id: UUID, service: GenerationDependency) -> Response:
     service.delete(generation_id=str(generation_id))
     return Response(status_code=204)
+
+
+@router.post(path="/{generation_id}/restore")
+def restore_generation(generation_id: UUID, service: GenerationDependency) -> dict[str, Any]:
+    return {"data": service.restore(generation_id=str(generation_id))}
 
 
 @router.post(
