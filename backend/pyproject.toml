@@ -3,9 +3,18 @@ name = "studio-immagini-backend"
 version = "0.1.0"
 requires-python = ">=3.12,<3.13"
 dependencies = [
-  "fastapi", "uvicorn", "httpx", "websockets", "pydantic>=2,<3",
-  "pydantic-settings", "sqlalchemy>=2,<3", "alembic", "pillow",
-  "sse-starlette", "pyyaml",
+  "fastapi",
+  "uvicorn",
+  "httpx",
+  "websockets",
+  "pydantic>=2,<3",
+  "pydantic-settings",
+  "sqlalchemy>=2,<3",
+  "alembic",
+  "pillow",
+  "sse-starlette",
+  "pyyaml",
+  "python-multipart>=0.0.32",
 ]
 
 [dependency-groups]
