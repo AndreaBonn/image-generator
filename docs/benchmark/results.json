@@ -5,7 +5,7 @@
       "prompt_key": "ritratto",
       "seconds": 5.83,
       "vram_peak_mib": 7631,
-      "image_path": "/home/bonn/Documenti/00_Lavoro/ProgettiPersonali/foocus-personal/docs/benchmark/images/bozza_ritratto_cold.png",
+      "image_path": "docs/benchmark/images/bozza_ritratto_cold.png",
       "error": null,
       "ws_messages": null,
       "cold": true
@@ -15,7 +15,7 @@
       "prompt_key": "paesaggio",
       "seconds": 4.04,
       "vram_peak_mib": 7279,
-      "image_path": "/home/bonn/Documenti/00_Lavoro/ProgettiPersonali/foocus-personal/docs/benchmark/images/bozza_paesaggio.png",
+      "image_path": "docs/benchmark/images/bozza_paesaggio.png",
       "error": null,
       "ws_messages": null,
       "cold": false
@@ -25,7 +25,7 @@
       "prompt_key": "prodotto",
       "seconds": 4.1,
       "vram_peak_mib": 7599,
-      "image_path": "/home/bonn/Documenti/00_Lavoro/ProgettiPersonali/foocus-personal/docs/benchmark/images/bozza_prodotto.png",
+      "image_path": "docs/benchmark/images/bozza_prodotto.png",
       "error": null,
       "ws_messages": null,
       "cold": false
@@ -35,7 +35,7 @@
       "prompt_key": "insegna",
       "seconds": 3.76,
       "vram_peak_mib": 7567,
-      "image_path": "/home/bonn/Documenti/00_Lavoro/ProgettiPersonali/foocus-personal/docs/benchmark/images/bozza_insegna.png",
+      "image_path": "docs/benchmark/images/bozza_insegna.png",
       "error": null,
       "ws_messages": null,
       "cold": false
@@ -45,7 +45,7 @@
       "prompt_key": "relazioni",
       "seconds": 3.96,
       "vram_peak_mib": 7503,
-      "image_path": "/home/bonn/Documenti/00_Lavoro/ProgettiPersonali/foocus-personal/docs/benchmark/images/bozza_relazioni.png",
+      "image_path": "docs/benchmark/images/bozza_relazioni.png",
       "error": null,
       "ws_messages": null,
       "cold": false
@@ -55,7 +55,7 @@
       "prompt_key": "illustrazione",
       "seconds": 4.45,
       "vram_peak_mib": 7503,
-      "image_path": "/home/bonn/Documenti/00_Lavoro/ProgettiPersonali/foocus-personal/docs/benchmark/images/bozza_illustrazione.png",
+      "image_path": "docs/benchmark/images/bozza_illustrazione.png",
       "error": null,
       "ws_messages": null,
       "cold": false
@@ -65,7 +65,7 @@
       "prompt_key": "it_ritratto",
       "seconds": 5.7,
       "vram_peak_mib": 7407,
-      "image_path": "/home/bonn/Documenti/00_Lavoro/ProgettiPersonali/foocus-personal/docs/benchmark/images/bozza_it_ritratto.png",
+      "image_path": "docs/benchmark/images/bozza_it_ritratto.png",
       "error": null,
       "ws_messages": null,
       "cold": false
@@ -75,7 +75,7 @@
       "prompt_key": "it_paesaggio",
       "seconds": 4.29,
       "vram_peak_mib": 7375,
-      "image_path": "/home/bonn/Documenti/00_Lavoro/ProgettiPersonali/foocus-personal/docs/benchmark/images/bozza_it_paesaggio.png",
+      "image_path": "docs/benchmark/images/bozza_it_paesaggio.png",
       "error": null,
       "ws_messages": null,
       "cold": false
@@ -85,7 +85,7 @@
       "prompt_key": "ritratto",
       "seconds": 34.33,
       "vram_peak_mib": 7247,
-      "image_path": "/home/bonn/Documenti/00_Lavoro/ProgettiPersonali/foocus-personal/docs/benchmark/images/qualita_ritratto_cold.png",
+      "image_path": "docs/benchmark/images/qualita_ritratto_cold.png",
       "error": null,
       "ws_messages": null,
       "cold": true
@@ -95,7 +95,7 @@
       "prompt_key": "paesaggio",
       "seconds": 32.49,
       "vram_peak_mib": 7311,
-      "image_path": "/home/bonn/Documenti/00_Lavoro/ProgettiPersonali/foocus-personal/docs/benchmark/images/qualita_paesaggio.png",
+      "image_path": "docs/benchmark/images/qualita_paesaggio.png",
       "error": null,
       "ws_messages": null,
       "cold": false
@@ -105,7 +105,7 @@
       "prompt_key": "prodotto",
       "seconds": 30.73,
       "vram_peak_mib": 7599,
-      "image_path": "/home/bonn/Documenti/00_Lavoro/ProgettiPersonali/foocus-personal/docs/benchmark/images/qualita_prodotto.png",
+      "image_path": "docs/benchmark/images/qualita_prodotto.png",
       "error": null,
       "ws_messages": null,
       "cold": false
@@ -115,7 +115,7 @@
       "prompt_key": "insegna",
       "seconds": 28.36,
       "vram_peak_mib": 7375,
-      "image_path": "/home/bonn/Documenti/00_Lavoro/ProgettiPersonali/foocus-personal/docs/benchmark/images/qualita_insegna.png",
+      "image_path": "docs/benchmark/images/qualita_insegna.png",
       "error": null,
       "ws_messages": null,
       "cold": false
@@ -125,7 +125,7 @@
       "prompt_key": "relazioni",
       "seconds": 28.75,
       "vram_peak_mib": 7279,
-      "image_path": "/home/bonn/Documenti/00_Lavoro/ProgettiPersonali/foocus-personal/docs/benchmark/images/qualita_relazioni.png",
+      "image_path": "docs/benchmark/images/qualita_relazioni.png",
       "error": null,
       "ws_messages": null,
       "cold": false
@@ -135,7 +135,7 @@
       "prompt_key": "illustrazione",
       "seconds": 29.15,
       "vram_peak_mib": 7247,
-      "image_path": "/home/bonn/Documenti/00_Lavoro/ProgettiPersonali/foocus-personal/docs/benchmark/images/qualita_illustrazione.png",
+      "image_path": "docs/benchmark/images/qualita_illustrazione.png",
       "error": null,
       "ws_messages": null,
       "cold": false
@@ -145,7 +145,7 @@
       "prompt_key": "it_ritratto",
       "seconds": 30.67,
       "vram_peak_mib": 7663,
-      "image_path": "/home/bonn/Documenti/00_Lavoro/ProgettiPersonali/foocus-personal/docs/benchmark/images/qualita_it_ritratto.png",
+      "image_path": "docs/benchmark/images/qualita_it_ritratto.png",
       "error": null,
       "ws_messages": null,
       "cold": false
@@ -155,7 +155,7 @@
       "prompt_key": "it_paesaggio",
       "seconds": 32.22,
       "vram_peak_mib": 7343,
-      "image_path": "/home/bonn/Documenti/00_Lavoro/ProgettiPersonali/foocus-personal/docs/benchmark/images/qualita_it_paesaggio.png",
+      "image_path": "docs/benchmark/images/qualita_it_paesaggio.png",
       "error": null,
       "ws_messages": null,
       "cold": false
@@ -165,7 +165,7 @@
       "prompt_key": "ritratto",
       "seconds": 14.07,
       "vram_peak_mib": 7599,
-      "image_path": "/home/bonn/Documenti/00_Lavoro/ProgettiPersonali/foocus-personal/docs/benchmark/images/testo_ritratto_cold.png",
+      "image_path": "docs/benchmark/images/testo_ritratto_cold.png",
       "error": null,
       "ws_messages": null,
       "cold": true
@@ -175,7 +175,7 @@
       "prompt_key": "paesaggio",
       "seconds": 8.81,
       "vram_peak_mib": 7503,
-      "image_path": "/home/bonn/Documenti/00_Lavoro/ProgettiPersonali/foocus-personal/docs/benchmark/images/testo_paesaggio.png",
+      "image_path": "docs/benchmark/images/testo_paesaggio.png",
       "error": null,
       "ws_messages": null,
       "cold": false
@@ -185,7 +185,7 @@
       "prompt_key": "prodotto",
       "seconds": 9.01,
       "vram_peak_mib": 7599,
-      "image_path": "/home/bonn/Documenti/00_Lavoro/ProgettiPersonali/foocus-personal/docs/benchmark/images/testo_prodotto.png",
+      "image_path": "docs/benchmark/images/testo_prodotto.png",
       "error": null,
       "ws_messages": null,
       "cold": false
@@ -195,7 +195,7 @@
       "prompt_key": "insegna",
       "seconds": 9.04,
       "vram_peak_mib": 7663,
-      "image_path": "/home/bonn/Documenti/00_Lavoro/ProgettiPersonali/foocus-personal/docs/benchmark/images/testo_insegna.png",
+      "image_path": "docs/benchmark/images/testo_insegna.png",
       "error": null,
       "ws_messages": null,
       "cold": false
@@ -205,7 +205,7 @@
       "prompt_key": "relazioni",
       "seconds": 9.13,
       "vram_peak_mib": 7599,
-      "image_path": "/home/bonn/Documenti/00_Lavoro/ProgettiPersonali/foocus-personal/docs/benchmark/images/testo_relazioni.png",
+      "image_path": "docs/benchmark/images/testo_relazioni.png",
       "error": null,
       "ws_messages": null,
       "cold": false
@@ -215,7 +215,7 @@
       "prompt_key": "illustrazione",
       "seconds": 9.29,
       "vram_peak_mib": 7503,
-      "image_path": "/home/bonn/Documenti/00_Lavoro/ProgettiPersonali/foocus-personal/docs/benchmark/images/testo_illustrazione.png",
+      "image_path": "docs/benchmark/images/testo_illustrazione.png",
       "error": null,
       "ws_messages": null,
       "cold": false
@@ -225,7 +225,7 @@
       "prompt_key": "it_ritratto",
       "seconds": 9.42,
       "vram_peak_mib": 7663,
-      "image_path": "/home/bonn/Documenti/00_Lavoro/ProgettiPersonali/foocus-personal/docs/benchmark/images/testo_it_ritratto.png",
+      "image_path": "docs/benchmark/images/testo_it_ritratto.png",
       "error": null,
       "ws_messages": null,
       "cold": false
@@ -235,7 +235,7 @@
       "prompt_key": "it_paesaggio",
       "seconds": 9.1,
       "vram_peak_mib": 7503,
-      "image_path": "/home/bonn/Documenti/00_Lavoro/ProgettiPersonali/foocus-personal/docs/benchmark/images/testo_it_paesaggio.png",
+      "image_path": "docs/benchmark/images/testo_it_paesaggio.png",
       "error": null,
       "ws_messages": null,
       "cold": false
@@ -270,7 +270,7 @@
       "batch": 4,
       "seconds": 60.65,
       "vram_peak_mib": 7801,
-      "error": "{\"prompt_id\": \"8b14f835-ddae-4888-afb4-cfbc43e4e331\", \"node_id\": \"11\", \"node_type\": \"SamplerCustomAdvanced\", \"executed\": [\"7\", \"10\", \"3\", \"8\", \"1\", \"5\", \"9\", \"2\", \"6\", \"4\"], \"exception_message\": \"Allocation on device 0 would exceed allowed memory. (out of memory)\\nCurrently allocated     : 5.94 GiB\\nRequested               : 1.16 GiB\\nDevice limit            : 7.62 GiB\\nFree (according to CUDA): 5.12 MiB\\nPyTorch limit (set by user-supplied memory fraction)\\n                        : 17179869184.00 GiB\\nThis error means you ran out of memory on your GPU.\\n\\nTIPS: If the workflow worked before you might have accidentally set the batch_size to a large number.\", \"exception_type\": \"torch.OutOfMemoryError\", \"traceback\": [\"  File \\\"/home/bonn/Documenti/00_Lavoro/ProgettiPersonali/foocus-personal/engine/ComfyUI/execution.py\\\", line 547, in execute\\n    output_data, output_ui, has_subgraph, has_pending_tasks = await get_output_data(prompt_id, unique_id, obj, input_data_all, execution_block_cb=execution_block_cb, pre_execute_cb=pre_execute_cb, v3_data=v3_data)\\n                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n\", \"  File \\\"/home/bonn/Documenti/00_Lavoro/ProgettiPersonali/foocus-personal/engine/ComfyUI/execution.py\\\", line 352, in get_output_data\\n    return_values = await _async_map_node_over_list(prompt_id, unique_id, obj, input_data_all, obj.FUNCTION, allow_interrupt=True, execution_block_cb=execution_block_cb, pre_execute_cb=pre_execute_cb, v3_data=v3_data)\\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n\", \"  File \\\"/home/bonn/Documenti/00_Lavoro/ProgettiPersonali/foocus-personal/engine/ComfyUI/execution.py\\\", line 326, in _async_map_node_over_list\\n    await process_inputs(input_dict, i)\\n\", \"  File \\\"/home/bonn/Documenti/00_Lavoro/ProgettiPersonali/foocus-personal/engine/ComfyUI/execution.py\\\", line 314, in process_inputs\\n    result = f(**inputs)\\n             ^^^^^^^^^^^\\n\", \"  File \\\"/home/bonn/Documenti/00_Lavoro/ProgettiPersonali/foocus-personal/engine/ComfyUI/comfy_api/internal/__init__.py\\\", line 149, in wrapped_func\\n    return method(locked_class, **inputs)\\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n\", \"  File \\\"/home/bonn/Documenti/00_Lavoro/ProgettiPersonali/foocus-personal/engine/ComfyUI/comfy_api/latest/_io.py\\\", line 2053, in EXECUTE_NORMALIZED\\n    to_return = cls.execute(*args, **kwargs)\\n                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n\", \"  File \\\"/home/bonn/Documenti/00_Lavoro/ProgettiPersonali/foocus-personal/engine/ComfyUI/comfy_extras/nodes_custom_sampler.py\\\", line 1055, in execute\\n    samples = guider.sample(noise.generate_noise(latent), latent_image, sampler, sigmas, denoise_mask=noise_mask, callback=callback, disable_pbar=disable_pbar, seed=noise.seed)\\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n\", \"  File \\\"/home/bonn/Documenti/00_Lavoro/ProgettiPersonali/foocus-personal/engine/ComfyUI/comfy/samplers.py\\\", line 1335, in sample\\n    output = executor.execute(noise, latent_image, sampler, sigmas, denoise_mask, callback, disable_pbar, seed, latent_shapes=latent_shapes)\\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n\", \"  File \\\"/home/bonn/Documenti/00_Lavoro/ProgettiPersonali/foocus-personal/engine/ComfyUI/comfy/patcher_extension.py\\\", line 113, in execute\\n    return self.original(*args, **kwargs)\\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n\", \"  File \\\"/home/bonn/Documenti/00_Lavoro/ProgettiPersonali/foocus-personal/engine/ComfyUI/comfy/samplers.py\\\", line 1262, in outer_sample\\n    output = self.inner_sample(noise, latent_image, device, sampler, sigmas, denoise_mask, callback, disable_pbar, seed, latent_shapes=latent_shapes)\\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n\", \"  File \\\"/home/bonn/Documenti/00_Lavoro/ProgettiPersonali/foocus-personal/engine/ComfyUI/comfy/samplers.py\\\", line 1237, in inner_sample\\n    samples = executor.execute(self, sigmas, extra_args, callback, noise, latent_image, denoise_mask, disable_pbar)\\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n\", \"  File \\\"/home/bonn/Documenti/00_Lavoro/ProgettiPersonali/foocus-personal/engine/ComfyUI/comfy/patcher_extension.py\\\", line 113, in execute\\n    return self.original(*args, **kwargs)\\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n\", \"  File \\\"/home/bonn/Documenti/00_Lavoro/ProgettiPersonali/foocus-personal/engine/ComfyUI/comfy/samplers.py\\\", line 1005, in sample\\n    samples = self.sampler_function(model_k, noise, sigmas, extra_args=extra_args, callback=k_callback, disable=disable_pbar, **self.extra_options)\\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n\", \"  File \\\"/home/bonn/Documenti/00_Lavoro/ProgettiPersonali/foocus-personal/engine/ComfyUI/.venv/lib/python3.12/site-packages/torch/utils/_contextlib.py\\\", line 124, in decorate_context\\n    return func(*args, **kwargs)\\n           ^^^^^^^^^^^^^^^^^^^^^\\n\", \"  File \\\"/home/bonn/Documenti/00_Lavoro/ProgettiPersonali/foocus-personal/engine/ComfyUI/comfy/k_diffusion/sampling.py\\\", line 205, in sample_euler\\n    denoised = model(x, sigma_hat * s_in, **extra_args)\\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n\", \"  File \\\"/home/bonn/Documenti/00_Lavoro/ProgettiPersonali/foocus-personal/engine/ComfyUI/comfy/samplers.py\\\", line 640, in __call__\\n    out = self.inner_model(x, sigma, model_options=model_options, seed=seed)\\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n\", \"  File \\\"/home/bonn/Documenti/00_Lavoro/ProgettiPersonali/foocus-personal/engine/ComfyUI/comfy/samplers.py\\\", line 1208, in __call__\\n    return self.outer_predict_noise(*args, **kwargs)\\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n\", \"  File \\\"/home/bonn/Documenti/00_Lavoro/ProgettiPersonali/foocus-personal/engine/ComfyUI/comfy/samplers.py\\\", line 1215, in outer_predict_noise\\n    ).execute(x, timestep, model_options, seed)\\n      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n\", \"  File \\\"/home/bonn/Documenti/00_Lavoro/ProgettiPersonali/foocus-personal/engine/ComfyUI/comfy/patcher_extension.py\\\", line 113, in execute\\n    return self.original(*args, **kwargs)\\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n\", \"  File \\\"/home/bonn/Documenti/00_Lavoro/ProgettiPersonali/foocus-personal/engine/ComfyUI/comfy/samplers.py\\\", line 1218, in predict_noise\\n    return sampling_function(self.inner_model, x, timestep, self.conds.get(\\\"negative\\\", None), self.conds.get(\\\"positive\\\", None), self.cfg, model_options=model_options, seed=seed)\\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n\", \"  File \\\"/home/bonn/Documenti/00_Lavoro/ProgettiPersonali/foocus-personal/engine/ComfyUI/comfy/samplers.py\\\", line 620, in sampling_function\\n    out = calc_cond_batch(model, conds, x, timestep, model_options)\\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n\", \"  File \\\"/home/bonn/Documenti/00_Lavoro/ProgettiPersonali/foocus-personal/engine/ComfyUI/comfy/samplers.py\\\", line 211, in calc_cond_batch\\n    return _calc_cond_batch_outer(model, conds, x_in, timestep, model_options)\\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n\", \"  File \\\"/home/bonn/Documenti/00_Lavoro/ProgettiPersonali/foocus-personal/engine/ComfyUI/comfy/samplers.py\\\", line 219, in _calc_cond_batch_outer\\n    return executor.execute(model, conds, x_in, timestep, model_options)\\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n\", \"  File \\\"/home/bonn/Documenti/00_Lavoro/ProgettiPersonali/foocus-personal/engine/ComfyUI/comfy/patcher_extension.py\\\", line 113, in execute\\n    return self.original(*args, **kwargs)\\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n\", \"  File \\\"/home/bonn/Documenti/00_Lavoro/ProgettiPersonali/foocus-personal/engine/ComfyUI/comfy/samplers.py\\\", line 335, in _calc_cond_batch\\n    output = model.apply_model(input_x, timestep_, **c).chunk(batch_chunks)\\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n\", \"  File \\\"/home/bonn/Documenti/00_Lavoro/ProgettiPersonali/foocus-personal/engine/ComfyUI/comfy/model_base.py\\\", line 210, in apply_model\\n    return comfy.patcher_extension.WrapperExecutor.new_class_executor(\\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n\", \"  File \\\"/home/bonn/Documenti/00_Lavoro/ProgettiPersonali/foocus-personal/engine/ComfyUI/comfy/patcher_extension.py\\\", line 113, in execute\\n    return self.original(*args, **kwargs)\\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n\", \"  File \\\"/home/bonn/Documenti/00_Lavoro/ProgettiPersonali/foocus-personal/engine/ComfyUI/comfy/model_base.py\\\", line 254, in _apply_model\\n    model_output = self.diffusion_model(xc, t, context=context, control=control, transformer_options=transformer_options, **extra_conds)\\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n\", \"  File \\\"/home/bonn/Documenti/00_Lavoro/ProgettiPersonali/foocus-personal/engine/ComfyUI/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py\\\", line 1783, in _wrapped_call_impl\\n    return self._call_impl(*args, **kwargs)\\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n\", \"  File \\\"/home/bonn/Documenti/00_Lavoro/ProgettiPersonali/foocus-personal/engine/ComfyUI/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py\\\", line 1794, in _call_impl\\n    return forward_call(*args, **kwargs)\\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n\", \"  File \\\"/home/bonn/Documenti/00_Lavoro/ProgettiPersonali/foocus-personal/engine/ComfyUI/comfy/ldm/flux/model.py\\\", line 345, in forward\\n    return comfy.patcher_extension.WrapperExecutor.new_class_executor(\\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n\", \"  File \\\"/home/bonn/Documenti/00_Lavoro/ProgettiPersonali/foocus-personal/engine/ComfyUI/comfy/patcher_extension.py\\\", line 113, in execute\\n    return self.original(*args, **kwargs)\\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n\", \"  File \\\"/home/bonn/Documenti/00_Lavoro/ProgettiPersonali/foocus-personal/engine/ComfyUI/comfy/ldm/flux/model.py\\\", line 406, in _forward\\n    out = self.forward_orig(img, img_ids, context, txt_ids, timestep, y, guidance, control, timestep_zero_index=timestep_zero_index, transformer_options=transformer_options, attn_mask=kwargs.get(\\\"attention_mask\\\", None))\\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n\", \"  File \\\"/home/bonn/Documenti/00_Lavoro/ProgettiPersonali/foocus-personal/engine/ComfyUI/comfy/ldm/flux/model.py\\\", line 296, in forward_orig\\n    img = block(img, vec=vec, pe=pe, attn_mask=attn_mask, transformer_options=transformer_options, **extra_kwargs)\\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n\", \"  File \\\"/home/bonn/Documenti/00_Lavoro/ProgettiPersonali/foocus-personal/engine/ComfyUI/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py\\\", line 1783, in _wrapped_call_impl\\n    return self._call_impl(*args, **kwargs)\\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n\", \"  File \\\"/home/bonn/Documenti/00_Lavoro/ProgettiPersonali/foocus-personal/engine/ComfyUI/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py\\\", line 1794, in _call_impl\\n    return forward_call(*args, **kwargs)\\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n\", \"  File \\\"/home/bonn/Documenti/00_Lavoro/ProgettiPersonali/foocus-personal/engine/ComfyUI/comfy/ldm/flux/layers.py\\\", line 361, in forward\\n    mlp = self.mlp_act(mlp)\\n          ^^^^^^^^^^^^^^^^^\\n\", \"  File \\\"/home/bonn/Documenti/00_Lavoro/ProgettiPersonali/foocus-personal/engine/ComfyUI/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py\\\", line 1783, in _wrapped_call_impl\\n    return self._call_impl(*args, **kwargs)\\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n\", \"  File \\\"/home/bonn/Documenti/00_Lavoro/ProgettiPersonali/foocus-personal/engine/ComfyUI/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py\\\", line 1794, in _call_impl\\n    return forward_call(*args, **kwargs)\\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n\", \"  File \\\"/home/bonn/Documenti/00_Lavoro/ProgettiPersonali/foocus-personal/engine/ComfyUI/comfy/ldm/flux/layers.py\\\", line 169, in forward\\n    return self.gate_fn(x1) * x2\\n           ~~~~~~~~~~~~~~~~~^~~~\\n\"], \"current_inputs\": {\"noise\": [\"</home/bonn/Documenti/00_Lavoro/ProgettiPersonali/foocus-personal/engine/ComfyUI/comfy_extras/nodes_custom_sampler.Noise_RandomNoise object at 0x7146a46f4530>\"], \"guider\": [\"<comfy.samplers.CFGGuider object at 0x7148537f49e0>\"], \"sampler\": [\"<comfy.samplers.KSAMPLER object at 0x714692c4e930>\"], \"sigmas\": [\"tensor([1.0000, 0.9870, 0.9619, 0.8939, 0.0000])\"], \"latent_image\": [\"{'samples': tensor([[[[0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          ...,\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.]],\\n\\n         [[0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          ...,\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.]],\\n\\n         [[0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          ...,\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.]],\\n\\n         ...,\\n\\n         [[0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          ...,\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.]],\\n\\n         [[0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          ...,\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.]],\\n\\n         [[0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          ...,\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.]]],\\n\\n\\n        [[[0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          ...,\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.]],\\n\\n         [[0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          ...,\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.]],\\n\\n         [[0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          ...,\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.]],\\n\\n         ...,\\n\\n         [[0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          ...,\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.]],\\n\\n         [[0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          ...,\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.]],\\n\\n         [[0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          ...,\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.]]],\\n\\n\\n        [[[0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          ...,\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.]],\\n\\n         [[0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          ...,\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.]],\\n\\n         [[0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          ...,\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.]],\\n\\n         ...,\\n\\n         [[0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          ...,\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.]],\\n\\n         [[0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          ...,\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.]],\\n\\n         [[0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          ...,\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.]]],\\n\\n\\n        [[[0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          ...,\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.]],\\n\\n         [[0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          ...,\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.]],\\n\\n         [[0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          ...,\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.]],\\n\\n         ...,\\n\\n         [[0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          ...,\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.]],\\n\\n         [[0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          ...,\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.]],\\n\\n         [[0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          ...,\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.],\\n          [0., 0., 0.,  ..., 0., 0., 0.]]]])}\"]}, \"current_outputs\": [\"11\", \"7\", \"10\", \"3\", \"8\", \"13\", \"1\", \"5\", \"9\", \"12\", \"2\", \"6\", \"4\"], \"timestamp\": 1791133835550}"
+      "error": "{\"node_type\": \"SamplerCustomAdvanced\", \"exception_type\": \"torch.OutOfMemoryError\", \"exception_message\": \"Allocation on device 0 would exceed allowed memory. (out of memory)\\nCurrently allocated     : 5.94 GiB\\nRequested               : 1.16 GiB\\nDevice limit            : 7.62 GiB\\nFree (according to CUDA): 5.12 MiB\\nPyTorch limit (set by user-supplied memory fraction)\\n                        : 17179869184.00 GiB\\nThis error means you ran out of memory on your GPU.\\n\\nTIPS: If the workflow worked before you might have accidentally set the batch_size to a large number.\"}"
     }
   }
 }

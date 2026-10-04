@@ -164,7 +164,13 @@ async def execute(
             if data.get("prompt_id") not in (None, prompt_id):
                 continue
             if msg["type"] == "execution_error":
-                error = json.dumps(data)
+                # Keep the diagnosis only: the traceback carries absolute local paths.
+                error = json.dumps(
+                    {
+                        k: data.get(k)
+                        for k in ("node_type", "exception_type", "exception_message")
+                    }
+                )
                 break
             if msg["type"] == "execution_success" or (
                 msg["type"] == "executing" and data.get("node") is None
@@ -201,7 +207,13 @@ def run_one(
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_bytes(images[0])
     result = RunResult(
-        task, prompt_key, seconds, vram.peak, str(path) if path else None, error, log
+        task,
+        prompt_key,
+        seconds,
+        vram.peak,
+        str(path.relative_to(REPO_ROOT)) if path else None,
+        error,
+        log,
     )
     print(
         f"{out_name:<32} {seconds:>7.2f}s  vram {vram.peak:>5} MiB  {'ERROR' if error else 'ok'}"
@@ -221,7 +233,8 @@ def free_engine() -> None:
 
 
 def identical(path_a: str, path_b: str) -> bool:
-    a, b = Image.open(path_a).convert("RGB"), Image.open(path_b).convert("RGB")
+    a = Image.open(REPO_ROOT / path_a).convert("RGB")
+    b = Image.open(REPO_ROOT / path_b).convert("RGB")
     return a.size == b.size and ImageChops.difference(a, b).getbbox() is None
 
 
