@@ -19,7 +19,7 @@ import yaml
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 REGISTRY_PATH = REPO_ROOT / "config" / "models.yaml"
-DEFAULT_FOOOCUS_DIR = Path("/home/bonn/Documenti/00_Lavoro/ProgettiEsterni/Fooocus")
+DEFAULT_FOOOCUS_DIR = Path.home() / "Fooocus"
 DEFAULT_MODELS_DIR = REPO_ROOT / "engine" / "models"
 DEFAULT_MIN_FREE_GB = 5.0
 GB = 1024**3

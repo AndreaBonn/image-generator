@@ -8,7 +8,7 @@ Versione 1.0 del 2026-10-04. Documento destinato a Claude Code, che svilupperà 
 
 ### 1.1 Il problema
 
-L'utente usa [Fooocus](https://github.com/lllyasviel/Fooocus) (clonato in `/home/bonn/Documenti/00_Lavoro/ProgettiEsterni/Fooocus`) per generare immagini in locale. Fooocus ha tre limiti:
+L'utente usa [Fooocus](https://github.com/lllyasviel/Fooocus) (clonato in locale) per generare immagini in locale. Fooocus ha tre limiti:
 
 - è fermo: il progetto è in "Limited LTS, bug fixes only", ultimo commit di codice a gennaio 2025;
 - supporta solo modelli SDXL, mentre esistono modelli aperti più recenti che seguono meglio i prompt (FLUX.2 [klein], Z-Image Turbo);
@@ -252,7 +252,7 @@ Unico modulo `backend/app/config.py` con `BaseSettings`; nessun `os.getenv` spar
 |---|---|---|
 | `COMFY_URL` | `http://127.0.0.1:8188` | indirizzo del motore |
 | `ENGINE_MODE` | `comfy` | `comfy` oppure `fake` (§ 10.3) |
-| `FOOOCUS_DIR` | `/home/bonn/Documenti/00_Lavoro/ProgettiEsterni/Fooocus` | sorgente di modelli e stili |
+| `FOOOCUS_DIR` | `~/Fooocus` | sorgente di modelli e stili |
 | `MODELS_DIR` | `<repo>/engine/models` | cartella dei modelli nuovi |
 | `DATA_DIR` | `<repo>/data` | db, immagini, upload |
 | `MIN_FREE_DISK_GB` | `5` | margine sotto cui l'installer rifiuta un download |

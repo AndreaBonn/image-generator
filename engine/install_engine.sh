@@ -12,7 +12,7 @@ MIN_FREE_GB_FOR_ENGINE=10
 COMFY_PORT="${COMFY_PORT:-8188}"
 STARTUP_TIMEOUT_S=120
 
-FOOOCUS_DIR="${FOOOCUS_DIR:-/home/bonn/Documenti/00_Lavoro/ProgettiEsterni/Fooocus}"
+FOOOCUS_DIR="${FOOOCUS_DIR:-$HOME/Fooocus}"
 MODELS_DIR="${MODELS_DIR:-${REPO_ROOT}/engine/models}"
 
 SMOKE_PID=""
