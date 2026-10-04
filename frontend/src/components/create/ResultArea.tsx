@@ -12,6 +12,8 @@ interface ResultAreaProps {
   onRetry: () => void;
   onCancel: () => void;
   isRunning: boolean;
+  /** Pages that render their own result cards hide the empty placeholder once they have results. */
+  hasExternalResults?: boolean;
 }
 
 /** Progress, slow-job notice, error with retry, and the results grid (SPEC.md § 11.2-11.3). */
@@ -22,6 +24,7 @@ export function ResultArea({
   onRetry,
   onCancel,
   isRunning,
+  hasExternalResults = false,
 }: ResultAreaProps) {
   const [isSlow, setIsSlow] = useState(false);
 
@@ -32,8 +35,16 @@ export function ResultArea({
     return () => window.clearTimeout(timer);
   }, [isRunning, latestEvent?.type]);
 
+  const isEmpty = !errorMessage && !isRunning && generationIds.length === 0 && !hasExternalResults;
+
   return (
-    <div className="flex flex-col gap-4" aria-live="polite">
+    <div className="flex flex-col gap-4 lg:sticky lg:top-4 lg:self-start" aria-live="polite">
+      {isEmpty ? (
+        <div className="flex min-h-64 items-center justify-center rounded-md border border-dashed border-border bg-paper-2 p-6 text-center">
+          <p className="text-sm text-ink-muted">Le immagini generate appariranno qui.</p>
+        </div>
+      ) : null}
+
       {errorMessage ? (
         <div className="flex flex-col gap-2 rounded-md border border-danger bg-paper-2 p-3">
           <p className="text-sm text-danger">{errorMessage}</p>

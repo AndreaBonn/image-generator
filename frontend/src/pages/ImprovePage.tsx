@@ -202,6 +202,7 @@ export function ImprovePage() {
         <ResultArea
           latestEvent={latest}
           generationIds={[]}
+          hasExternalResults={generationIds.length > 0}
           errorMessage={errorMessage}
           isRunning={jobId !== null}
           onRetry={handleRetry}
