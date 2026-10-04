@@ -111,11 +111,17 @@ export function GenerationDetailDialog({
 
         {detail ? (
           <>
-            <img
-              src={imageUrl(detail.id)}
-              alt={detail.prompt || "Immagine generata"}
-              className="max-h-[50vh] w-full rounded-md object-contain"
-            />
+            <div
+              className={
+                detail.task_id === "rimuovi_sfondo" ? "overflow-hidden rounded-md bg-checkerboard" : undefined
+              }
+            >
+              <img
+                src={imageUrl(detail.id)}
+                alt={detail.prompt || "Immagine generata"}
+                className="max-h-[50vh] w-full rounded-md object-contain"
+              />
+            </div>
 
             <dl className="grid grid-cols-1 gap-2 text-sm sm:grid-cols-2">
               <DetailRow label="Prompt" value={detail.prompt || "(vuoto)"} />

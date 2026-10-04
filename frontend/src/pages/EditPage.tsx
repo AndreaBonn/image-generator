@@ -9,14 +9,17 @@ import { ResultArea } from "@/components/create/ResultArea";
 import { ImageInput } from "@/components/edit/ImageInput";
 import { MaskEditor } from "@/components/edit/MaskEditor";
 import { OutpaintPanel } from "@/components/edit/OutpaintPanel";
+import { EditModeTabs, type EditMode } from "@/components/edit/EditModeTabs";
+import { FreeEditOptions } from "@/components/edit/FreeEditOptions";
 import { GpuWarning } from "@/components/layout/GpuWarning";
 import { exportMaskPng } from "@/lib/maskExport";
 import { isMaskEmpty } from "@/lib/mask";
 import { toggleDirection, type OutpaintDirection } from "@/lib/outpaint";
 import type { CreateJobBody, Task } from "@/api/types";
 
-type EditMode = "inpaint" | "outpaint";
 const MAX_PROMPT_LENGTH = 2000;
+const INPAINT_REQUIRED_MESSAGE = "Descrivi cosa deve apparire nella zona scelta.";
+const FREE_EDIT_REQUIRED_MESSAGE = "Descrivi il cambiamento da applicare all'immagine.";
 
 interface SourceImage {
   url: string;
@@ -35,6 +38,10 @@ export function EditPage() {
   const [directions, setDirections] = useState<OutpaintDirection[]>([]);
   const [prompt, setPrompt] = useState("");
   const [promptError, setPromptError] = useState<string | null>(null);
+  const [seed, setSeed] = useState<number | null>(null);
+  const [seedLocked, setSeedLocked] = useState(false);
+  const [steps, setSteps] = useState<number | null>(null);
+  const [cfg, setCfg] = useState<number | null>(null);
   const [jobId, setJobId] = useState<string | null>(null);
   const [generationIds, setGenerationIds] = useState<string[]>([]);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -64,7 +71,7 @@ export function EditPage() {
     }
   }, [sourceQuery.data]);
 
-  const { latest, isDone } = useJobEvents(jobId);
+  const { latest, latestPreviewUrl, isDone } = useJobEvents(jobId);
   useEffect(() => {
     if (!latest) return;
     if (latest.type === "completed") {
@@ -121,9 +128,9 @@ export function EditPage() {
     setPromptError(null);
   }
 
-  function validatePrompt(required: boolean): boolean {
+  function validatePrompt(required: boolean, requiredMessage: string): boolean {
     if (required && prompt.trim().length === 0) {
-      setPromptError("Descrivi cosa deve apparire nella zona scelta.");
+      setPromptError(requiredMessage);
       return false;
     }
     if (prompt.length > MAX_PROMPT_LENGTH) {
@@ -134,7 +141,7 @@ export function EditPage() {
     return true;
   }
 
-  function baseJobBody(taskId: string): CreateJobBody {
+  function baseJobBody(taskId: string, overrides: Partial<CreateJobBody> = {}): CreateJobBody {
     return {
       task_id: taskId,
       prompt,
@@ -142,14 +149,21 @@ export function EditPage() {
       params: { seed: null, batch: 1, steps: null, cfg: null },
       input_upload_id: image?.uploadId ?? null,
       source_generation_id: sourceGenerationId,
+      ...overrides,
     };
   }
 
   async function handleSubmit() {
     if (!selectedTask || !image || !canSubmit) return;
 
+    if (mode === "modifica_libera") {
+      if (!validatePrompt(true, FREE_EDIT_REQUIRED_MESSAGE)) return;
+      jobMutation.mutate(baseJobBody(selectedTask.id, { params: { seed, batch: 1, steps, cfg } }));
+      return;
+    }
+
     if (mode === "inpaint") {
-      if (!validatePrompt(true) || !mask) return;
+      if (!validatePrompt(true, INPAINT_REQUIRED_MESSAGE) || !mask) return;
       setIsPreparingMask(true);
       try {
         const blob = await exportMaskPng(mask, image.width, image.height);
@@ -164,7 +178,7 @@ export function EditPage() {
       return;
     }
 
-    if (!validatePrompt(false)) return;
+    if (!validatePrompt(false, INPAINT_REQUIRED_MESSAGE)) return;
     jobMutation.mutate({ ...baseJobBody(selectedTask.id), outpaint_directions: directions });
   }
 
@@ -175,10 +189,7 @@ export function EditPage() {
       <div className="flex flex-col gap-4">
         <h1 className="text-xl font-semibold text-ink">Modifica</h1>
 
-        <div role="tablist" aria-label="Modalità di modifica" className="flex gap-2">
-          <ModeTab label="Modifica una parte" active={mode === "inpaint"} onSelect={() => handleModeChange("inpaint")} />
-          <ModeTab label="Allarga l'immagine" active={mode === "outpaint"} onSelect={() => handleModeChange("outpaint")} />
-        </div>
+        <EditModeTabs mode={mode} onSelect={handleModeChange} />
 
         {!hasImage ? (
           <ImageInput onFileSelected={(file) => uploadImageMutation.mutate(file)} disabled={sourceGenerationId !== null} />
@@ -233,6 +244,20 @@ export function EditPage() {
                 </p>
               ) : null}
             </div>
+
+            {mode === "modifica_libera" ? (
+              <FreeEditOptions
+                task={selectedTask}
+                seed={seed}
+                seedLocked={seedLocked}
+                onSeedChange={setSeed}
+                onToggleSeedLocked={setSeedLocked}
+                steps={steps}
+                cfg={cfg}
+                onStepsChange={setSteps}
+                onCfgChange={setCfg}
+              />
+            ) : null}
           </>
         ) : null}
 
@@ -255,6 +280,7 @@ export function EditPage() {
 
       <ResultArea
         latestEvent={latest}
+        previewUrl={latestPreviewUrl}
         generationIds={generationIds}
         errorMessage={errorMessage}
         isRunning={jobId !== null}
@@ -262,21 +288,5 @@ export function EditPage() {
         onCancel={() => jobId && cancelMutation.mutate(jobId)}
       />
     </div>
-  );
-}
-
-function ModeTab({ label, active, onSelect }: { label: string; active: boolean; onSelect: () => void }) {
-  return (
-    <button
-      type="button"
-      role="tab"
-      aria-selected={active}
-      onClick={onSelect}
-      className={`min-h-11 rounded-md border px-3 py-2 text-sm font-medium ${
-        active ? "border-accent bg-paper-3 text-ink" : "border-border bg-paper-2 text-ink-muted hover:bg-paper-3"
-      }`}
-    >
-      {label}
-    </button>
   );
 }

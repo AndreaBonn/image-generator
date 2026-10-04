@@ -9,7 +9,7 @@ import { ApiError } from "@/api/errors";
 import * as maskExportLib from "@/lib/maskExport";
 import { buildTask } from "../fixtures/task";
 import { installMockEventSource, latestEventSource } from "../mocks/mockEventSource";
-import type { Generation } from "@/api/types";
+import type { Generation, Task } from "@/api/types";
 
 const IMAGE_WIDTH = 200;
 const IMAGE_HEIGHT = 150;
@@ -435,5 +435,126 @@ describe("EditPage", () => {
 
     await waitFor(() => expect(screen.getByText("Passo 3 di 20.")).toBeInTheDocument());
     expect(screen.getByRole("button", { name: "Generazione in corso..." })).toBeDisabled();
+  });
+
+  it("shows the live preview sent by the engine while the job is running", async () => {
+    // jsdom never loads image resources, so the preloader's onload must be simulated.
+    vi.stubGlobal(
+      "Image",
+      class {
+        onload: (() => void) | null = null;
+        set src(_value: string) {
+          queueMicrotask(() => this.onload?.());
+        }
+      },
+    );
+    vi.spyOn(queries, "createJob").mockResolvedValue({ job_id: "job-preview" });
+    renderEditPage();
+    await uploadSourceImage();
+    await userEvent.click(screen.getByRole("tab", { name: "Allarga l'immagine" }));
+    await userEvent.click(screen.getByRole("button", { name: "Sopra" }));
+    await userEvent.click(screen.getByRole("button", { name: "Genera" }));
+    const source = await waitFor(() => latestEventSource());
+    expect(screen.queryByAltText("Anteprima in corso")).not.toBeInTheDocument();
+
+    source.emit("progress", { step: 1, total: 20 });
+    source.emit("preview", { url: "/api/v1/jobs/job-preview/preview?n=1" });
+
+    const preview = await screen.findByAltText("Anteprima in corso");
+    expect(preview).toHaveAttribute("src", "/api/v1/jobs/job-preview/preview?n=1");
+    vi.unstubAllGlobals();
+  });
+});
+
+function freeEditTask(overrides: Partial<Task> = {}): Task {
+  return buildTask({
+    id: "modifica_libera",
+    group: "modifica",
+    label: "Modifica con le parole",
+    family: "flux2_klein",
+    supports_negative: false,
+    prompt_language: { required: "any", label: "Italiano o inglese", reason: "Capisce bene anche l'italiano." },
+    defaults: { steps: 4, cfg: 1 },
+    limits: { steps: { min: 4, max: 8 }, cfg: { min: 1, max: 1.5 } },
+    ...overrides,
+  });
+}
+
+describe("EditPage - modifica con le parole", () => {
+  beforeEach(() => {
+    installMockEventSource();
+    vi.spyOn(queries, "uploadFile").mockResolvedValue({
+      upload_id: "upload-image-1",
+      width: IMAGE_WIDTH,
+      height: IMAGE_HEIGHT,
+    });
+    globalThis.URL.createObjectURL = vi.fn(() => "blob:preview");
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("shows the free-edit tab first and lets the user switch to it", async () => {
+    vi.spyOn(queries, "fetchTasks").mockResolvedValue([
+      freeEditTask(),
+      buildTask({ id: "inpaint", group: "modifica", label: "Modifica una parte" }),
+      buildTask({ id: "outpaint", group: "modifica", label: "Allarga l'immagine" }),
+    ]);
+    renderEditPage();
+
+    const tabs = await screen.findAllByRole("tab");
+    expect(tabs[0]).toHaveAccessibleName("Modifica con le parole");
+    expect(screen.getByRole("tab", { name: "Modifica una parte" })).toHaveAttribute("aria-selected", "true");
+  });
+
+  it("requires a prompt and sends seed/steps/cfg, with no mask or directions", async () => {
+    vi.spyOn(queries, "fetchTasks").mockResolvedValue([
+      freeEditTask(),
+      buildTask({ id: "inpaint", group: "modifica", label: "Modifica una parte" }),
+      buildTask({ id: "outpaint", group: "modifica", label: "Allarga l'immagine" }),
+    ]);
+    const createJobSpy = vi.spyOn(queries, "createJob").mockResolvedValue({ job_id: "job-free-edit" });
+    renderEditPage();
+    await uploadSourceImage();
+
+    await userEvent.click(screen.getByRole("tab", { name: "Modifica con le parole" }));
+    expect(document.querySelector("canvas")).not.toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole("button", { name: "Genera" }));
+    expect(
+      await screen.findByText("Descrivi il cambiamento da applicare all'immagine."),
+    ).toBeInTheDocument();
+    expect(createJobSpy).not.toHaveBeenCalled();
+
+    await userEvent.type(screen.getByLabelText("Descrizione"), "metti il cielo al tramonto");
+    await userEvent.click(screen.getByRole("button", { name: "Genera" }));
+
+    await waitFor(() => expect(createJobSpy).toHaveBeenCalledTimes(1));
+    const body = createJobSpy.mock.calls[0]?.[0];
+    expect(body).toEqual(
+      expect.objectContaining({
+        task_id: "modifica_libera",
+        prompt: "metti il cielo al tramonto",
+        input_upload_id: "upload-image-1",
+        params: expect.objectContaining({ seed: null, steps: null, cfg: null }),
+      }),
+    );
+    expect(body).not.toHaveProperty("mask_upload_id");
+    expect(body).not.toHaveProperty("outpaint_directions");
+  });
+
+  it("disables the free-edit tab's task with the catalog reason when unavailable", async () => {
+    vi.spyOn(queries, "fetchTasks").mockResolvedValue([
+      freeEditTask({ available: false, unavailable_reason: "Il modello non è installato." }),
+      buildTask({ id: "inpaint", group: "modifica", label: "Modifica una parte" }),
+      buildTask({ id: "outpaint", group: "modifica", label: "Allarga l'immagine" }),
+    ]);
+    renderEditPage();
+    await uploadSourceImage();
+    await userEvent.click(screen.getByRole("tab", { name: "Modifica con le parole" }));
+
+    expect(await screen.findByText("Il modello non è installato.")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Genera" })).toBeDisabled();
   });
 });

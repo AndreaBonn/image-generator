@@ -7,6 +7,8 @@ interface BeforeAfterSliderProps {
   beforeUrl: string;
   afterUrl: string;
   sliderId: string;
+  /** True for "Rimuovi lo sfondo" results: shows a checkerboard behind the transparent after-image. */
+  transparentAfter?: boolean;
 }
 
 /**
@@ -15,13 +17,20 @@ interface BeforeAfterSliderProps {
  * input. Stacks naturally on narrow screens since it is a single column
  * (the page's own grid handles the mobile layout, SPEC.md § 11.1).
  */
-export function BeforeAfterSlider({ beforeUrl, afterUrl, sliderId }: BeforeAfterSliderProps) {
+export function BeforeAfterSlider({ beforeUrl, afterUrl, sliderId, transparentAfter = false }: BeforeAfterSliderProps) {
   const [percent, setPercent] = useState(INITIAL_PERCENT);
 
   return (
     <div className="flex flex-col gap-2">
       <div className="relative aspect-square w-full overflow-hidden rounded-md border border-border bg-paper-2 sm:aspect-video">
         <img src={beforeUrl} alt="Originale, prima" className="absolute inset-0 h-full w-full object-cover" />
+        {transparentAfter ? (
+          <div
+            aria-hidden="true"
+            style={{ clipPath: clipPathForPercent(percent) }}
+            className="absolute inset-0 h-full w-full bg-checkerboard"
+          />
+        ) : null}
         <img
           src={afterUrl}
           alt="Risultato, dopo"

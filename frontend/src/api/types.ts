@@ -31,11 +31,15 @@ export interface TaskRange {
 export interface TaskLimits {
   steps: TaskRange;
   cfg: TaskRange;
+  /** Only present on tasks that expose a denoise control, e.g. ingrandisci_rifinito. */
+  denoise?: TaskRange;
 }
 
 export interface TaskDefaults {
   steps: number;
   cfg: number;
+  /** Only present on tasks that expose a denoise control, e.g. ingrandisci_rifinito. */
+  denoise?: number;
 }
 
 export interface Task {
@@ -106,6 +110,8 @@ export interface JobParams {
   style_ids?: string[];
   steps?: number | null;
   cfg?: number | null;
+  /** Refinement strength for ingrandisci_rifinito, 0.1-0.5 (backend JobParams.denoise). */
+  denoise?: number | null;
 }
 
 export type OutpaintDirection = "top" | "bottom" | "left" | "right";

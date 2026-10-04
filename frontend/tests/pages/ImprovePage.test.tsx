@@ -10,9 +10,34 @@ import { clipPathForPercent } from "@/lib/beforeAfter";
 import { BeforeAfterSlider } from "@/components/common/BeforeAfterSlider";
 import { buildTask } from "../fixtures/task";
 import { installMockEventSource, latestEventSource } from "../mocks/mockEventSource";
-import type { Generation } from "@/api/types";
+import type { Generation, Task } from "@/api/types";
 
 const NO_IMAGE_REASON = "Carica un'immagine prima di generare.";
+
+function allImproveTasks(): Task[] {
+  return [
+    buildTask({ id: "variazione_sottile", group: "migliora", label: "Variazione leggera" }),
+    buildTask({ id: "variazione_forte", group: "migliora", label: "Variazione forte" }),
+    buildTask({ id: "upscale", group: "migliora", label: "Ingrandisci" }),
+    buildTask({
+      id: "rimuovi_sfondo",
+      group: "migliora",
+      label: "Rimuovi lo sfondo",
+      family: "background",
+      supports_negative: false,
+      prompt_language: { required: "any", label: "Nessun prompt necessario", reason: "Non serve testo." },
+    }),
+    buildTask({
+      id: "ingrandisci_rifinito",
+      group: "migliora",
+      label: "Ingrandisci con rifinitura",
+      supports_negative: false,
+      prompt_language: { required: "en", label: "Scrivi in inglese", reason: "Capisce bene solo l'inglese." },
+      defaults: { steps: 12, cfg: 4, denoise: 0.3 },
+      limits: { steps: { min: 6, max: 30 }, cfg: { min: 1, max: 10 }, denoise: { min: 0.1, max: 0.5 } },
+    }),
+  ];
+}
 
 function buildGenerationDetail(overrides: Partial<Generation> = {}): Generation {
   return {
@@ -87,10 +112,17 @@ describe("ImprovePage", () => {
     renderImprovePage();
 
     await screen.findByRole("button", { name: "Variazione leggera" });
-    for (const name of ["Variazione leggera", "Variazione forte", "Ingrandisci"]) {
+    const actionNames = [
+      "Variazione leggera",
+      "Variazione forte",
+      "Ingrandisci",
+      "Rimuovi lo sfondo",
+      "Ingrandisci con rifinitura",
+    ];
+    for (const name of actionNames) {
       expect(screen.getByRole("button", { name })).toBeDisabled();
     }
-    expect(screen.getAllByText(NO_IMAGE_REASON)).toHaveLength(3);
+    expect(screen.getAllByText(NO_IMAGE_REASON)).toHaveLength(actionNames.length);
 
     await uploadImage();
     expect(screen.getByRole("button", { name: "Variazione leggera" })).toBeEnabled();
@@ -111,6 +143,7 @@ describe("ImprovePage", () => {
     vi.spyOn(queries, "fetchTasks").mockResolvedValue([
       buildTask({ id: "variazione_forte", group: "migliora", label: "Variazione forte" }),
       buildTask({ id: "upscale", group: "migliora", label: "Ingrandisci" }),
+      ...allImproveTasks().filter((t) => t.id === "rimuovi_sfondo" || t.id === "ingrandisci_rifinito"),
     ]);
     renderImprovePage();
     await screen.findByRole("button", { name: "Variazione forte" });
@@ -358,6 +391,106 @@ describe("ImprovePage", () => {
   });
 });
 
+describe("ImprovePage - rimuovi lo sfondo e ingrandisci con rifinitura", () => {
+  beforeEach(() => {
+    installMockEventSource();
+    vi.spyOn(queries, "uploadFile").mockResolvedValue({
+      upload_id: "upload-image-1",
+      width: 1152,
+      height: 896,
+    });
+    globalThis.URL.createObjectURL = vi.fn(() => "blob:preview");
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("sends a background-removal job without a prompt", async () => {
+    vi.spyOn(queries, "fetchTasks").mockResolvedValue(allImproveTasks());
+    const createJob = vi.spyOn(queries, "createJob").mockResolvedValue({ job_id: "job-bg" });
+    renderImprovePage();
+    await screen.findByRole("button", { name: "Rimuovi lo sfondo" });
+    await uploadImage();
+
+    await userEvent.click(screen.getByRole("button", { name: "Rimuovi lo sfondo" }));
+
+    await waitFor(() => expect(createJob).toHaveBeenCalledTimes(1));
+    expect(createJob.mock.calls[0]?.[0]).toEqual(
+      expect.objectContaining({ task_id: "rimuovi_sfondo", prompt: "", input_upload_id: "upload-image-1" }),
+    );
+  });
+
+  it("disables rimuovi lo sfondo with the catalog reason when unavailable", async () => {
+    const tasks = allImproveTasks().map((t) =>
+      t.id === "rimuovi_sfondo"
+        ? { ...t, available: false, unavailable_reason: "Il modello BiRefNet non è installato." }
+        : t,
+    );
+    vi.spyOn(queries, "fetchTasks").mockResolvedValue(tasks);
+    renderImprovePage();
+    await screen.findByRole("button", { name: "Rimuovi lo sfondo" });
+    await uploadImage();
+
+    expect(screen.getByRole("button", { name: "Rimuovi lo sfondo" })).toBeDisabled();
+    expect(screen.getByText("Il modello BiRefNet non è installato.")).toBeInTheDocument();
+  });
+
+  it("shows the transparent result on a checkerboard after a background-removal job completes", async () => {
+    vi.spyOn(queries, "fetchTasks").mockResolvedValue(allImproveTasks());
+    vi.spyOn(queries, "createJob").mockResolvedValue({ job_id: "job-bg-done" });
+    renderImprovePage();
+    await screen.findByRole("button", { name: "Rimuovi lo sfondo" });
+    await uploadImage();
+
+    await userEvent.click(screen.getByRole("button", { name: "Rimuovi lo sfondo" }));
+    const source = await waitFor(() => latestEventSource());
+    source.emit("completed", { generation_ids: ["gen-bg-1"] });
+
+    const after = await screen.findByAltText("Risultato, dopo");
+    const checkerboard = after.parentElement?.querySelector(".bg-checkerboard");
+    expect(checkerboard).not.toBeNull();
+  });
+
+  it("shows the estimated duration and sends denoise + optional English prompt for the refined upscale", async () => {
+    vi.spyOn(queries, "fetchTasks").mockResolvedValue(allImproveTasks());
+    const createJob = vi.spyOn(queries, "createJob").mockResolvedValue({ job_id: "job-refine" });
+    renderImprovePage();
+    await screen.findByRole("button", { name: "Ingrandisci con rifinitura" });
+    await uploadImage();
+
+    expect(screen.getByText("Tempo stimato: circa 1-2 minuti.")).toBeInTheDocument();
+
+    await userEvent.type(screen.getByLabelText("Descrizione per la rifinitura (facoltativa)"), "sharp fabric texture");
+    fireEvent.change(screen.getByLabelText(/Intensità rifinitura/), { target: { value: "0.4" } });
+    await userEvent.click(screen.getByRole("button", { name: "Ingrandisci con rifinitura" }));
+
+    await waitFor(() => expect(createJob).toHaveBeenCalledTimes(1));
+    expect(createJob.mock.calls[0]?.[0]).toEqual(
+      expect.objectContaining({
+        task_id: "ingrandisci_rifinito",
+        prompt: "sharp fabric texture",
+        params: expect.objectContaining({ denoise: 0.4 }),
+      }),
+    );
+  });
+
+  it("disables ingrandisci con rifinitura with the catalog reason when unavailable", async () => {
+    const tasks = allImproveTasks().map((t) =>
+      t.id === "ingrandisci_rifinito"
+        ? { ...t, available: false, unavailable_reason: "Il modello di rifinitura non è installato." }
+        : t,
+    );
+    vi.spyOn(queries, "fetchTasks").mockResolvedValue(tasks);
+    renderImprovePage();
+    await screen.findByRole("button", { name: "Ingrandisci con rifinitura" });
+    await uploadImage();
+
+    expect(screen.getByRole("button", { name: "Ingrandisci con rifinitura" })).toBeDisabled();
+    expect(screen.getByText("Il modello di rifinitura non è installato.")).toBeInTheDocument();
+  });
+});
+
 describe("before/after comparison", () => {
   it("clips the after image to the slider percentage, clamped to 0-100", () => {
     expect(clipPathForPercent(30)).toBe("inset(0 70% 0 0)");
@@ -372,5 +505,19 @@ describe("before/after comparison", () => {
 
     fireEvent.change(screen.getByLabelText("Confronto prima/dopo"), { target: { value: "80" } });
     expect(after.style.clipPath).toBe("inset(0 20% 0 0)");
+  });
+
+  it("renders a checkerboard behind a transparent after-image, clipped to the same percentage", () => {
+    const { container } = render(
+      <BeforeAfterSlider beforeUrl="/before.png" afterUrl="/after.png" sliderId="cmp-alpha" transparentAfter />,
+    );
+    const checkerboard = container.querySelector(".bg-checkerboard") as HTMLElement | null;
+    expect(checkerboard).not.toBeNull();
+    expect(checkerboard?.style.clipPath).toBe("inset(0 50% 0 0)");
+  });
+
+  it("omits the checkerboard when the result is opaque", () => {
+    const { container } = render(<BeforeAfterSlider beforeUrl="/before.png" afterUrl="/after.png" sliderId="cmp-opaque" />);
+    expect(container.querySelector(".bg-checkerboard")).toBeNull();
   });
 });

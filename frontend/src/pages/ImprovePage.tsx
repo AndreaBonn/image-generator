@@ -6,17 +6,27 @@ import { useJobEvents } from "@/api/useJobEvents";
 import { useImageSource } from "@/hooks/useImageSource";
 import { ApiError } from "@/api/errors";
 import { PromptGuide } from "@/components/create/PromptGuide";
-import { ResultArea, ResultCardActions } from "@/components/create/ResultArea";
+import { ResultArea } from "@/components/create/ResultArea";
 import { SeedField } from "@/components/create/SeedField";
 import { ImageSourceInput } from "@/components/common/ImageSourceInput";
-import { BeforeAfterSlider } from "@/components/common/BeforeAfterSlider";
 import { GpuWarning } from "@/components/layout/GpuWarning";
+import { VariationActions } from "@/components/improve/VariationActions";
+import { UpscaleAction } from "@/components/improve/UpscaleAction";
+import { RemoveBackgroundAction } from "@/components/improve/RemoveBackgroundAction";
+import { RefinedUpscaleAction } from "@/components/improve/RefinedUpscaleAction";
+import { ImproveResultCard } from "@/components/improve/ImproveResultCard";
 import type { CreateJobBody, Task } from "@/api/types";
 
-type ImproveActionId = "variazione_sottile" | "variazione_forte" | "upscale";
+type ImproveActionId =
+  | "variazione_sottile"
+  | "variazione_forte"
+  | "upscale"
+  | "rimuovi_sfondo"
+  | "ingrandisci_rifinito";
 type UpscaleFactor = 2 | 4;
 
 const MAX_PROMPT_LENGTH = 2000;
+const PROMPT_VALIDATED_ACTIONS: ImproveActionId[] = ["variazione_sottile", "variazione_forte"];
 
 export function ImprovePage() {
   const [searchParams] = useSearchParams();
@@ -31,10 +41,15 @@ export function ImprovePage() {
   const subtleTask = taskById.get("variazione_sottile");
   const strongTask = taskById.get("variazione_forte");
   const upscaleTask = taskById.get("upscale");
+  const removeBackgroundTask = taskById.get("rimuovi_sfondo");
+  const refinedUpscaleTask = taskById.get("ingrandisci_rifinito");
   const promptGuideTask = subtleTask ?? strongTask;
 
   const [prompt, setPrompt] = useState("");
   const [promptError, setPromptError] = useState<string | null>(null);
+  const [refinedPrompt, setRefinedPrompt] = useState("");
+  const [refinedPromptError, setRefinedPromptError] = useState<string | null>(null);
+  const [denoise, setDenoise] = useState<number | null>(null);
   const [seed, setSeed] = useState<number | null>(null);
   const [seedLocked, setSeedLocked] = useState(false);
   const [upscaleFactor, setUpscaleFactor] = useState<UpscaleFactor>(2);
@@ -43,7 +58,7 @@ export function ImprovePage() {
   const [generationIds, setGenerationIds] = useState<string[]>([]);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const { latest, isDone } = useJobEvents(jobId);
+  const { latest, latestPreviewUrl, isDone } = useJobEvents(jobId);
   useEffect(() => {
     if (!latest) return;
     if (latest.type === "completed") {
@@ -80,27 +95,40 @@ export function ImprovePage() {
   }
 
   function buildJobBody(task: Task): CreateJobBody {
-    const isUpscale = task.id === "upscale";
     const base: CreateJobBody = {
       task_id: task.id,
-      prompt: isUpscale ? "" : prompt,
+      prompt: "",
       negative_prompt: "",
       params: { seed, batch: 1, steps: null, cfg: null },
       input_upload_id: image?.uploadId ?? null,
       source_generation_id: sourceGenerationId,
     };
-    return isUpscale ? { ...base, upscale_factor: upscaleFactor } : base;
+    switch (task.id) {
+      case "upscale":
+        return { ...base, upscale_factor: upscaleFactor };
+      case "rimuovi_sfondo":
+        return base;
+      case "ingrandisci_rifinito":
+        return { ...base, prompt: refinedPrompt, params: { ...base.params, denoise } };
+      default:
+        return { ...base, prompt };
+    }
   }
 
   function handleAction(actionId: ImproveActionId) {
     const task = taskById.get(actionId);
     if (!task || disabledReasonFor(task) !== null || isGenerating) return;
 
-    if (actionId !== "upscale" && prompt.length > MAX_PROMPT_LENGTH) {
+    if (PROMPT_VALIDATED_ACTIONS.includes(actionId) && prompt.length > MAX_PROMPT_LENGTH) {
       setPromptError(`Il prompt supera i ${MAX_PROMPT_LENGTH} caratteri.`);
       return;
     }
+    if (actionId === "ingrandisci_rifinito" && refinedPrompt.length > MAX_PROMPT_LENGTH) {
+      setRefinedPromptError(`Il prompt supera i ${MAX_PROMPT_LENGTH} caratteri.`);
+      return;
+    }
     setPromptError(null);
+    setRefinedPromptError(null);
     setActiveAction(actionId);
     jobMutation.mutate(buildJobBody(task));
   }
@@ -179,42 +207,48 @@ export function ImprovePage() {
 
         <GpuWarning />
 
-        <div className="flex flex-col gap-1">
-          <ActionButton
-            label="Variazione leggera"
-            disabledReason={disabledReasonFor(subtleTask)}
-            isGenerating={isGenerating}
-            isActive={activeAction === "variazione_sottile"}
-            onClick={() => handleAction("variazione_sottile")}
-          />
-          <ActionButton
-            label="Variazione forte"
-            disabledReason={disabledReasonFor(strongTask)}
-            isGenerating={isGenerating}
-            isActive={activeAction === "variazione_forte"}
-            onClick={() => handleAction("variazione_forte")}
-          />
-        </div>
+        <VariationActions
+          subtleDisabledReason={disabledReasonFor(subtleTask)}
+          strongDisabledReason={disabledReasonFor(strongTask)}
+          isGenerating={isGenerating}
+          activeAction={activeAction}
+          onSelect={handleAction}
+        />
 
-        <fieldset className="flex flex-col gap-2">
-          <legend className="text-sm font-semibold text-ink">Ingrandisci</legend>
-          <div role="radiogroup" aria-label="Fattore di ingrandimento" className="flex gap-2">
-            <FactorButton factor={2} selected={upscaleFactor === 2} onSelect={setUpscaleFactor} />
-            <FactorButton factor={4} selected={upscaleFactor === 4} onSelect={setUpscaleFactor} />
-          </div>
-          <ActionButton
-            label="Ingrandisci"
-            disabledReason={disabledReasonFor(upscaleTask)}
-            isGenerating={isGenerating}
-            isActive={activeAction === "upscale"}
-            onClick={() => handleAction("upscale")}
-          />
-        </fieldset>
+        <UpscaleAction
+          factor={upscaleFactor}
+          onFactorChange={setUpscaleFactor}
+          disabledReason={disabledReasonFor(upscaleTask)}
+          isGenerating={isGenerating}
+          isActive={activeAction === "upscale"}
+          onClick={() => handleAction("upscale")}
+        />
+
+        <RemoveBackgroundAction
+          disabledReason={disabledReasonFor(removeBackgroundTask)}
+          isGenerating={isGenerating}
+          isActive={activeAction === "rimuovi_sfondo"}
+          onClick={() => handleAction("rimuovi_sfondo")}
+        />
+
+        <RefinedUpscaleAction
+          task={refinedUpscaleTask}
+          prompt={refinedPrompt}
+          promptError={refinedPromptError}
+          onPromptChange={setRefinedPrompt}
+          denoise={denoise}
+          onDenoiseChange={setDenoise}
+          disabledReason={disabledReasonFor(refinedUpscaleTask)}
+          isGenerating={isGenerating}
+          isActive={activeAction === "ingrandisci_rifinito"}
+          onClick={() => handleAction("ingrandisci_rifinito")}
+        />
       </div>
 
       <div className="flex flex-col gap-4">
         <ResultArea
           latestEvent={latest}
+          previewUrl={latestPreviewUrl}
           generationIds={[]}
           hasExternalResults={generationIds.length > 0}
           errorMessage={errorMessage}
@@ -226,76 +260,16 @@ export function ImprovePage() {
         {image && generationIds.length > 0 ? (
           <div className="flex flex-col gap-4">
             {generationIds.map((id) => (
-              <ImproveResultCard key={id} generationId={id} beforeUrl={image.url} />
+              <ImproveResultCard
+                key={id}
+                generationId={id}
+                beforeUrl={image.url}
+                transparentAfter={activeAction === "rimuovi_sfondo"}
+              />
             ))}
           </div>
         ) : null}
       </div>
     </div>
-  );
-}
-
-function ImproveResultCard({ generationId, beforeUrl }: { generationId: string; beforeUrl: string }) {
-  return (
-    <div className="flex flex-col gap-2 rounded-md border border-border bg-paper-2 p-2">
-      <BeforeAfterSlider
-        beforeUrl={beforeUrl}
-        afterUrl={`/api/v1/generations/${generationId}/image`}
-        sliderId={`before-after-${generationId}`}
-      />
-      <ResultCardActions generationId={generationId} />
-    </div>
-  );
-}
-
-function ActionButton({
-  label,
-  disabledReason,
-  isGenerating,
-  isActive,
-  onClick,
-}: {
-  label: string;
-  disabledReason: string | null;
-  isGenerating: boolean;
-  isActive: boolean;
-  onClick: () => void;
-}) {
-  return (
-    <div className="flex flex-col gap-1">
-      <button
-        type="button"
-        onClick={onClick}
-        disabled={disabledReason !== null || isGenerating}
-        className="min-h-11 w-fit rounded-md bg-accent px-4 py-2 text-sm font-semibold text-accent-ink disabled:cursor-not-allowed disabled:bg-paper-3 disabled:text-ink-muted"
-      >
-        {isGenerating && isActive ? "Generazione in corso..." : label}
-      </button>
-      {disabledReason && !isGenerating ? <p className="text-xs text-ink-muted">{disabledReason}</p> : null}
-    </div>
-  );
-}
-
-function FactorButton({
-  factor,
-  selected,
-  onSelect,
-}: {
-  factor: UpscaleFactor;
-  selected: boolean;
-  onSelect: (factor: UpscaleFactor) => void;
-}) {
-  return (
-    <button
-      type="button"
-      role="radio"
-      aria-checked={selected}
-      onClick={() => onSelect(factor)}
-      className={`min-h-11 rounded-md border px-3 py-2 text-sm font-medium ${
-        selected ? "border-accent bg-paper-3 text-ink" : "border-border bg-paper-2 text-ink-muted hover:bg-paper-3"
-      }`}
-    >
-      ×{factor}
-    </button>
   );
 }

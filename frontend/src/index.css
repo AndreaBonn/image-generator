@@ -100,3 +100,21 @@ body {
   outline: 2px solid var(--color-focus);
   outline-offset: 2px;
 }
+
+/*
+ * Checkerboard background for transparent PNGs ("Rimuovi lo sfondo", F2).
+ * Uses paper tokens so it stays correct in both themes without an override
+ * block; the classic two-layer trick (two identical diagonal gradients,
+ * the second offset by half a tile) needs no extra colour tokens.
+ */
+.bg-checkerboard {
+  --checker-size: 16px;
+  background-color: var(--color-paper-2);
+  background-image:
+    linear-gradient(45deg, var(--color-paper-3) 25%, transparent 25%, transparent 75%, var(--color-paper-3) 75%),
+    linear-gradient(45deg, var(--color-paper-3) 25%, transparent 25%, transparent 75%, var(--color-paper-3) 75%);
+  background-size: var(--checker-size) var(--checker-size);
+  background-position:
+    0 0,
+    calc(var(--checker-size) / 2) calc(var(--checker-size) / 2);
+}
