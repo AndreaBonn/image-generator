@@ -1,4 +1,6 @@
 import type { Task } from "@/api/types";
+import { InfoTip } from "@/components/ui/InfoTip";
+import { HELP_TEXTS } from "@/lib/helpTexts";
 
 interface GalleryFiltersProps {
   tasks: Task[];
@@ -47,16 +49,20 @@ export function GalleryFilters({
         Solo preferiti
       </label>
 
-      <label className="flex w-full flex-1 flex-col gap-1 text-sm text-ink sm:w-auto sm:min-w-48">
-        Cerca nel prompt
+      <div className="flex w-full flex-1 flex-col gap-1 text-sm text-ink sm:w-auto sm:min-w-48">
+        <span className="flex items-center gap-1">
+          <label htmlFor="gallery-search-input">Cerca nel prompt</label>
+          <InfoTip text={HELP_TEXTS.gallerySearch} label="Informazioni: Cerca nel prompt" />
+        </span>
         <input
+          id="gallery-search-input"
           type="search"
           value={searchInput}
           onChange={(event) => onSearchInputChange(event.target.value)}
           placeholder="Cerca..."
           className="min-h-11 rounded-md border border-border bg-paper-2 px-2 py-1 text-ink"
         />
-      </label>
+      </div>
     </div>
   );
 }

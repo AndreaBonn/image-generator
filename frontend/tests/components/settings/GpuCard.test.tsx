@@ -52,4 +52,10 @@ describe("GpuCard", () => {
 
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });
+
+  it("offers an InfoTip explaining the VRAM reading (A9)", () => {
+    render(<GpuCard gpu={buildGpuInfo()} />);
+
+    expect(screen.getByRole("button", { name: "Informazioni: Scheda video" })).toBeInTheDocument();
+  });
 });

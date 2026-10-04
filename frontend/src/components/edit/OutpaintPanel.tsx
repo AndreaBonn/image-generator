@@ -1,4 +1,6 @@
 import { computeOutpaintPreview, type OutpaintDirection } from "@/lib/outpaint";
+import { InfoTip } from "@/components/ui/InfoTip";
+import { HELP_TEXTS } from "@/lib/helpTexts";
 
 const DIRECTION_LABELS: Record<OutpaintDirection, string> = {
   top: "Sopra",
@@ -25,7 +27,10 @@ export function OutpaintPanel({ imageUrl, width, height, directions, onToggle }:
   return (
     <div className="flex flex-col gap-3">
       <fieldset className="flex flex-col gap-2">
-        <legend className="text-sm font-semibold text-ink">Direzioni</legend>
+        <legend className="flex items-center gap-1 text-sm font-semibold text-ink">
+          Direzioni
+          <InfoTip text={HELP_TEXTS.outpaintDirections} label="Informazioni: Direzioni" />
+        </legend>
         <div className="flex flex-wrap gap-2">
           {(Object.keys(DIRECTION_LABELS) as OutpaintDirection[]).map((direction) => {
             const selected = directions.includes(direction);

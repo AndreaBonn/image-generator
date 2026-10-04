@@ -2,6 +2,8 @@ import type { GpuInfo } from "@/api/types";
 import { cleanGpuName, formatMbAsGb } from "@/lib/format";
 import { shouldWarnAboutGpu } from "@/lib/gpuWarning";
 import { GpuWarningMessage } from "@/components/layout/GpuWarningMessage";
+import { InfoTip } from "@/components/ui/InfoTip";
+import { HELP_TEXTS } from "@/lib/helpTexts";
 
 export function GpuCard({ gpu }: { gpu: GpuInfo }) {
   const usedMb = gpu.vram_total_mb - gpu.vram_free_mb;
@@ -9,7 +11,10 @@ export function GpuCard({ gpu }: { gpu: GpuInfo }) {
 
   return (
     <section className="flex flex-col gap-2 rounded-md border border-border bg-paper-2 p-3">
-      <h2 className="text-sm font-semibold text-ink">Scheda video</h2>
+      <h2 className="flex items-center gap-1 text-sm font-semibold text-ink">
+        Scheda video
+        <InfoTip text={HELP_TEXTS.gpuVram} label="Informazioni: Scheda video" />
+      </h2>
       <p className="text-sm text-ink">{cleanGpuName(gpu.name)}</p>
       <div
         role="progressbar"

@@ -101,7 +101,7 @@ describe("AdvancedOptions", () => {
     expect(onCfgChange).toHaveBeenCalledWith(8);
   });
 
-  it("shows the plain-language CFG tooltip", async () => {
+  it("shows the plain-language CFG tooltip via InfoTip", async () => {
     render(
       <AdvancedOptions
         task={buildTask()}
@@ -115,10 +115,11 @@ describe("AdvancedOptions", () => {
     );
     await userEvent.click(screen.getByRole("button", { name: /Opzioni avanzate/ }));
 
+    const infoTip = screen.getByRole("button", { name: "Informazioni: Aderenza al prompt" });
+    await userEvent.hover(infoTip);
+
     expect(
-      screen.getByLabelText(
-        "Quanto l'immagine segue esattamente il testo scritto. Valori alti seguono di più, ma possono saturare i colori.",
-      ),
+      screen.getByText(/Quanto l'immagine deve seguire fedelmente il testo scritto/),
     ).toBeInTheDocument();
   });
 

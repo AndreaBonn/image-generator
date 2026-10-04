@@ -1,5 +1,7 @@
 import { useState } from "react";
 import type { Task } from "@/api/types";
+import { InfoTip } from "@/components/ui/InfoTip";
+import { HELP_TEXTS } from "@/lib/helpTexts";
 
 interface AdvancedOptionsProps {
   task: Task;
@@ -35,9 +37,13 @@ export function AdvancedOptions({
       </button>
       {open ? (
         <div className="flex flex-col gap-3 rounded-md border border-border bg-paper-2 p-3">
-          <label className="flex flex-col gap-1 text-sm text-ink">
-            Passi di generazione
+          <div className="flex flex-col gap-1 text-sm text-ink">
+            <span className="flex items-center gap-1">
+              <label htmlFor="advanced-steps-input">Passi di generazione</label>
+              <InfoTip text={HELP_TEXTS.steps} label="Informazioni: Passi di generazione" />
+            </span>
             <input
+              id="advanced-steps-input"
               type="number"
               min={task.limits.steps.min}
               max={task.limits.steps.max}
@@ -45,19 +51,15 @@ export function AdvancedOptions({
               onChange={(event) => onStepsChange(Number(event.target.value))}
               className="min-h-11 w-32 rounded-md border border-border bg-paper px-2 py-1"
             />
-          </label>
-          <label className="flex flex-col gap-1 text-sm text-ink">
+            <span className="text-xs text-ink-muted">Consigliato: {task.defaults.steps}</span>
+          </div>
+          <div className="flex flex-col gap-1 text-sm text-ink">
             <span className="flex items-center gap-1">
-              Aderenza al prompt
-              <span
-                title="Quanto l'immagine segue esattamente il testo scritto. Valori alti seguono di più, ma possono saturare i colori."
-                aria-label="Quanto l'immagine segue esattamente il testo scritto. Valori alti seguono di più, ma possono saturare i colori."
-                className="cursor-help text-ink-muted"
-              >
-                (?)
-              </span>
+              <label htmlFor="advanced-cfg-input">Aderenza al prompt</label>
+              <InfoTip text={HELP_TEXTS.cfg} label="Informazioni: Aderenza al prompt" />
             </span>
             <input
+              id="advanced-cfg-input"
               type="number"
               step="0.1"
               min={task.limits.cfg.min}
@@ -66,17 +68,23 @@ export function AdvancedOptions({
               onChange={(event) => onCfgChange(Number(event.target.value))}
               className="min-h-11 w-32 rounded-md border border-border bg-paper px-2 py-1"
             />
-          </label>
+            <span className="text-xs text-ink-muted">Consigliato: {task.defaults.cfg}</span>
+          </div>
           {task.supports_negative ? (
-            <label className="flex flex-col gap-1 text-sm text-ink">
-              Prompt negativo
+            <div className="flex flex-col gap-1 text-sm text-ink">
+              <span className="flex items-center gap-1">
+                <label htmlFor="advanced-negative-prompt">Prompt negativo</label>
+                <InfoTip text={HELP_TEXTS.negativePrompt} label="Informazioni: Prompt negativo" />
+              </span>
               <textarea
+                id="advanced-negative-prompt"
                 value={negativePrompt}
                 onChange={(event) => onNegativePromptChange(event.target.value)}
                 rows={2}
                 className="rounded-md border border-border bg-paper px-2 py-1"
               />
-            </label>
+              <span className="text-xs text-ink-muted">Separa più elementi con una virgola.</span>
+            </div>
           ) : null}
         </div>
       ) : null}

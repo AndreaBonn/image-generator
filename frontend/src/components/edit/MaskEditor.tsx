@@ -14,6 +14,8 @@ import {
   type MaskHistory,
   type MaskPoint,
 } from "@/lib/mask";
+import { InfoTip } from "@/components/ui/InfoTip";
+import { HELP_TEXTS } from "@/lib/helpTexts";
 
 const OVERLAY_COLOR = { r: 239, g: 68, b: 68 };
 const OVERLAY_ALPHA = 0.45;
@@ -203,10 +205,12 @@ function MaskToolbar(props: MaskToolbarProps) {
       >
         Gomma
       </button>
+      <InfoTip text={HELP_TEXTS.maskTools} label="Informazioni: pennello e gomma" />
 
-      <label className="flex min-h-11 items-center gap-2 text-ink-muted">
-        Dimensione
+      <span className="flex min-h-11 items-center gap-2 text-ink-muted">
+        <label htmlFor="mask-brush-size">Dimensione</label>
         <input
+          id="mask-brush-size"
           type="range"
           min={MIN_BRUSH}
           max={MAX_BRUSH}
@@ -215,14 +219,17 @@ function MaskToolbar(props: MaskToolbarProps) {
           aria-label="Dimensione del pennello"
           className="h-11 w-32"
         />
-      </label>
+        <InfoTip text={HELP_TEXTS.maskBrushSize} label="Informazioni: dimensione del pennello" />
+      </span>
 
       <button type="button" onClick={onInvert} className={toolButtonClass(false)}>
         Inverti
       </button>
+      <InfoTip text={HELP_TEXTS.maskInvert} label="Informazioni: Inverti" />
       <button type="button" onClick={onClear} className={toolButtonClass(false)}>
         Cancella tutto
       </button>
+      <InfoTip text={HELP_TEXTS.maskClear} label="Informazioni: Cancella tutto" />
       <button
         type="button"
         onClick={onUndo}
@@ -256,6 +263,7 @@ function MaskToolbar(props: MaskToolbarProps) {
       >
         100%
       </button>
+      <InfoTip text={HELP_TEXTS.maskZoom} label="Informazioni: zoom" />
     </div>
   );
 }

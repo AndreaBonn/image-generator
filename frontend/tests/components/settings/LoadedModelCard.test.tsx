@@ -20,4 +20,10 @@ describe("LoadedModelCard", () => {
 
     expect(screen.getByText("some-future-model")).toBeInTheDocument();
   });
+
+  it("offers an InfoTip explaining the loaded model (A9)", () => {
+    render(<LoadedModelCard family={null} />);
+
+    expect(screen.getByRole("button", { name: "Informazioni: Modello in memoria" })).toBeInTheDocument();
+  });
 });

@@ -2,6 +2,8 @@ import { useState } from "react";
 import type { ModelInfo } from "@/api/types";
 import { modelStatusLabel } from "@/lib/modelStatus";
 import { formatSizeGb } from "@/lib/format";
+import { InfoTip } from "@/components/ui/InfoTip";
+import { HELP_TEXTS } from "@/lib/helpTexts";
 
 interface ModelsTableProps {
   models: ModelInfo[];
@@ -12,7 +14,10 @@ interface ModelsTableProps {
 export function ModelsTable({ models, installCommand }: ModelsTableProps) {
   return (
     <section className="flex flex-col gap-2 rounded-md border border-border bg-paper-2 p-3">
-      <h2 className="text-sm font-semibold text-ink">Modelli</h2>
+      <h2 className="flex items-center gap-1 text-sm font-semibold text-ink">
+        Modelli
+        <InfoTip text={HELP_TEXTS.modelsTable} label="Informazioni: Modelli" />
+      </h2>
       {/* Tables may scroll on their own (WCAG 1.4.10 exempts 2-D content); the page must not. */}
       <div
         className="overflow-x-auto"

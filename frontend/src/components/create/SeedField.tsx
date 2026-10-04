@@ -1,3 +1,6 @@
+import { InfoTip } from "@/components/ui/InfoTip";
+import { HELP_TEXTS } from "@/lib/helpTexts";
+
 interface SeedFieldProps {
   seed: number | null;
   locked: boolean;
@@ -11,9 +14,12 @@ export function SeedField({ seed, locked, onChange, onToggleLocked }: SeedFieldP
 
   return (
     <div className="flex flex-col gap-2">
-      <label htmlFor="seed-input" className="text-sm font-semibold text-ink">
-        Seed
-      </label>
+      <span className="flex items-center gap-1">
+        <label htmlFor="seed-input" className="text-sm font-semibold text-ink">
+          Seed
+        </label>
+        <InfoTip text={HELP_TEXTS.seed} label="Informazioni: Seed" />
+      </span>
       <div className="flex flex-wrap items-center gap-2">
         <input
           id="seed-input"
@@ -45,6 +51,7 @@ export function SeedField({ seed, locked, onChange, onToggleLocked }: SeedFieldP
         >
           {locked ? "Seed fissato" : "Fissa seed"}
         </button>
+        <InfoTip text={HELP_TEXTS.seedLock} label="Informazioni: Fissa seed" />
       </div>
     </div>
   );

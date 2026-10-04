@@ -1,4 +1,6 @@
 import type { Task } from "@/api/types";
+import { InfoTip } from "@/components/ui/InfoTip";
+import { HELP_TEXTS } from "@/lib/helpTexts";
 
 interface TaskSelectorProps {
   tasks: Task[];
@@ -10,7 +12,10 @@ interface TaskSelectorProps {
 export function TaskSelector({ tasks, selectedTaskId, onSelect }: TaskSelectorProps) {
   return (
     <fieldset className="flex flex-col gap-2">
-      <legend className="mb-1 text-sm font-semibold text-ink">Compito</legend>
+      <legend className="mb-1 flex items-center gap-1 text-sm font-semibold text-ink">
+        Compito
+        <InfoTip text={HELP_TEXTS.taskSelector} label="Informazioni: Compito" />
+      </legend>
       <div className="flex flex-col gap-2">
         {tasks.map((task) => {
           const isSelected = task.id === selectedTaskId;

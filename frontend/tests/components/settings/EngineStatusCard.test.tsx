@@ -21,4 +21,10 @@ describe("EngineStatusCard", () => {
     expect(screen.getByText("Non risponde.")).toBeInTheDocument();
     expect(screen.queryByText("Acceso.")).not.toBeInTheDocument();
   });
+
+  it("offers an InfoTip explaining the engine status (A9)", () => {
+    render(<EngineStatusCard engine={{ status: "ok", comfyui_version: null }} />);
+
+    expect(screen.getByRole("button", { name: "Informazioni: Motore" })).toBeInTheDocument();
+  });
 });

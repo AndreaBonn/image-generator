@@ -31,6 +31,7 @@ describe("ModelsTable", () => {
     expect(screen.getByText("Installato")).toBeInTheDocument();
     expect(screen.getByText("6,6 GB")).toBeInTheDocument();
     expect(screen.getByText("CreativeML Open RAIL-M")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Informazioni: Modelli" })).toBeInTheDocument();
   });
 
   it("shows a dash for the size when it is not known", () => {
