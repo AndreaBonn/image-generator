@@ -27,3 +27,4 @@ docs/benchmark/images/
 .vscode/
 .idea/
 .DS_Store
+engine/*.log
