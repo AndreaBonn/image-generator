@@ -22,12 +22,12 @@ export function GalleryFilters({
 }: GalleryFiltersProps) {
   return (
     <div className="flex flex-wrap items-end gap-3">
-      <label className="flex flex-col gap-1 text-sm text-ink">
+      <label className="flex w-full flex-col gap-1 text-sm text-ink sm:w-auto">
         Compito
         <select
           value={taskId}
           onChange={(event) => onTaskIdChange(event.target.value)}
-          className="min-h-11 rounded-md border border-border bg-paper-2 px-2 py-1 text-ink"
+          className="min-h-11 w-full max-w-full rounded-md border border-border bg-paper-2 px-2 py-1 text-ink"
         >
           <option value="">Tutti i compiti</option>
           {tasks.map((task) => (
@@ -47,7 +47,7 @@ export function GalleryFilters({
         Solo preferiti
       </label>
 
-      <label className="flex min-w-48 flex-1 flex-col gap-1 text-sm text-ink">
+      <label className="flex w-full flex-1 flex-col gap-1 text-sm text-ink sm:w-auto sm:min-w-48">
         Cerca nel prompt
         <input
           type="search"

@@ -13,35 +13,54 @@ export function ModelsTable({ models, installCommand }: ModelsTableProps) {
   return (
     <section className="flex flex-col gap-2 rounded-md border border-border bg-paper-2 p-3">
       <h2 className="text-sm font-semibold text-ink">Modelli</h2>
-      <table className="w-full text-left text-sm">
-        <caption className="sr-only">Elenco dei modelli con stato, dimensione e licenza</caption>
-        <thead>
-          <tr className="border-b border-border text-ink-muted">
-            <th scope="col" className="py-1 pr-2 font-medium">
-              Modello
-            </th>
-            <th scope="col" className="py-1 pr-2 font-medium">
-              Stato
-            </th>
-            <th scope="col" className="py-1 pr-2 font-medium">
-              Dimensione
-            </th>
-            <th scope="col" className="py-1 pr-2 font-medium">
-              Licenza
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {models.map((model) => (
-            <ModelRow key={model.id} model={model} installCommand={installCommand} />
-          ))}
-        </tbody>
-      </table>
+      {/* Tables may scroll on their own (WCAG 1.4.10 exempts 2-D content); the page must not. */}
+      <div
+        className="overflow-x-auto"
+        role="region"
+        aria-label="Tabella dei modelli"
+      >
+        <table className="w-full min-w-[32rem] text-left text-sm">
+          <caption className="sr-only">
+            Elenco dei modelli con stato, dimensione e licenza
+          </caption>
+          <thead>
+            <tr className="border-b border-border text-ink-muted">
+              <th scope="col" className="py-1 pr-2 font-medium">
+                Modello
+              </th>
+              <th scope="col" className="py-1 pr-2 font-medium">
+                Stato
+              </th>
+              <th scope="col" className="py-1 pr-2 font-medium">
+                Dimensione
+              </th>
+              <th scope="col" className="py-1 pr-2 font-medium">
+                Licenza
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {models.map((model) => (
+              <ModelRow
+                key={model.id}
+                model={model}
+                installCommand={installCommand}
+              />
+            ))}
+          </tbody>
+        </table>
+      </div>
     </section>
   );
 }
 
-function ModelRow({ model, installCommand }: { model: ModelInfo; installCommand: string }) {
+function ModelRow({
+  model,
+  installCommand,
+}: {
+  model: ModelInfo;
+  installCommand: string;
+}) {
   const needsInstall = model.status === "missing" && model.enabled;
 
   return (
@@ -79,7 +98,9 @@ function InstallCommand({ command }: { command: string }) {
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <code className="rounded bg-paper-3 px-2 py-1 text-xs text-ink">{command}</code>
+      <code className="rounded bg-paper-3 px-2 py-1 text-xs text-ink">
+        {command}
+      </code>
       <button
         type="button"
         onClick={handleCopy}
