@@ -16,16 +16,15 @@ function renderGpuWarning() {
 }
 
 describe("GpuWarning", () => {
-  it("shows the warning when free VRAM is low", async () => {
-    vi.spyOn(queries, "fetchSystem").mockResolvedValue(
-      buildSystemInfo({ gpu: buildGpuInfo({ vram_free_mb: 2000 }) }),
+  it("stays silent when only our own engine holds the VRAM", async () => {
+    const fetchSystem = vi.spyOn(queries, "fetchSystem").mockResolvedValue(
+      buildSystemInfo({ gpu: buildGpuInfo({ vram_free_mb: 2000, other_processes: [] }) }),
     );
 
     renderGpuWarning();
 
-    expect(await screen.findByRole("alert")).toHaveTextContent(
-      "Un altro programma sta usando la scheda video.",
-    );
+    await waitFor(() => expect(fetchSystem).toHaveBeenCalled());
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });
 
   it("shows the warning and lists the process when another program uses the GPU", async () => {
