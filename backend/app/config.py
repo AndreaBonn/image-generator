@@ -24,6 +24,8 @@ class Settings(BaseSettings):
     config_dir: Path = REPO_ROOT / "config"
     min_free_disk_gb: float = Field(default=5, ge=0)
     job_timeout_s: int = Field(default=600, gt=0)
+    # Benchmark 2026-10-04: first image after a family switch took 5-14 s on the RTX 4060.
+    model_switch_eta_s: int = Field(default=10, ge=0)
     host: Literal["127.0.0.1"] = "127.0.0.1"
     port: int = Field(default=8000, ge=1, le=65535)
 

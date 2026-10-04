@@ -51,6 +51,12 @@ class EngineRejectedError(AppError):
     default_message = "Il motore ha rifiutato la richiesta di generazione."
 
 
+class EngineExecutionError(AppError):
+    code = "ENGINE_EXECUTION_FAILED"
+    http_status = 502
+    default_message = "Il motore non è riuscito a completare la generazione."
+
+
 class OutOfMemoryError(AppError):
     code = "OUT_OF_MEMORY"
     http_status = 507

@@ -61,6 +61,7 @@ class TaskDefinition(CatalogModel):
     limits: dict[str, ParameterLimit]
     aspect_ratios: list[AspectRatio]
     supports_styles: bool
+    free_on_family_switch: bool = False
     supports_negative: bool
     default_styles: list[str] = Field(default_factory=list)
     prompt_language: PromptLanguage
