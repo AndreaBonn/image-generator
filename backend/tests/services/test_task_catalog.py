@@ -128,7 +128,9 @@ def test_load_catalog_ratios_and_guidance(catalog_settings: Settings) -> None:
         assert len(task.prompt_examples) >= 2
         assert len(set(task.prompt_examples)) == len(task.prompt_examples)
         assert task.prompt_tips
-        assert task.prompt_language.required == ("any" if task.id == "upscale" else "en")
+        # FLUX.2 klein handled Italian prompts in the phase 0 benchmark; SDXL lost detail.
+        expected = "any" if task.id in {"upscale", "testo"} else "en"
+        assert task.prompt_language.required == expected
         if task.id != "upscale":
             assert len(task.aspect_ratios) == 26
             assert sum(ratio.featured for ratio in task.aspect_ratios) == 6

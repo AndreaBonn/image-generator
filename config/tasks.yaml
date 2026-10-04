@@ -62,7 +62,9 @@ tasks:
     prompt_language: &english
       required: en
       label: Scrivi in inglese
-      reason: "Questo modello capisce bene solo l'inglese: le parole italiane vengono in gran parte ignorate."
+      reason: >-
+        Questo modello è stato addestrato su testi inglesi:
+        in italiano coglie il soggetto ma perde molti dettagli.
     prompt_tips:
       - Describe the subject, setting, lighting and style, in that order.
       - Use short phrases separated by commas to explore an idea quickly.
@@ -114,10 +116,10 @@ tasks:
       cfg: {min: 1, max: 1.5}
     supports_styles: false
     supports_negative: false
-    prompt_language: &multilingual
-      required: en
-      label: Inglese consigliato
-      reason: Questo modello capisce anche altre lingue, ma rende meglio in inglese.
+    prompt_language:
+      required: any
+      label: Italiano o inglese
+      reason: Questo modello capisce bene anche l'italiano, come mostrato dalle prove fatte.
     prompt_tips:
       - Put the exact text to render in quotation marks.
       - Describe where each object sits and how the objects relate to each other.
@@ -136,13 +138,18 @@ tasks:
     defaults: {prompt: '', steps: 8, cfg: 1.0, seed: null, batch: 1, aspect_ratio: '1152*896'}
     supports_styles: false
     supports_negative: false
-    prompt_language: *multilingual
+    prompt_language:
+      required: en
+      label: Inglese consigliato
+      reason: Questo modello capisce anche altre lingue, ma l'italiano non è ancora stato provato.
     prompt_tips:
       - Describe natural light, camera distance and the main subject.
       - Use concrete details about materials and surroundings.
     prompt_examples:
       - 'a ceramic cup on a linen tablecloth, natural window light, photograph'
-      - 'candid portrait of a gardener in a greenhouse, soil on hands, backlit leaves, shallow depth of field, documentary photography'
+      - >-
+        candid portrait of a gardener in a greenhouse, soil on hands, backlit leaves,
+        shallow depth of field, documentary photography
 
   - <<: *sdxl
     id: inpaint
