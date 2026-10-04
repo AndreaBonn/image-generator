@@ -10,7 +10,11 @@ import { SeedField } from "@/components/create/SeedField";
 import { StyleSelector } from "@/components/create/StyleSelector";
 import { AdvancedOptions } from "@/components/create/AdvancedOptions";
 import { ResultArea } from "@/components/create/ResultArea";
+import { RecipeImport } from "@/components/create/RecipeImport";
 import { GpuWarning } from "@/components/layout/GpuWarning";
+import { InfoTip } from "@/components/ui/InfoTip";
+import { HELP_TEXTS } from "@/lib/helpTexts";
+import type { RecipeImportPatch } from "@/lib/recipeImport";
 import type { Task } from "@/api/types";
 
 const MAX_PROMPT_LENGTH = 2000;
@@ -82,6 +86,18 @@ export function CreatePage() {
     mutationFn: cancelJob,
     onSettled: () => setJobId(null),
   });
+
+  function handleApplyRecipe(patch: RecipeImportPatch) {
+    if (patch.taskId) setTaskId(patch.taskId);
+    setPrompt(patch.prompt);
+    if (patch.negativePrompt !== undefined) setNegativePrompt(patch.negativePrompt);
+    if (patch.aspectRatio) setAspectRatio(patch.aspectRatio);
+    setSeed(patch.seed);
+    setSeedLocked(true);
+    if (patch.styleIds) setStyleIds(patch.styleIds);
+    if (patch.steps !== undefined) setSteps(patch.steps);
+    if (patch.cfg !== undefined) setCfg(patch.cfg);
+  }
 
   function handleSelectTask(id: string) {
     setTaskId(id);
@@ -158,32 +174,38 @@ export function CreatePage() {
               prompt={prompt}
               onUseExample={setPrompt}
             />
-            <div className="flex flex-col gap-1">
-              <label htmlFor="prompt-input" className="text-sm font-semibold text-ink">
-                Descrizione
-              </label>
-              <textarea
-                id="prompt-input"
-                value={prompt}
-                onChange={(event) => setPrompt(event.target.value)}
-                rows={3}
-                maxLength={MAX_PROMPT_LENGTH}
-                className="rounded-md border border-border bg-paper-2 px-2 py-1 text-sm text-ink"
-                aria-invalid={promptError !== null}
-                aria-describedby={promptError ? "prompt-error" : undefined}
-              />
-              {promptError ? (
-                <p id="prompt-error" role="alert" className="text-sm text-danger">
-                  {promptError}
-                </p>
-              ) : null}
-            </div>
+            <RecipeImport tasks={creationTasks} onApply={handleApplyRecipe}>
+              <div className="flex flex-col gap-1">
+                <label htmlFor="prompt-input" className="text-sm font-semibold text-ink">
+                  Descrizione
+                </label>
+                <textarea
+                  id="prompt-input"
+                  value={prompt}
+                  onChange={(event) => setPrompt(event.target.value)}
+                  rows={3}
+                  maxLength={MAX_PROMPT_LENGTH}
+                  className="rounded-md border border-border bg-paper-2 px-2 py-1 text-sm text-ink"
+                  aria-invalid={promptError !== null}
+                  aria-describedby={promptError ? "prompt-error" : undefined}
+                />
+                {promptError ? (
+                  <p id="prompt-error" role="alert" className="text-sm text-danger">
+                    {promptError}
+                  </p>
+                ) : null}
+              </div>
+            </RecipeImport>
 
             <AspectRatioPicker ratios={selectedTask.aspect_ratios} value={aspectRatio} onChange={setAspectRatio} />
 
-            <label className="flex flex-col gap-1 text-sm text-ink">
-              Numero di immagini
+            <div className="flex flex-col gap-1 text-sm text-ink">
+              <span className="flex items-center gap-1">
+                <label htmlFor="batch-input">Numero di immagini</label>
+                <InfoTip text={HELP_TEXTS.batch} label="Informazioni: Numero di immagini" />
+              </span>
               <input
+                id="batch-input"
                 type="number"
                 min={MIN_BATCH}
                 max={MAX_BATCH}
@@ -193,7 +215,7 @@ export function CreatePage() {
                 }
                 className="min-h-11 w-24 rounded-md border border-border bg-paper-2 px-2 py-1"
               />
-            </label>
+            </div>
 
             {selectedTask.supports_styles ? (
               <StyleSelector selected={styleIds} onChange={setStyleIds} />
