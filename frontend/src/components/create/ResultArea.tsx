@@ -105,7 +105,7 @@ function ProgressMessage({ event }: { event: JobEvent | null }) {
 
 function ResultsGrid({ generationIds }: { generationIds: string[] }) {
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+    <div className={`grid gap-3 ${generationIds.length > 1 ? "sm:grid-cols-2" : "grid-cols-1"}`}>
       {generationIds.map((id) => (
         <ResultCard key={id} generationId={id} />
       ))}
@@ -119,7 +119,7 @@ function ResultCard({ generationId }: { generationId: string }) {
       <img
         src={imageUrl(generationId)}
         alt="Immagine generata"
-        className="aspect-square w-full rounded-md object-cover"
+        className="h-auto max-h-[75vh] w-full rounded-md object-contain"
       />
       <ResultCardActions generationId={generationId} />
     </figure>
@@ -144,21 +144,21 @@ export function ResultCardActions({ generationId }: { generationId: string }) {
       <a
         href={imageUrl(generationId)}
         download
-        className="min-h-11 rounded-md border border-border px-2 py-1 text-xs text-ink-muted"
+        className="inline-flex min-h-11 items-center rounded-md border border-border px-3 text-sm text-ink-muted hover:bg-paper-3"
       >
         Scarica
       </a>
       <button
         type="button"
         onClick={() => favoriteMutation.mutate(true)}
-        className="min-h-11 rounded-md border border-border px-2 py-1 text-xs text-ink-muted"
+        className="inline-flex min-h-11 items-center rounded-md border border-border px-3 text-sm text-ink-muted hover:bg-paper-3"
       >
         Preferito
       </button>
       <button
         type="button"
         onClick={() => rerunMutation.mutate(true)}
-        className="min-h-11 rounded-md border border-border px-2 py-1 text-xs text-ink-muted"
+        className="inline-flex min-h-11 items-center rounded-md border border-border px-3 text-sm text-ink-muted hover:bg-paper-3"
       >
         Rigenera
       </button>
