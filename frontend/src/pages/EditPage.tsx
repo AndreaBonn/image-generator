@@ -243,7 +243,7 @@ export function EditPage() {
             type="button"
             onClick={handleSubmit}
             disabled={!canSubmit || isGenerating}
-            className="min-h-11 w-fit rounded-md bg-accent px-4 py-2 text-sm font-semibold text-accent-ink disabled:opacity-60"
+            className="min-h-11 w-fit rounded-md bg-accent px-4 py-2 text-sm font-semibold text-accent-ink disabled:cursor-not-allowed disabled:bg-paper-3 disabled:text-ink-muted"
           >
             {isGenerating ? "Generazione in corso..." : "Genera"}
           </button>

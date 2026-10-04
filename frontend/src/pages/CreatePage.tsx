@@ -217,7 +217,7 @@ export function CreatePage() {
               type="button"
               onClick={handleSubmit}
               disabled={jobMutation.isPending || jobId !== null}
-              className="min-h-11 w-fit rounded-md bg-accent px-4 py-2 text-sm font-semibold text-accent-ink disabled:opacity-60"
+              className="min-h-11 w-fit rounded-md bg-accent px-4 py-2 text-sm font-semibold text-accent-ink disabled:cursor-not-allowed disabled:bg-paper-3 disabled:text-ink-muted"
             >
               {jobMutation.isPending || (jobId !== null && !isDone) ? "Generazione in corso..." : "Genera"}
             </button>

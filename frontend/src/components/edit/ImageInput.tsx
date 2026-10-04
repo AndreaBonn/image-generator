@@ -39,7 +39,7 @@ export function ImageInput({
         type="button"
         disabled={disabled}
         onClick={() => inputRef.current?.click()}
-        className="min-h-11 rounded-md border border-border bg-paper-3 px-3 py-2 text-sm font-medium text-ink disabled:cursor-not-allowed disabled:opacity-60"
+        className="min-h-11 rounded-md border border-border bg-paper-3 px-3 py-2 text-sm font-medium text-ink disabled:cursor-not-allowed disabled:cursor-not-allowed disabled:bg-paper-3 disabled:text-ink-muted"
       >
         Scegli un file
       </button>

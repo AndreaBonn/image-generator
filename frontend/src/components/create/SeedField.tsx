@@ -25,7 +25,7 @@ export function SeedField({ seed, locked, onChange, onToggleLocked }: SeedFieldP
             const parsed = Number(event.target.value);
             onChange(Number.isFinite(parsed) ? parsed : null);
           }}
-          className="min-h-11 w-40 rounded-md border border-border bg-paper-2 px-2 py-1 text-sm text-ink disabled:opacity-60"
+          className="min-h-11 w-40 rounded-md border border-border bg-paper-2 px-2 py-1 text-sm text-ink disabled:cursor-not-allowed disabled:bg-paper-3 disabled:text-ink-muted"
         />
         <label className="flex min-h-11 items-center gap-1 text-sm text-ink-muted">
           <input
