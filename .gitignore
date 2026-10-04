@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Node
+node_modules/
+dist/
+
+# Environment
+.env
+
+# Engine installation (ComfyUI clone, venv, downloaded models)
+engine/ComfyUI/
+engine/models/
+
+# Runtime data and benchmark outputs
+data/
+docs/benchmark/images/
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
