@@ -11,7 +11,7 @@ models:
     folder: checkpoints
     filename: juggernautXL_v8Rundiffusion.safetensors
     source: fooocus
-    license: "RunDiffusion, verify before commercial use"
+    license: "RunDiffusion, da verificare prima di un uso commerciale"
 
   - id: sdxl_offset_lora
     label: SDXL offset LoRA
@@ -27,7 +27,7 @@ models:
     folder: inpaint
     filename: fooocus_inpaint_head.pth
     source: fooocus
-    license: "Fooocus, verify before commercial use"
+    license: "Fooocus, da verificare prima di un uso commerciale"
 
   - id: fooocus_inpaint_patch
     label: Fooocus inpaint patch v2.6
@@ -35,7 +35,7 @@ models:
     folder: inpaint
     filename: inpaint_v26.fooocus.patch
     source: fooocus
-    license: "Fooocus, verify before commercial use"
+    license: "Fooocus, da verificare prima di un uso commerciale"
 
   - id: sdxl_lightning_lora
     label: SDXL-Lightning 4-step LoRA

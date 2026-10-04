@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { ModelInfo } from "@/api/types";
 import { modelStatusLabel } from "@/lib/modelStatus";
+import { formatSizeGb } from "@/lib/format";
 
 interface ModelsTableProps {
   models: ModelInfo[];
@@ -49,7 +50,7 @@ function ModelRow({ model, installCommand }: { model: ModelInfo; installCommand:
         <td className="py-1 pr-2 text-ink">{model.label}</td>
         <td className="py-1 pr-2 text-ink">{modelStatusLabel(model.status)}</td>
         <td className="py-1 pr-2 text-ink-muted">
-          {model.size_gb !== null ? `${model.size_gb} GB` : "-"}
+          {model.size_gb !== null ? formatSizeGb(model.size_gb) : "-"}
         </td>
         <td className="py-1 pr-2 text-ink-muted">{model.license}</td>
       </tr>

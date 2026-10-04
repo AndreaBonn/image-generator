@@ -20,14 +20,14 @@ export function GpuWarningMessage({ processes }: GpuWarningMessageProps) {
         <ul className="list-disc pl-5 text-ink-muted">
           {processes.map((process) => (
             <li key={process.name}>
-              {process.name} — {process.used_mb} MB
+              {process.name}: {process.used_mb} MB
             </li>
           ))}
         </ul>
       ) : null}
       <p className="text-ink-muted">
         Chiudi gli altri programmi prima di generare: in passato una generazione in
-        contemporanea ad un altro carico sulla scheda video ha bloccato la GPU.
+        contemporanea a un altro carico sulla scheda video ha bloccato la GPU.
       </p>
     </div>
   );

@@ -23,9 +23,9 @@ describe("SettingsPage", () => {
 
     renderSettingsPage();
 
-    const diskText = await screen.findByText(/3 GB liberi/);
+    const diskText = await screen.findByText(/3,0 GB liberi/);
     expect(diskText).toHaveClass("text-danger");
-    expect(diskText).toHaveTextContent("minimo consigliato 10 GB");
+    expect(diskText).toHaveTextContent("minimo consigliato 10,0 GB");
   });
 
   it("does not mark disk space in red when it is above the minimum", async () => {
@@ -35,7 +35,7 @@ describe("SettingsPage", () => {
 
     renderSettingsPage();
 
-    const diskText = await screen.findByText(/40 GB liberi/);
+    const diskText = await screen.findByText(/40,0 GB liberi/);
     expect(diskText).not.toHaveClass("text-danger");
   });
 

@@ -6,7 +6,7 @@ export function EngineStatusCard({ engine }: { engine: EngineInfo }) {
       <h2 className="text-sm font-semibold text-ink">Motore</h2>
       {engine.status === "ok" ? (
         <p className="text-sm text-ink">
-          Acceso{engine.comfyui_version ? ` — versione ${engine.comfyui_version}` : ""}.
+          Acceso{engine.comfyui_version ? `, versione ${engine.comfyui_version}` : ""}.
         </p>
       ) : (
         <p className="text-sm text-danger">Non risponde.</p>

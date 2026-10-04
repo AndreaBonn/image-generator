@@ -1,5 +1,5 @@
 import type { GpuInfo } from "@/api/types";
-import { formatMbAsGb } from "@/lib/format";
+import { cleanGpuName, formatMbAsGb } from "@/lib/format";
 import { shouldWarnAboutGpu } from "@/lib/gpuWarning";
 import { GpuWarningMessage } from "@/components/layout/GpuWarningMessage";
 
@@ -10,7 +10,7 @@ export function GpuCard({ gpu }: { gpu: GpuInfo }) {
   return (
     <section className="flex flex-col gap-2 rounded-md border border-border bg-paper-2 p-3">
       <h2 className="text-sm font-semibold text-ink">Scheda video</h2>
-      <p className="text-sm text-ink">{gpu.name}</p>
+      <p className="text-sm text-ink">{cleanGpuName(gpu.name)}</p>
       <div
         role="progressbar"
         aria-label="VRAM in uso"
