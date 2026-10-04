@@ -29,3 +29,4 @@ docs/benchmark/images/
 .DS_Store
 engine/*.log
 docs/benchmark_run.log
+.playwright-mcp/

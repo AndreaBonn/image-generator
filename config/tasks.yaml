@@ -30,32 +30,32 @@ tasks:
       seed: {min: 0, max: 4294967295}
       batch: {min: 1, max: 4}
     aspect_ratios: &ratios
-      - {id: '704*1408', width: 704, height: 1408, label: 'Verticale 1:2', featured: false}
-      - {id: '704*1344', width: 704, height: 1344, label: 'Verticale 11:21', featured: false}
-      - {id: '768*1344', width: 768, height: 1344, label: 'Verticale 4:7', featured: true}
-      - {id: '768*1280', width: 768, height: 1280, label: 'Verticale 3:5', featured: false}
-      - {id: '832*1216', width: 832, height: 1216, label: 'Verticale 13:19', featured: false}
-      - {id: '832*1152', width: 832, height: 1152, label: 'Verticale 13:18', featured: false}
-      - {id: '896*1152', width: 896, height: 1152, label: 'Verticale 7:9', featured: true}
-      - {id: '896*1088', width: 896, height: 1088, label: 'Verticale 14:17', featured: false}
-      - {id: '960*1088', width: 960, height: 1088, label: 'Verticale 15:17', featured: false}
-      - {id: '960*1024', width: 960, height: 1024, label: 'Verticale 15:16', featured: false}
-      - {id: '1024*1024', width: 1024, height: 1024, label: 'Quadrato 1:1', featured: true}
-      - {id: '1024*960', width: 1024, height: 960, label: 'Orizzontale 16:15', featured: false}
-      - {id: '1088*960', width: 1088, height: 960, label: 'Orizzontale 17:15', featured: false}
-      - {id: '1088*896', width: 1088, height: 896, label: 'Orizzontale 17:14', featured: false}
-      - {id: '1152*896', width: 1152, height: 896, label: 'Orizzontale 9:7', featured: true}
-      - {id: '1152*832', width: 1152, height: 832, label: 'Orizzontale 18:13', featured: false}
-      - {id: '1216*832', width: 1216, height: 832, label: 'Orizzontale 19:13', featured: true}
-      - {id: '1280*768', width: 1280, height: 768, label: 'Orizzontale 5:3', featured: false}
-      - {id: '1344*768', width: 1344, height: 768, label: 'Orizzontale 7:4', featured: true}
-      - {id: '1344*704', width: 1344, height: 704, label: 'Orizzontale 21:11', featured: false}
-      - {id: '1408*704', width: 1408, height: 704, label: 'Orizzontale 2:1', featured: false}
-      - {id: '1472*704', width: 1472, height: 704, label: 'Orizzontale 23:11', featured: false}
-      - {id: '1536*640', width: 1536, height: 640, label: 'Orizzontale 12:5', featured: false}
-      - {id: '1600*640', width: 1600, height: 640, label: 'Orizzontale 5:2', featured: false}
-      - {id: '1664*576', width: 1664, height: 576, label: 'Orizzontale 26:9', featured: false}
-      - {id: '1728*576', width: 1728, height: 576, label: 'Orizzontale 3:1', featured: false}
+      - {id: '704*1408', width: 704, height: 1408, label: 'Verticale 1:2 · 704×1408', featured: false}
+      - {id: '704*1344', width: 704, height: 1344, label: 'Verticale 1:2 · 704×1344', featured: false}
+      - {id: '768*1344', width: 768, height: 1344, label: 'Verticale 9:16 · 768×1344', featured: true}
+      - {id: '768*1280', width: 768, height: 1280, label: 'Verticale 9:16 · 768×1280', featured: false}
+      - {id: '832*1216', width: 832, height: 1216, label: 'Verticale 2:3 · 832×1216', featured: false}
+      - {id: '832*1152', width: 832, height: 1152, label: 'Verticale 3:4 · 832×1152', featured: false}
+      - {id: '896*1152', width: 896, height: 1152, label: 'Verticale 4:5 · 896×1152', featured: true}
+      - {id: '896*1088', width: 896, height: 1088, label: 'Verticale 4:5 · 896×1088', featured: false}
+      - {id: '960*1088', width: 960, height: 1088, label: 'Verticale 4:5 · 960×1088', featured: false}
+      - {id: '960*1024', width: 960, height: 1024, label: 'Verticale 1:1 · 960×1024', featured: false}
+      - {id: '1024*1024', width: 1024, height: 1024, label: 'Quadrato 1:1 · 1024×1024', featured: true}
+      - {id: '1024*960', width: 1024, height: 960, label: 'Orizzontale 1:1 · 1024×960', featured: false}
+      - {id: '1088*960', width: 1088, height: 960, label: 'Orizzontale 5:4 · 1088×960', featured: false}
+      - {id: '1088*896', width: 1088, height: 896, label: 'Orizzontale 5:4 · 1088×896', featured: false}
+      - {id: '1152*896', width: 1152, height: 896, label: 'Orizzontale 5:4 · 1152×896', featured: true}
+      - {id: '1152*832', width: 1152, height: 832, label: 'Orizzontale 4:3 · 1152×832', featured: false}
+      - {id: '1216*832', width: 1216, height: 832, label: 'Orizzontale 3:2 · 1216×832', featured: true}
+      - {id: '1280*768', width: 1280, height: 768, label: 'Orizzontale 16:9 · 1280×768', featured: false}
+      - {id: '1344*768', width: 1344, height: 768, label: 'Orizzontale 16:9 · 1344×768', featured: true}
+      - {id: '1344*704', width: 1344, height: 704, label: 'Orizzontale 2:1 · 1344×704', featured: false}
+      - {id: '1408*704', width: 1408, height: 704, label: 'Orizzontale 2:1 · 1408×704', featured: false}
+      - {id: '1472*704', width: 1472, height: 704, label: 'Orizzontale 2:1 · 1472×704', featured: false}
+      - {id: '1536*640', width: 1536, height: 640, label: 'Orizzontale 21:9 · 1536×640', featured: false}
+      - {id: '1600*640', width: 1600, height: 640, label: 'Orizzontale 21:9 · 1600×640', featured: false}
+      - {id: '1664*576', width: 1664, height: 576, label: 'Orizzontale 3:1 · 1664×576', featured: false}
+      - {id: '1728*576', width: 1728, height: 576, label: 'Orizzontale 3:1 · 1728×576', featured: false}
     supports_styles: true
     supports_negative: true
     default_styles: []
