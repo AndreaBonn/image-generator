@@ -1,0 +1,75 @@
+{
+  "1": {
+    "class_type": "CheckpointLoaderSimple",
+    "_meta": { "title": "@checkpoint" },
+    "inputs": { "ckpt_name": "juggernautXL_v8Rundiffusion.safetensors" }
+  },
+  "2": {
+    "class_type": "LoraLoader",
+    "_meta": { "title": "@lora" },
+    "inputs": {
+      "model": ["1", 0],
+      "clip": ["1", 1],
+      "lora_name": "sd_xl_offset_example-lora_1.0.safetensors",
+      "strength_model": 0.1,
+      "strength_clip": 0.1
+    }
+  },
+  "3": {
+    "class_type": "CLIPTextEncode",
+    "_meta": { "title": "@prompt_pos" },
+    "inputs": { "text": "", "clip": ["2", 1] }
+  },
+  "4": {
+    "class_type": "CLIPTextEncode",
+    "_meta": { "title": "@prompt_neg" },
+    "inputs": { "text": "", "clip": ["2", 1] }
+  },
+  "5": {
+    "class_type": "LoadImage",
+    "_meta": { "title": "@input_image" },
+    "inputs": { "image": "example.png" }
+  },
+  "6": {
+    "class_type": "ImageScale",
+    "_meta": { "title": "@resize" },
+    "inputs": {
+      "image": ["5", 0],
+      "upscale_method": "lanczos",
+      "width": 1152,
+      "height": 896,
+      "crop": "center"
+    }
+  },
+  "7": {
+    "class_type": "VAEEncode",
+    "_meta": { "title": "VAE Encode" },
+    "inputs": { "pixels": ["6", 0], "vae": ["1", 2] }
+  },
+  "8": {
+    "class_type": "KSampler",
+    "_meta": { "title": "@sampler" },
+    "inputs": {
+      "model": ["2", 0],
+      "positive": ["3", 0],
+      "negative": ["4", 0],
+      "latent_image": ["7", 0],
+      "seed": 0,
+      "steps": 30,
+      "cfg": 4.0,
+      "sampler_name": "dpmpp_2m_sde_gpu",
+      "scheduler": "karras",
+      "denoise": 0.5
+    }
+  },
+  "9": {
+    "class_type": "VAEDecode",
+    "_meta": { "title": "VAE Decode" },
+    "inputs": { "samples": ["8", 0], "vae": ["1", 2] }
+  },
+  "10": {
+    "class_type": "SaveImage",
+    "_meta": { "title": "@output" },
+    "inputs": { "images": ["9", 0], "filename_prefix": "studio/img2img" }
+  }
+}

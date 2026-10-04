@@ -1,0 +1,107 @@
+{
+  "1": {
+    "class_type": "CheckpointLoaderSimple",
+    "_meta": { "title": "@checkpoint" },
+    "inputs": { "ckpt_name": "juggernautXL_v8Rundiffusion.safetensors" }
+  },
+  "2": {
+    "class_type": "LoraLoader",
+    "_meta": { "title": "@lora" },
+    "inputs": {
+      "model": ["1", 0],
+      "clip": ["1", 1],
+      "lora_name": "sd_xl_offset_example-lora_1.0.safetensors",
+      "strength_model": 0.1,
+      "strength_clip": 0.1
+    }
+  },
+  "3": {
+    "class_type": "CLIPTextEncode",
+    "_meta": { "title": "@prompt_pos" },
+    "inputs": { "text": "", "clip": ["2", 1] }
+  },
+  "4": {
+    "class_type": "CLIPTextEncode",
+    "_meta": { "title": "@prompt_neg" },
+    "inputs": { "text": "", "clip": ["2", 1] }
+  },
+  "5": {
+    "class_type": "LoadImage",
+    "_meta": { "title": "@input_image" },
+    "inputs": { "image": "example.png" }
+  },
+  "6": {
+    "class_type": "LoadImageMask",
+    "_meta": { "title": "@input_mask" },
+    "inputs": { "image": "example.png", "channel": "red" }
+  },
+  "7": {
+    "class_type": "INPAINT_ExpandMask",
+    "_meta": { "title": "@mask_grow" },
+    "inputs": { "mask": ["6", 0], "grow": 8, "blur": 7, "blur_type": "gaussian" }
+  },
+  "8": {
+    "class_type": "INPAINT_MaskedFill",
+    "_meta": { "title": "@fill" },
+    "inputs": { "image": ["5", 0], "mask": ["7", 0], "fill": "neutral", "falloff": 0 }
+  },
+  "9": {
+    "class_type": "INPAINT_VAEEncodeInpaintConditioning",
+    "_meta": { "title": "Inpaint conditioning" },
+    "inputs": {
+      "positive": ["3", 0],
+      "negative": ["4", 0],
+      "vae": ["1", 2],
+      "pixels": ["8", 0],
+      "mask": ["7", 0]
+    }
+  },
+  "10": {
+    "class_type": "INPAINT_LoadFooocusInpaint",
+    "_meta": { "title": "@inpaint_patch" },
+    "inputs": { "head": "fooocus_inpaint_head.pth", "patch": "inpaint_v26.fooocus.patch" }
+  },
+  "11": {
+    "class_type": "INPAINT_ApplyFooocusInpaint",
+    "_meta": { "title": "Apply Fooocus inpaint" },
+    "inputs": { "model": ["2", 0], "patch": ["10", 0], "latent": ["9", 2] }
+  },
+  "12": {
+    "class_type": "KSampler",
+    "_meta": { "title": "@sampler" },
+    "inputs": {
+      "model": ["11", 0],
+      "positive": ["9", 0],
+      "negative": ["9", 1],
+      "latent_image": ["9", 3],
+      "seed": 0,
+      "steps": 30,
+      "cfg": 4.0,
+      "sampler_name": "dpmpp_2m_sde_gpu",
+      "scheduler": "karras",
+      "denoise": 1.0
+    }
+  },
+  "13": {
+    "class_type": "VAEDecode",
+    "_meta": { "title": "VAE Decode" },
+    "inputs": { "samples": ["12", 0], "vae": ["1", 2] }
+  },
+  "14": {
+    "class_type": "ImageCompositeMasked",
+    "_meta": { "title": "Keep unmasked pixels" },
+    "inputs": {
+      "destination": ["5", 0],
+      "source": ["13", 0],
+      "x": 0,
+      "y": 0,
+      "resize_source": false,
+      "mask": ["7", 0]
+    }
+  },
+  "15": {
+    "class_type": "SaveImage",
+    "_meta": { "title": "@output" },
+    "inputs": { "images": ["14", 0], "filename_prefix": "studio/inpaint" }
+  }
+}
