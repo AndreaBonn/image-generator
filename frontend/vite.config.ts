@@ -30,5 +30,10 @@ export default defineConfig({
     // Playwright specs live in e2e/ and run with `npm run test:e2e`.
     include: ["tests/**/*.test.{ts,tsx}"],
     css: true,
+    coverage: {
+      provider: "v8",
+      include: ["src/**"],
+      exclude: ["src/main.tsx"],
+    },
   },
 });
