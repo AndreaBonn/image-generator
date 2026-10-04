@@ -135,6 +135,48 @@ describe("PromptGuide language warning", () => {
 
     expect(screen.queryByText(/Sembra italiano/)).not.toBeInTheDocument();
   });
+
+  it("keeps the current warning when a stale language check rejects after the prompt changed", async () => {
+    let rejectFirst!: (reason: Error) => void;
+    const firstCheck = new Promise<{ looks_italian: boolean }>((_, reject) => {
+      rejectFirst = reject;
+    });
+    const spy = vi
+      .spyOn(queries, "checkPromptLanguage")
+      .mockReturnValueOnce(firstCheck)
+      .mockResolvedValueOnce({ looks_italian: true });
+
+    const { rerender } = render(
+      <PromptGuide
+        promptLanguage={basePromptLanguage}
+        tips={[]}
+        examples={[]}
+        prompt="a portrait of an old fisherman"
+        onUseExample={vi.fn()}
+      />,
+    );
+    await vi.advanceTimersByTimeAsync(400);
+    await waitFor(() => expect(spy).toHaveBeenCalledTimes(1));
+
+    rerender(
+      <PromptGuide
+        promptLanguage={basePromptLanguage}
+        tips={[]}
+        examples={[]}
+        prompt="una scena di montagna con neve"
+        onUseExample={vi.fn()}
+      />,
+    );
+    await vi.advanceTimersByTimeAsync(400);
+    await waitFor(() => expect(screen.getByText(/Sembra italiano/)).toBeInTheDocument());
+
+    await act(async () => {
+      rejectFirst(new Error("network down"));
+      await firstCheck.catch(() => undefined);
+    });
+
+    expect(screen.getByText(/Sembra italiano/)).toBeInTheDocument();
+  });
 });
 
 describe("PromptGuide tips panel", () => {

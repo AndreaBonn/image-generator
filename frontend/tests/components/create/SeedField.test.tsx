@@ -46,12 +46,9 @@ describe("SeedField", () => {
     expect(onChange).toHaveBeenCalledWith(123);
   });
 
-  // NOTE: the `Number.isFinite(parsed) ? parsed : null` fallback at SeedField.tsx:26 looks
-  // untested, but it is dead through this UI: <input type="number"> sanitizes any value a
-  // user (or fireEvent) can set to either a valid numeric string or "" (verified against
-  // jsdom directly), and Number("") is 0, which is finite. There is no value reachable via
-  // this input that makes `parsed` non-finite, so the `null` branch is reported as dead
-  // code rather than faked with a non-representative event.
+  // NOTE: the `Number.isFinite(parsed) ? parsed : null` fallback in SeedField.tsx is not
+  // reachable here: jsdom and Chromium both sanitize an out-of-range value such as "1e500"
+  // to "" (Number("") is 0). It is kept as a guard for browsers not measured (Firefox).
 
   it("shows 'Fissa seed' and aria-pressed=false when not locked", () => {
     render(<SeedField seed={42} locked={false} onChange={vi.fn()} onToggleLocked={vi.fn()} />);

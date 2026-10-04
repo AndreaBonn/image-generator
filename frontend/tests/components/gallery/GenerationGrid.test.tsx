@@ -110,4 +110,16 @@ describe("GenerationGrid", () => {
 
     expect(observer.disconnect).toHaveBeenCalledTimes(1);
   });
+
+  it("still renders the cards and never loads more when IntersectionObserver is unavailable", () => {
+    vi.stubGlobal("IntersectionObserver", undefined);
+    const onLoadMore = vi.fn();
+
+    render(<GenerationGrid {...baseProps()} hasNextPage={true} onLoadMore={onLoadMore} />);
+
+    expect({
+      images: screen.getAllByRole("img").length,
+      loadMoreCalls: onLoadMore.mock.calls.length,
+    }).toEqual({ images: 2, loadMoreCalls: 0 });
+  });
 });
