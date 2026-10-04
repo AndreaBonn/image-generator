@@ -166,3 +166,26 @@ describe("mask history (undo/redo)", () => {
     expect(canUndoMaskHistory(history)).toBe(false);
   });
 });
+
+describe("paintStroke continuity", () => {
+  it("fills the gap between two distant pointer samples", () => {
+    const width = 120;
+    const height = 20;
+    const mask = paintStroke(createEmptyMask(width, height), width, height, [
+      { x: 10, y: 10 },
+      { x: 110, y: 10 },
+    ], 4, 255);
+    expect(mask[10 * width + 60]).toBe(255);
+    expect(mask[10 * width + 35]).toBe(255);
+  });
+
+  it("does not paint outside the stroke corridor", () => {
+    const width = 120;
+    const height = 40;
+    const mask = paintStroke(createEmptyMask(width, height), width, height, [
+      { x: 10, y: 10 },
+      { x: 110, y: 10 },
+    ], 4, 255);
+    expect(mask[30 * width + 60]).toBe(0);
+  });
+});

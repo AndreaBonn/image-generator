@@ -31,6 +31,31 @@ export function invertMask(mask: Uint8Array): Uint8Array {
 }
 
 /**
+ * Pointer events arrive tens of pixels apart on a fast drag; stamping only the
+ * samples leaves a dotted line. Insert points so consecutive stamps are at most
+ * `spacing` apart and the stroke stays continuous.
+ */
+export function interpolateStroke(points: MaskPoint[], spacing: number): MaskPoint[] {
+  const result: MaskPoint[] = [];
+  points.forEach((point, index) => {
+    const previous = points[index - 1];
+    if (previous) {
+      const distance = Math.hypot(point.x - previous.x, point.y - previous.y);
+      const steps = Math.floor(distance / spacing);
+      for (let step = 1; step < steps; step++) {
+        const ratio = step / steps;
+        result.push({
+          x: previous.x + (point.x - previous.x) * ratio,
+          y: previous.y + (point.y - previous.y) * ratio,
+        });
+      }
+    }
+    result.push(point);
+  });
+  return result;
+}
+
+/**
  * Stamps filled circles of `value` at every point of a stroke onto a copy
  * of `mask`. Points come from one continuous pointer drag; painting them
  * together keeps one undo step per stroke instead of one per pointermove.
@@ -46,7 +71,7 @@ export function paintStroke(
   const result = new Uint8Array(mask);
   const radiusSq = radius * radius;
 
-  for (const point of points) {
+  for (const point of interpolateStroke(points, Math.max(1, radius / 2))) {
     const minX = Math.max(0, Math.floor(point.x - radius));
     const maxX = Math.min(width - 1, Math.ceil(point.x + radius));
     const minY = Math.max(0, Math.floor(point.y - radius));
