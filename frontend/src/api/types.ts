@@ -99,13 +99,16 @@ export interface GenerationSummary {
 }
 
 export interface JobParams {
-  aspect_ratio: string;
+  /** Optional: inpaint/outpaint jobs omit it, the source image sets the output size (SPEC.md § 7.3). */
+  aspect_ratio?: string;
   seed: number | null;
   batch: number;
   style_ids?: string[];
   steps?: number | null;
   cfg?: number | null;
 }
+
+export type OutpaintDirection = "top" | "bottom" | "left" | "right";
 
 export interface CreateJobBody {
   task_id: string;
@@ -115,8 +118,17 @@ export interface CreateJobBody {
   input_upload_id?: string | null;
   mask_upload_id?: string | null;
   source_generation_id?: string | null;
-  outpaint_directions?: string[];
+  outpaint_directions?: OutpaintDirection[];
   upscale_factor?: number | null;
+}
+
+export type UploadKind = "image" | "mask";
+
+/** Response of POST /uploads (SPEC.md § 7.2). */
+export interface UploadResponse {
+  upload_id: string;
+  width: number;
+  height: number;
 }
 
 export interface CreateJobResponse {

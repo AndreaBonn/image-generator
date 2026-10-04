@@ -9,6 +9,8 @@ import type {
   PaginationMeta,
   Style,
   Task,
+  UploadKind,
+  UploadResponse,
 } from "@/api/types";
 
 export function fetchHealth(signal?: AbortSignal): Promise<HealthStatus> {
@@ -30,6 +32,18 @@ export function checkPromptLanguage(text: string): Promise<LanguageCheckResult> 
 
 export function createJob(body: CreateJobBody): Promise<CreateJobResponse> {
   return apiClient.post<CreateJobResponse>("/jobs", body, newIdempotencyKey());
+}
+
+/** Multipart upload of an input image or a mask (SPEC.md § 7.2, max 20 MB / 4096 px). */
+export function uploadFile(
+  file: File,
+  kind: UploadKind,
+  signal?: AbortSignal,
+): Promise<UploadResponse> {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("kind", kind);
+  return apiClient.postForm<UploadResponse>("/uploads", formData, signal);
 }
 
 export function cancelJob(jobId: string): Promise<void> {

@@ -19,9 +19,12 @@ interface RequestOptions {
  */
 async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
   const { method = "GET", body, idempotencyKey, signal } = options;
+  const isFormData = body instanceof FormData;
 
   const headers: Record<string, string> = {};
-  if (body !== undefined) {
+  if (body !== undefined && !isFormData) {
+    // FormData sets its own Content-Type (multipart boundary); the browser
+    // computes it, so we must not override it here.
     headers["Content-Type"] = "application/json";
   }
   if (idempotencyKey) {
@@ -33,7 +36,7 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
     response = await fetch(`${API_BASE}${path}`, {
       method,
       headers,
-      body: body !== undefined ? JSON.stringify(body) : undefined,
+      body: body === undefined ? undefined : isFormData ? body : JSON.stringify(body),
       signal,
     });
   } catch (cause) {
@@ -84,6 +87,9 @@ export const apiClient = {
   patch: <T>(path: string, body?: unknown) =>
     request<T>(path, { method: "PATCH", body }),
   del: <T>(path: string) => request<T>(path, { method: "DELETE" }),
+  /** Multipart upload (POST /uploads, SPEC.md § 7.2): body is sent as-is, no JSON.stringify. */
+  postForm: <T>(path: string, formData: FormData, signal?: AbortSignal) =>
+    request<T>(path, { method: "POST", body: formData, signal }),
 };
 
 /** Full paginated envelope, for callers that need `meta` too. */
