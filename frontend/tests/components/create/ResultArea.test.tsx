@@ -69,6 +69,67 @@ describe("ResultArea empty/error/running states (SPEC.md § 11.2-11.3)", () => {
   });
 });
 
+// jsdom never loads image resources, so Image.onload would not fire on its own.
+class LoadingImage {
+  onload: (() => void) | null = null;
+  set src(_value: string) {
+    queueMicrotask(() => this.onload?.());
+  }
+}
+
+describe("ResultArea live preview (A2)", () => {
+  beforeEach(() => {
+    vi.stubGlobal("Image", LoadingImage);
+  });
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+  });
+
+  it("falls back to the normal progress message when no preview has arrived", () => {
+    renderResultArea({ isRunning: true, latestEvent: { type: "progress", step: 2, total: 10 } });
+
+    expect(screen.getByText("Passo 2 di 10.")).toBeInTheDocument();
+    expect(screen.queryByAltText("Anteprima in corso")).not.toBeInTheDocument();
+  });
+
+  it("shows the preview image with its label once it has loaded, alongside the step counter", async () => {
+    renderResultArea({
+      isRunning: true,
+      latestEvent: { type: "progress", step: 3, total: 10 },
+      previewUrl: "/api/v1/jobs/job-1/preview?n=1",
+    });
+
+    const preview = await screen.findByAltText("Anteprima in corso");
+    expect(preview).toHaveAttribute("src", "/api/v1/jobs/job-1/preview?n=1");
+    expect(screen.getByText("Anteprima in corso")).toBeInTheDocument();
+    expect(screen.getByText("Passo 3 di 10.")).toBeInTheDocument();
+  });
+
+  it("hides the preview image once the job stops running", async () => {
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    const props = (overrides: Partial<Parameters<typeof ResultArea>[0]>) => (
+      <QueryClientProvider client={client}>
+        <ResultArea
+          latestEvent={null}
+          generationIds={[]}
+          errorMessage={null}
+          onRetry={vi.fn()}
+          onCancel={vi.fn()}
+          isRunning
+          {...overrides}
+        />
+      </QueryClientProvider>
+    );
+    const { rerender } = render(props({ previewUrl: "/api/v1/jobs/job-1/preview?n=1" }));
+    await screen.findByAltText("Anteprima in corso");
+
+    rerender(props({ isRunning: false, previewUrl: null, generationIds: ["gen-1"] }));
+
+    expect(screen.queryByAltText("Anteprima in corso")).not.toBeInTheDocument();
+  });
+});
+
 describe("ResultArea slow job notice (SPEC.md § 11.3: over 60s)", () => {
   beforeEach(() => {
     vi.useFakeTimers({ shouldAdvanceTime: true });

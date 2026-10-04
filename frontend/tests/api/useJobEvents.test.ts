@@ -63,6 +63,46 @@ describe("useJobEvents", () => {
     );
   });
 
+  it("tracks the latest preview URL separately from `latest`/`events` (A2)", async () => {
+    const { result } = renderHook(() => useJobEvents("job-4"));
+    const source = latestEventSource();
+
+    expect(result.current.latestPreviewUrl).toBeNull();
+
+    act(() => source.emit("progress", { step: 1, total: 4 }));
+    await waitFor(() =>
+      expect(result.current.latest).toEqual({ type: "progress", step: 1, total: 4 }),
+    );
+
+    act(() => source.emit("preview", { url: "/api/v1/jobs/job-4/preview?n=1" }));
+    await waitFor(() =>
+      expect(result.current.latestPreviewUrl).toBe("/api/v1/jobs/job-4/preview?n=1"),
+    );
+    // A preview frame must not become `latest` or appear in `events`: it
+    // would otherwise displace the step-counter message consumers render.
+    expect(result.current.latest).toEqual({ type: "progress", step: 1, total: 4 });
+    expect(result.current.events.map((event) => event.type)).toEqual(["progress"]);
+
+    act(() => source.emit("preview", { url: "/api/v1/jobs/job-4/preview?n=2" }));
+    await waitFor(() =>
+      expect(result.current.latestPreviewUrl).toBe("/api/v1/jobs/job-4/preview?n=2"),
+    );
+  });
+
+  it("resets the preview URL when a new job starts", () => {
+    const { result, rerender } = renderHook(({ jobId }) => useJobEvents(jobId), {
+      initialProps: { jobId: "job-5" as string | null },
+    });
+    const source = latestEventSource();
+
+    act(() => source.emit("preview", { url: "/api/v1/jobs/job-5/preview?n=1" }));
+    expect(result.current.latestPreviewUrl).toBe("/api/v1/jobs/job-5/preview?n=1");
+
+    rerender({ jobId: "job-6" });
+
+    expect(result.current.latestPreviewUrl).toBeNull();
+  });
+
   it("flags a connection error reported by the EventSource", () => {
     const { result } = renderHook(() => useJobEvents("job-3"));
     const source = latestEventSource();

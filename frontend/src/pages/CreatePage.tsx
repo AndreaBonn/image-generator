@@ -56,7 +56,7 @@ export function CreatePage() {
     }
   }, [creationTasks, taskId]);
 
-  const { latest, isDone } = useJobEvents(jobId);
+  const { latest, latestPreviewUrl, isDone } = useJobEvents(jobId);
 
   useEffect(() => {
     if (!latest) return;
@@ -249,6 +249,7 @@ export function CreatePage() {
 
       <ResultArea
         latestEvent={latest}
+        previewUrl={latestPreviewUrl}
         generationIds={generationIds}
         errorMessage={errorMessage}
         isRunning={jobId !== null}

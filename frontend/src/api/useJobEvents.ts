@@ -20,11 +20,23 @@ function parseEvent(eventName: string, raw: string): JobEvent | null {
 }
 
 const TERMINAL_TYPES = new Set(["completed", "failed", "cancelled"]);
-const EVENT_NAMES = ["queued", "model_switch", "progress", "completed", "failed", "cancelled"];
+const EVENT_NAMES = [
+  "queued",
+  "model_switch",
+  "progress",
+  "preview",
+  "completed",
+  "failed",
+  "cancelled",
+];
 
 export interface UseJobEventsResult {
   events: JobEvent[];
   latest: JobEvent | null;
+  /** Live preview image URL from the most recent `preview` SSE frame (A2),
+   * tracked separately from `events`/`latest` so a preview frame never
+   * displaces the "queued"/"progress" message other consumers render. */
+  latestPreviewUrl: string | null;
   isDone: boolean;
   connectionError: boolean;
 }
@@ -32,11 +44,13 @@ export interface UseJobEventsResult {
 /** Subscribes to GET /api/v1/jobs/{id}/events while `jobId` is set. */
 export function useJobEvents(jobId: string | null): UseJobEventsResult {
   const [events, setEvents] = useState<JobEvent[]>([]);
+  const [latestPreviewUrl, setLatestPreviewUrl] = useState<string | null>(null);
   const [connectionError, setConnectionError] = useState(false);
   const sourceRef = useRef<EventSource | null>(null);
 
   useEffect(() => {
     setEvents([]);
+    setLatestPreviewUrl(null);
     setConnectionError(false);
 
     if (!jobId) {
@@ -52,6 +66,10 @@ export function useJobEvents(jobId: string | null): UseJobEventsResult {
         (ev: MessageEvent) => {
           const parsed = parseEvent(name, ev.data as string);
           if (!parsed) return;
+          if (parsed.type === "preview") {
+            setLatestPreviewUrl(parsed.url);
+            return;
+          }
           setEvents((prev) => [...prev, parsed]);
           if (TERMINAL_TYPES.has(parsed.type)) {
             source.close();
@@ -79,5 +97,5 @@ export function useJobEvents(jobId: string | null): UseJobEventsResult {
   const latest = events.at(-1) ?? null;
   const isDone = latest !== null && TERMINAL_TYPES.has(latest.type);
 
-  return { events, latest, isDone, connectionError };
+  return { events, latest, latestPreviewUrl, isDone, connectionError };
 }

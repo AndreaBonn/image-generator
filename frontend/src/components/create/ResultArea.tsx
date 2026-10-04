@@ -14,6 +14,8 @@ interface ResultAreaProps {
   isRunning: boolean;
   /** Pages that render their own result cards hide the empty placeholder once they have results. */
   hasExternalResults?: boolean;
+  /** Live preview URL from useJobEvents (A2); omitted by jobs that emit no preview (upscale, background removal). */
+  previewUrl?: string | null;
 }
 
 /** Progress, slow-job notice, error with retry, and the results grid (SPEC.md § 11.2-11.3). */
@@ -25,8 +27,10 @@ export function ResultArea({
   onCancel,
   isRunning,
   hasExternalResults = false,
+  previewUrl = null,
 }: ResultAreaProps) {
   const [isSlow, setIsSlow] = useState(false);
+  const [displayedPreviewUrl, setDisplayedPreviewUrl] = useState<string | null>(null);
 
   useEffect(() => {
     setIsSlow(false);
@@ -34,6 +38,20 @@ export function ResultArea({
     const timer = window.setTimeout(() => setIsSlow(true), SLOW_JOB_THRESHOLD_MS);
     return () => window.clearTimeout(timer);
   }, [isRunning, latestEvent?.type]);
+
+  // Preload the next preview frame before swapping, so the image never flashes blank (A2).
+  useEffect(() => {
+    if (!previewUrl) {
+      setDisplayedPreviewUrl(null);
+      return;
+    }
+    const img = new Image();
+    img.onload = () => setDisplayedPreviewUrl(previewUrl);
+    img.src = previewUrl;
+    return () => {
+      img.onload = null;
+    };
+  }, [previewUrl]);
 
   const isEmpty = !errorMessage && !isRunning && generationIds.length === 0 && !hasExternalResults;
 
@@ -60,6 +78,16 @@ export function ResultArea({
 
       {isRunning ? (
         <div className="flex flex-col gap-2 rounded-md border border-border bg-paper-2 p-3">
+          {displayedPreviewUrl ? (
+            <div className="flex flex-col gap-1">
+              <img
+                src={displayedPreviewUrl}
+                alt="Anteprima in corso"
+                className="h-auto max-h-[50vh] w-full rounded-md object-contain"
+              />
+              <p className="text-sm font-medium text-ink">Anteprima in corso</p>
+            </div>
+          ) : null}
           <ProgressMessage event={latestEvent} />
           {isSlow ? (
             <p className="text-sm text-warning">Ci sta mettendo più del previsto.</p>

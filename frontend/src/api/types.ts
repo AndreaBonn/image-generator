@@ -166,11 +166,14 @@ export interface JobDetail {
   updated_at: string;
 }
 
-/** SSE events from GET /api/v1/jobs/{id}/events (SPEC.md § 7.2). */
+/** SSE events from GET /api/v1/jobs/{id}/events (SPEC.md § 7.2). `preview`
+ * is handled inside useJobEvents (surfaced as `latestPreviewUrl`, not
+ * pushed into `events`), so it rarely needs matching elsewhere. */
 export type JobEvent =
   | { type: "queued"; position: number }
   | { type: "model_switch"; family: string; eta_s: number }
-  | { type: "progress"; step: number; total: number; preview_url?: string }
+  | { type: "progress"; step: number; total: number }
+  | { type: "preview"; url: string }
   | { type: "completed"; generation_ids: string[] }
   | { type: "failed"; code: string; message: string }
   | { type: "cancelled" };
