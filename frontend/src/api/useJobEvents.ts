@@ -76,7 +76,7 @@ export function useJobEvents(jobId: string | null): UseJobEventsResult {
     };
   }, [jobId]);
 
-  const latest = events.length > 0 ? (events[events.length - 1] ?? null) : null;
+  const latest = events.at(-1) ?? null;
   const isDone = latest !== null && TERMINAL_TYPES.has(latest.type);
 
   return { events, latest, isDone, connectionError };

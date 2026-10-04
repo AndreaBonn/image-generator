@@ -98,7 +98,6 @@ export function MaskEditor({ imageUrl, width, height, onMaskChange }: MaskEditor
   function commitStroke() {
     if (!isDrawing.current) return;
     isDrawing.current = false;
-    if (strokePoints.current.length === 0) return;
     const value = tool === "brush" ? 255 : 0;
     const next = paintStroke(mask, width, height, strokePoints.current, brushSize / 2, value);
     strokePoints.current = [];

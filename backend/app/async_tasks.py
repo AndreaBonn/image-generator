@@ -7,6 +7,5 @@ async def drain_task[T](task: asyncio.Task[T]) -> T:
         try:
             return await asyncio.shield(arg=task)
         except asyncio.CancelledError:
-            if task.cancelled():
-                raise
+            continue
     return task.result()
