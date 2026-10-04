@@ -8,7 +8,16 @@ from app.services.task_catalog import TaskCatalog
 
 GENERATION_TASKS = frozenset({"bozza", "qualita", "testo"})
 IMAGE_TASKS = frozenset(
-    {"inpaint", "outpaint", "variazione_sottile", "variazione_forte", "upscale"}
+    {
+        "inpaint",
+        "outpaint",
+        "variazione_sottile",
+        "variazione_forte",
+        "upscale",
+        "modifica_libera",
+        "rimuovi_sfondo",
+        "ingrandisci_rifinito",
+    }
 )
 SUPPORTED_TASKS = GENERATION_TASKS | IMAGE_TASKS
 
@@ -27,7 +36,7 @@ def resolve_task(request: JobRequest, catalog: TaskCatalog, is_fake: bool) -> Ta
     has_workflow = catalog.repository.has_workflow(filename=task.workflow)
     if reason is not None and (not is_fake or not has_workflow):
         raise ModelNotInstalledError(message=reason)
-    if (task.id in GENERATION_TASKS or task.id == "inpaint") and not request.prompt.strip():
+    if task.id in GENERATION_TASKS | {"inpaint", "modifica_libera"} and not request.prompt.strip():
         raise field_error(field="prompt", message="Descrivi l'immagine da generare.")
     if task.id in IMAGE_TASKS:
         validate_image_request(request=request)
@@ -45,7 +54,7 @@ def validate_image_request(request: JobRequest) -> None:
         raise field_error(field="outpaint_directions", message="Scegli almeno una direzione.")
     if request.task_id == "upscale" and request.upscale_factor is None:
         raise field_error(field="upscale_factor", message="Scegli il fattore 2 o 4.")
-    if request.params.batch != 1:
+    if request.task_id != "modifica_libera" and request.params.batch != 1:
         raise field_error(field="params.batch", message="Questo compito accetta una sola immagine.")
 
 
@@ -65,7 +74,7 @@ def validate_limits(task: TaskDefinition, values: dict[str, Scalar]) -> None:
 
 
 def resolve_params(request: JobRequest, task: TaskDefinition) -> ResolvedParams:
-    if task.id == "upscale":
+    if task.id in {"upscale", "rimuovi_sfondo"}:
         return resolve_upscale_params(request=request)
     values = dict(task.defaults)
     overrides = request.params.model_dump(exclude_none=True, exclude={"style_ids"})

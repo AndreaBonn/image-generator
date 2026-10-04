@@ -53,7 +53,7 @@ class TaskDefinition(CatalogModel):
     label: NonEmptyText
     description: NonEmptyText
     group: Literal["crea", "modifica", "migliora"]
-    family: Literal["sdxl", "flux2_klein", "zimage", "upscale"]
+    family: Literal["sdxl", "flux2_klein", "zimage", "upscale", "background"]
     workflow: NonEmptyText
     model_ids: list[NonEmptyText] = Field(min_length=1)
     bindings: dict[str, list[BindingReference]]

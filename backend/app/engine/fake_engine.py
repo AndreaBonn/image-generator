@@ -23,8 +23,10 @@ FAKE_STEP_DELAY_S = 0.02
 PREVIEW_SIZE = (64, 64)
 
 
-def render_image(width: int, height: int, seed: int) -> bytes:
-    image = Image.new(mode="RGB", size=(width, height), color="#294359")
+def render_image(width: int, height: int, seed: int, has_alpha: bool = False) -> bytes:
+    image = Image.new(mode="RGBA" if has_alpha else "RGB", size=(width, height), color="#294359")
+    if has_alpha:
+        image.putpixel(xy=(0, 0), value=(0, 0, 0, 0))
     ImageDraw.Draw(im=image).text(xy=(10, 10), text=f"Seed: {seed}", fill="white")
     output = BytesIO()
     image.save(fp=output, format="PNG")
@@ -44,6 +46,7 @@ async def generate_images(request: EngineRequest) -> Generated:
             width=request.width,
             height=request.height,
             seed=request.seed,
+            has_alpha=request.family == "background",
         )
         for _ in range(request.batch)
     ]

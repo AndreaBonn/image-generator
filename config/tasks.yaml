@@ -94,7 +94,8 @@ tasks:
       - 'portrait of an old fisherman, weathered face, golden hour, 85mm photo'
       - 'cozy reading corner, wooden shelves, rain on the window, soft warm light, detailed illustration'
 
-  - <<: *sdxl
+  - &flux
+    <<: *sdxl
     id: testo
     label: Testo nell'immagine e prompt complessi
     description: Componi scene articolate e immagini con brevi scritte.
@@ -240,8 +241,8 @@ tasks:
     prompt_examples:
       - 'the city at night, neon lights, cinematic mood'
       - 'reinterpret the stone cottage as a colorful storybook illustration, oversized flowers, bright morning sky'
-
-  - id: upscale
+  - &upscale
+    id: upscale
     label: Ingrandisci
     description: Aumenta la risoluzione dell'immagine di due o quattro volte.
     group: migliora
@@ -267,3 +268,80 @@ tasks:
     prompt_examples:
       - 'Upscale a portrait to twice its original size.'
       - 'Enlarge a detailed landscape illustration to four times its original size.'
+
+  - <<: *flux
+    id: modifica_libera
+    label: Modifica con le parole
+    group: modifica
+    description: "Descrivi come cambiare l'immagine, anche in italiano."
+    workflow: flux2_klein_edit.json
+    bindings:
+      prompt: ['@prompt_pos.text']
+      seed: ['@noise.noise_seed']
+      steps: ['@scheduler.steps']
+      cfg: ['@guider.cfg']
+      input_image: ['@input_image.image']
+      width: ['@resize.width', '@latent.width', '@scheduler.width']
+      height: ['@resize.height', '@latent.height', '@scheduler.height']
+      batch: ['@latent.batch_size']
+    prompt_tips:
+      - "Descrivi la modifica da applicare all'immagine."
+      - Puoi scrivere in italiano o in inglese.
+    prompt_examples:
+      - Metti il cielo al tramonto.
+      - Sostituisci il vaso sul tavolo con una ciotola di ceramica blu, mantenendo la luce e la stanza.
+
+  - <<: *upscale
+    id: rimuovi_sfondo
+    label: Rimuovi lo sfondo
+    description: Isola il soggetto e salva un PNG con lo sfondo trasparente.
+    family: background
+    workflow: background_removal.json
+    model_ids: [birefnet]
+    bindings:
+      input_image: ['@input_image.image']
+    defaults: {batch: 1}
+    limits:
+      batch: {min: 1, max: 1}
+    prompt_language:
+      required: any
+      label: Nessun prompt necessario
+      reason: Il modello riconosce il soggetto senza istruzioni testuali.
+    prompt_tips:
+      - "Scegli un'immagine con un soggetto distinguibile."
+      - Il risultato conserva le dimensioni originali.
+    prompt_examples:
+      - Isola una persona dal paesaggio.
+      - Rimuovi lo sfondo da una foto di un prodotto per riutilizzarlo in una composizione.
+
+  - <<: *variation
+    id: ingrandisci_rifinito
+    label: Ingrandisci con rifinitura
+    description: "Raddoppia le dimensioni di lavoro e rifinisce i dettagli dell'immagine."
+    workflow: sdxl_upscale_refine.json
+    model_ids: [juggernaut_xl_v8, sdxl_offset_lora, ultrasharp_4x]
+    bindings:
+      prompt: ['@prompt_pos.text']
+      negative_prompt: ['@prompt_neg.text']
+      seed: ['@sampler.seed']
+      steps: ['@sampler.steps']
+      cfg: ['@sampler.cfg']
+      denoise: ['@sampler.denoise']
+      input_image: ['@input_image.image']
+      width: ['@resize.width', '@merge.final_width']
+      height: ['@resize.height', '@merge.final_height']
+    defaults:
+      <<: *quality_defaults
+      steps: 12
+      denoise: 0.3
+    limits:
+      <<: *quality_limits
+      steps: {min: 6, max: 30}
+      denoise: {min: 0.1, max: 0.5}
+      batch: {min: 1, max: 1}
+    prompt_tips:
+      - "Il prompt è facoltativo: scrivi in inglese i dettagli da rifinire."
+      - Una rifinitura più intensa può cambiare piccoli dettagli.
+    prompt_examples:
+      - sharp fabric texture
+      - detailed stone facade, natural daylight, realistic architectural photograph

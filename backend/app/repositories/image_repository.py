@@ -32,7 +32,8 @@ def encode_images(image: bytes, metadata: dict[str, Any]) -> tuple[bytes, bytes,
         info.add_text(key=METADATA_KEY, value=json.dumps(metadata, ensure_ascii=True))
         source.save(fp=png, format="PNG", pnginfo=info)
         size = source.size
-        preview = source.convert(mode="RGB")
+        has_alpha = "A" in source.getbands() or "transparency" in source.info
+        preview = source.convert(mode="RGBA" if has_alpha else "RGB")
         preview.thumbnail(size=(THUMBNAIL_SIZE, THUMBNAIL_SIZE))
         preview.save(fp=thumbnail, format="WEBP")
     return png.getvalue(), thumbnail.getvalue(), size

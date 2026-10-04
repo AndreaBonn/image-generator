@@ -20,6 +20,7 @@ class JobParams(BaseModel):
     style_ids: list[str] | None = Field(default=None, max_length=5)
     steps: int | None = Field(default=None, gt=0, strict=True)
     cfg: float | None = Field(default=None, ge=0)
+    denoise: float | None = Field(default=None, ge=0, le=1)
 
 
 class JobRequest(BaseModel):

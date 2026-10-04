@@ -45,7 +45,7 @@ def rewrite_task(settings: Settings, field: str, value: Any) -> None:
 def test_load_catalog_real_templates_and_missing_models(catalog_settings: Settings) -> None:
     catalog = load_catalog(settings=catalog_settings)
     tasks = {task.id: task for task in catalog.list_tasks()}
-    assert len(tasks) == 9
+    assert len(tasks) == 12
     assert tasks["bozza"].available is False
     assert tasks["bozza"].unavailable_reason is not None
     assert "modelli" in tasks["bozza"].unavailable_reason.lower()
@@ -137,9 +137,11 @@ def test_load_catalog_ratios_and_guidance(catalog_settings: Settings) -> None:
         assert len(set(task.prompt_examples)) == len(task.prompt_examples)
         assert task.prompt_tips
         # FLUX.2 klein handled Italian prompts in the phase 0 benchmark; SDXL lost detail.
-        expected = "any" if task.id in {"upscale", "testo"} else "en"
+        expected = (
+            "any" if task.id in {"upscale", "testo", "modifica_libera", "rimuovi_sfondo"} else "en"
+        )
         assert task.prompt_language.required == expected
-        if task.id != "upscale":
+        if task.id not in {"upscale", "rimuovi_sfondo"}:
             assert len(task.aspect_ratios) == 26
             assert sum(ratio.featured for ratio in task.aspect_ratios) == 6
             assert task.defaults["aspect_ratio"] == "1152*896"

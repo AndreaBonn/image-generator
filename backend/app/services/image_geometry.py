@@ -4,18 +4,20 @@ from app.errors import ValidationError
 from app.models.task import AspectRatio
 
 PIXEL_GRID = 8
+FLUX_PIXEL_GRID = 16
+REFINEMENT_FACTOR = 2
 MAX_WORK_AREA = 1024 * 1024
 OUTPAINT_FRACTION = 0.3
 UPSCALE_MODEL_FACTOR = 4
 MAX_OUTPUT_SIDE = 8192
 
 
-def work_size(size: tuple[int, int]) -> tuple[int, int]:
+def work_size(size: tuple[int, int], pixel_grid: int = PIXEL_GRID) -> tuple[int, int]:
     width, height = size
     scale = min(1.0, sqrt(MAX_WORK_AREA / (width * height)))
     return (
-        max(PIXEL_GRID, int(width * scale) // PIXEL_GRID * PIXEL_GRID),
-        max(PIXEL_GRID, int(height * scale) // PIXEL_GRID * PIXEL_GRID),
+        max(pixel_grid, int(width * scale) // pixel_grid * pixel_grid),
+        max(pixel_grid, int(height * scale) // pixel_grid * pixel_grid),
     )
 
 

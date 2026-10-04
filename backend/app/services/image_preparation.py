@@ -7,7 +7,7 @@ from PIL import Image, ImageFilter, ImageOps
 
 from app.engine.types import EngineClient
 from app.models.job import ResolvedJob
-from app.services.image_geometry import work_size
+from app.services.image_geometry import FLUX_PIXEL_GRID, work_size
 
 MASK_THRESHOLD = 128
 MASK_TABLE = [0 if value < MASK_THRESHOLD else 255 for value in range(256)]
@@ -21,8 +21,10 @@ def prepare_images(job: ResolvedJob) -> tuple[bytes, bytes | None]:
     if source is None:
         raise ValueError("Image preparation requires a resolved source")
     size = source.size
-    if job.task.id in {"inpaint", "outpaint"}:
+    if job.task.id in {"inpaint", "outpaint", "ingrandisci_rifinito"}:
         size = work_size(size=size)
+    elif job.task.id == "modifica_libera":
+        size = work_size(size=size, pixel_grid=FLUX_PIXEL_GRID)
     elif job.task.id.startswith("variazione_"):
         size = (job.params.width, job.params.height)
     with Image.open(fp=source.path) as image:

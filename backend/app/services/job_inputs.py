@@ -12,6 +12,8 @@ from app.repositories.file_paths import resolve_data_path
 from app.repositories.generation_repository import GenerationRepository
 from app.repositories.upload_repository import UploadRepository
 from app.services.image_geometry import (
+    FLUX_PIXEL_GRID,
+    REFINEMENT_FACTOR,
     closest_resolution,
     outpaint_padding,
     upscale_scale,
@@ -66,12 +68,12 @@ def image_dimensions(
     job: ResolvedJob, source: ImageInput
 ) -> tuple[tuple[int, int], dict[str, Scalar]]:
     values: dict[str, Scalar] = {}
-    if job.task.id == "upscale":
-        factor = job.request.upscale_factor
-        if factor is None:
-            raise field_error(field="upscale_factor", message="Scegli il fattore 2 o 4.")
-        values["scale"] = upscale_scale(size=source.size, factor=factor)
-        return (source.size[0] * factor, source.size[1] * factor), values
+    if job.task.id == "rimuovi_sfondo":
+        return source.size, values
+    if job.task.id == "modifica_libera":
+        return work_size(size=source.size, pixel_grid=FLUX_PIXEL_GRID), values
+    if job.task.id in {"upscale", "ingrandisci_rifinito"}:
+        return enlarged_dimensions(job=job, source=source)
     if job.task.id.startswith("variazione_"):
         ratio = closest_resolution(size=source.size, ratios=job.task.aspect_ratios)
         values["denoise"] = job.task.defaults["denoise"]
@@ -85,6 +87,21 @@ def image_dimensions(
         width += padding["pad_left"] + padding["pad_right"]
         height += padding["pad_top"] + padding["pad_bottom"]
     return (width, height), values
+
+
+def enlarged_dimensions(
+    job: ResolvedJob, source: ImageInput
+) -> tuple[tuple[int, int], dict[str, Scalar]]:
+    if job.task.id == "ingrandisci_rifinito":
+        width, height = work_size(size=source.size)
+        denoise = job.request.params.denoise
+        values = {"denoise": denoise if denoise is not None else job.task.defaults["denoise"]}
+        return (width * REFINEMENT_FACTOR, height * REFINEMENT_FACTOR), values
+    factor = job.request.upscale_factor
+    if factor is None:
+        raise field_error(field="upscale_factor", message="Scegli il fattore 2 o 4.")
+    scale = upscale_scale(size=source.size, factor=factor)
+    return (source.size[0] * factor, source.size[1] * factor), {"scale": scale}
 
 
 def resolve_image_job(job: ResolvedJob, resources: JobResources) -> ResolvedJob:
