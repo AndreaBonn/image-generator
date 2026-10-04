@@ -22,7 +22,7 @@ from app.services.upload_service import UploadService
 def create_upload(service: UploadService, kind: Literal["image", "mask"] = "image") -> UploadRecord:
     stream = BytesIO()
     Image.new(mode="RGB", size=(16, 16)).save(fp=stream, format="PNG")
-    return service.save(content=stream, kind=kind)
+    return service.save(content=stream, kind=kind).record
 
 
 def test_startup_cleanup_preserves_job_references_and_recent_uploads(tmp_path: Path) -> None:

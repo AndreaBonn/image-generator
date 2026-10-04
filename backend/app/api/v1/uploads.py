@@ -1,4 +1,4 @@
-from typing import Annotated, Literal, cast
+from typing import Annotated, Any, Literal, cast
 
 from fastapi import APIRouter, Depends, Form, Request, UploadFile
 
@@ -16,6 +16,14 @@ def create_upload(
     file: UploadFile,
     kind: Annotated[Literal["image", "mask"], Form()],
     service: Annotated[UploadService, Depends(get_upload_service)],
-) -> dict[str, dict[str, str | int]]:
-    record = service.save(content=file.file, kind=kind)
-    return {"data": {"upload_id": record.id, "width": record.width, "height": record.height}}
+) -> dict[str, dict[str, Any]]:
+    result = service.save(content=file.file, kind=kind)
+    record = result.record
+    return {
+        "data": {
+            "upload_id": record.id,
+            "width": record.width,
+            "height": record.height,
+            "recipe": result.recipe.model_dump(mode="json") if result.recipe is not None else None,
+        }
+    }

@@ -1,4 +1,5 @@
 import errno
+import json
 import logging
 from datetime import timedelta
 from io import BytesIO
@@ -7,14 +8,18 @@ from typing import BinaryIO, Literal
 from uuid import uuid4
 
 from PIL import Image, ImageOps, UnidentifiedImageError
+from pydantic import ValidationError as RecipeValidationError
 
 from app.errors import DiskFullError, NotFoundError, ValidationError
 from app.models.records import UploadRecord, utc_now
+from app.models.upload import UploadRecipe, UploadResult
 from app.repositories.file_paths import resolve_data_path
+from app.repositories.image_repository import METADATA_KEY
 from app.repositories.upload_repository import UploadRepository
 
 MAX_UPLOAD_BYTES = 20 * 1024 * 1024
 MAX_UPLOAD_SIDE = 4096
+MAX_RECIPE_BYTES = 64 * 1024
 UPLOAD_RETENTION_DAYS = 7
 ALLOWED_FORMATS = frozenset({"PNG", "JPEG", "WEBP"})
 logger = logging.getLogger(__name__)
@@ -40,6 +45,24 @@ def invalid_upload(message: str) -> ValidationError:
 
 
 def decode_upload(content: BinaryIO) -> Image.Image:
+    image, _ = decode_upload_source(content=content)
+    return image
+
+
+def parse_recipe(raw: object) -> UploadRecipe | None:
+    if raw is None:
+        return None
+    try:
+        if not isinstance(raw, str) or len(raw.encode(encoding="utf-8")) > MAX_RECIPE_BYTES:
+            logger.debug("Ignoring upload recipe: invalid text or size exceeds limit")
+            return None
+        return UploadRecipe.model_validate(obj=json.loads(s=raw))
+    except (ValueError, RecipeValidationError, RecursionError) as error:
+        logger.debug("Ignoring invalid upload recipe: %s", type(error).__name__)
+        return None
+
+
+def decode_upload_source(content: BinaryIO) -> tuple[Image.Image, object]:
     content.seek(0, 2)
     if content.tell() > MAX_UPLOAD_BYTES:
         raise invalid_upload(message="Il file supera il limite di 20 MB.")
@@ -51,7 +74,8 @@ def decode_upload(content: BinaryIO) -> Image.Image:
             if max(source.size) > MAX_UPLOAD_SIDE:
                 raise invalid_upload(message="Ogni lato deve essere al massimo di 4096 pixel.")
             source.load()
-            return to_rgb(image=source)
+            raw = source.info.get(METADATA_KEY) if source.format == "PNG" else None
+            return to_rgb(image=source), raw
     except (OSError, ValueError, UnidentifiedImageError, Image.DecompressionBombError) as error:
         raise invalid_upload(message="Il file non contiene un'immagine valida.") from error
 
@@ -61,8 +85,9 @@ class UploadService:
         self.repository = repository
         self.data_dir = data_dir
 
-    def save(self, content: BinaryIO, kind: Literal["image", "mask"]) -> UploadRecord:
-        image = decode_upload(content=content)
+    def save(self, content: BinaryIO, kind: Literal["image", "mask"]) -> UploadResult:
+        image, raw = decode_upload_source(content=content)
+        recipe = parse_recipe(raw=raw) if kind == "image" else None
         upload_id = str(uuid4())
         relative = f"uploads/{upload_id}.png"
         path = resolve_data_path(root=self.data_dir, relative=relative, must_exist=False)
@@ -80,7 +105,7 @@ class UploadService:
             if isinstance(error, OSError) and error.errno in (errno.ENOSPC, errno.EDQUOT):
                 raise DiskFullError() from error
             raise
-        return record
+        return UploadResult(record=record, recipe=recipe)
 
     def cleanup(self) -> None:
         before = utc_now() - timedelta(days=UPLOAD_RETENTION_DAYS)
