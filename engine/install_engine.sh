@@ -61,6 +61,8 @@ install_inpaint_nodes() {
 
 write_model_paths() {
   mkdir -p "${MODELS_DIR}"/{checkpoints,diffusion_models,text_encoders,vae,loras,inpaint,upscale_models}
+  # envsubst takes the literal variable names to substitute, hence the single quotes.
+  # shellcheck disable=SC2016
   FOOOCUS_DIR="${FOOOCUS_DIR}" MODELS_DIR="${MODELS_DIR}" \
     envsubst '${FOOOCUS_DIR} ${MODELS_DIR}' \
     < "${REPO_ROOT}/config/comfy/extra_model_paths.yaml.template" \
