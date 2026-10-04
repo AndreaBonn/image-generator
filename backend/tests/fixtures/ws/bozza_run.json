@@ -1,0 +1,3554 @@
+[
+ {
+  "type": "status",
+  "data": {
+   "status": {
+    "exec_info": {
+     "queue_remaining": 0
+    }
+   },
+   "sid": "bb513f74-b6f2-43a9-87a8-3a74842644b2"
+  }
+ },
+ {
+  "type": "status",
+  "data": {
+   "status": {
+    "exec_info": {
+     "queue_remaining": 1
+    }
+   }
+  }
+ },
+ {
+  "type": "status",
+  "data": {
+   "status": {
+    "exec_info": {
+     "queue_remaining": 1
+    }
+   }
+  }
+ },
+ {
+  "type": "execution_start",
+  "data": {
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "timestamp": 1791131903048
+  }
+ },
+ {
+  "type": "execution_cached",
+  "data": {
+   "nodes": [],
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "timestamp": 1791131903051
+  }
+ },
+ {
+  "type": "progress_state",
+  "data": {
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "nodes": {
+    "1": {
+     "value": 0.0,
+     "max": 1.0,
+     "state": "running",
+     "node_id": "1",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "1",
+     "parent_node_id": null,
+     "real_node_id": "1"
+    }
+   }
+  }
+ },
+ {
+  "type": "executing",
+  "data": {
+   "node": "1",
+   "display_node": "1",
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73"
+  }
+ },
+ {
+  "type": "progress_state",
+  "data": {
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "nodes": {
+    "1": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "1",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "1",
+     "parent_node_id": null,
+     "real_node_id": "1"
+    }
+   }
+  }
+ },
+ {
+  "type": "progress_state",
+  "data": {
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "nodes": {
+    "1": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "1",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "1",
+     "parent_node_id": null,
+     "real_node_id": "1"
+    },
+    "5": {
+     "value": 0.0,
+     "max": 1.0,
+     "state": "running",
+     "node_id": "5",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "5",
+     "parent_node_id": null,
+     "real_node_id": "5"
+    }
+   }
+  }
+ },
+ {
+  "type": "executing",
+  "data": {
+   "node": "5",
+   "display_node": "5",
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73"
+  }
+ },
+ {
+  "type": "progress_state",
+  "data": {
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "nodes": {
+    "1": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "1",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "1",
+     "parent_node_id": null,
+     "real_node_id": "1"
+    },
+    "5": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "5",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "5",
+     "parent_node_id": null,
+     "real_node_id": "5"
+    }
+   }
+  }
+ },
+ {
+  "type": "progress_state",
+  "data": {
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "nodes": {
+    "1": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "1",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "1",
+     "parent_node_id": null,
+     "real_node_id": "1"
+    },
+    "5": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "5",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "5",
+     "parent_node_id": null,
+     "real_node_id": "5"
+    },
+    "2": {
+     "value": 0.0,
+     "max": 1.0,
+     "state": "running",
+     "node_id": "2",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "2",
+     "parent_node_id": null,
+     "real_node_id": "2"
+    }
+   }
+  }
+ },
+ {
+  "type": "executing",
+  "data": {
+   "node": "2",
+   "display_node": "2",
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73"
+  }
+ },
+ {
+  "type": "progress_state",
+  "data": {
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "nodes": {
+    "1": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "1",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "1",
+     "parent_node_id": null,
+     "real_node_id": "1"
+    },
+    "5": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "5",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "5",
+     "parent_node_id": null,
+     "real_node_id": "5"
+    },
+    "2": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "2",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "2",
+     "parent_node_id": null,
+     "real_node_id": "2"
+    }
+   }
+  }
+ },
+ {
+  "type": "progress_state",
+  "data": {
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "nodes": {
+    "1": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "1",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "1",
+     "parent_node_id": null,
+     "real_node_id": "1"
+    },
+    "5": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "5",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "5",
+     "parent_node_id": null,
+     "real_node_id": "5"
+    },
+    "2": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "2",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "2",
+     "parent_node_id": null,
+     "real_node_id": "2"
+    },
+    "4": {
+     "value": 0.0,
+     "max": 1.0,
+     "state": "running",
+     "node_id": "4",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "4",
+     "parent_node_id": null,
+     "real_node_id": "4"
+    }
+   }
+  }
+ },
+ {
+  "type": "executing",
+  "data": {
+   "node": "4",
+   "display_node": "4",
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73"
+  }
+ },
+ {
+  "type": "progress_state",
+  "data": {
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "nodes": {
+    "1": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "1",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "1",
+     "parent_node_id": null,
+     "real_node_id": "1"
+    },
+    "5": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "5",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "5",
+     "parent_node_id": null,
+     "real_node_id": "5"
+    },
+    "2": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "2",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "2",
+     "parent_node_id": null,
+     "real_node_id": "2"
+    },
+    "4": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "4",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "4",
+     "parent_node_id": null,
+     "real_node_id": "4"
+    }
+   }
+  }
+ },
+ {
+  "type": "progress_state",
+  "data": {
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "nodes": {
+    "1": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "1",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "1",
+     "parent_node_id": null,
+     "real_node_id": "1"
+    },
+    "5": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "5",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "5",
+     "parent_node_id": null,
+     "real_node_id": "5"
+    },
+    "2": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "2",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "2",
+     "parent_node_id": null,
+     "real_node_id": "2"
+    },
+    "4": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "4",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "4",
+     "parent_node_id": null,
+     "real_node_id": "4"
+    },
+    "3": {
+     "value": 0.0,
+     "max": 1.0,
+     "state": "running",
+     "node_id": "3",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "3",
+     "parent_node_id": null,
+     "real_node_id": "3"
+    }
+   }
+  }
+ },
+ {
+  "type": "executing",
+  "data": {
+   "node": "3",
+   "display_node": "3",
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73"
+  }
+ },
+ {
+  "type": "progress_state",
+  "data": {
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "nodes": {
+    "1": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "1",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "1",
+     "parent_node_id": null,
+     "real_node_id": "1"
+    },
+    "5": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "5",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "5",
+     "parent_node_id": null,
+     "real_node_id": "5"
+    },
+    "2": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "2",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "2",
+     "parent_node_id": null,
+     "real_node_id": "2"
+    },
+    "4": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "4",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "4",
+     "parent_node_id": null,
+     "real_node_id": "4"
+    },
+    "3": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "3",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "3",
+     "parent_node_id": null,
+     "real_node_id": "3"
+    }
+   }
+  }
+ },
+ {
+  "type": "progress_state",
+  "data": {
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "nodes": {
+    "1": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "1",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "1",
+     "parent_node_id": null,
+     "real_node_id": "1"
+    },
+    "5": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "5",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "5",
+     "parent_node_id": null,
+     "real_node_id": "5"
+    },
+    "2": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "2",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "2",
+     "parent_node_id": null,
+     "real_node_id": "2"
+    },
+    "4": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "4",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "4",
+     "parent_node_id": null,
+     "real_node_id": "4"
+    },
+    "3": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "3",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "3",
+     "parent_node_id": null,
+     "real_node_id": "3"
+    },
+    "6": {
+     "value": 0.0,
+     "max": 1.0,
+     "state": "running",
+     "node_id": "6",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "6",
+     "parent_node_id": null,
+     "real_node_id": "6"
+    }
+   }
+  }
+ },
+ {
+  "type": "executing",
+  "data": {
+   "node": "6",
+   "display_node": "6",
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73"
+  }
+ },
+ {
+  "type": "progress_state",
+  "data": {
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "nodes": {
+    "1": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "1",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "1",
+     "parent_node_id": null,
+     "real_node_id": "1"
+    },
+    "5": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "5",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "5",
+     "parent_node_id": null,
+     "real_node_id": "5"
+    },
+    "2": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "2",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "2",
+     "parent_node_id": null,
+     "real_node_id": "2"
+    },
+    "4": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "4",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "4",
+     "parent_node_id": null,
+     "real_node_id": "4"
+    },
+    "3": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "3",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "3",
+     "parent_node_id": null,
+     "real_node_id": "3"
+    },
+    "6": {
+     "value": 1,
+     "max": 4,
+     "state": "running",
+     "node_id": "6",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "6",
+     "parent_node_id": null,
+     "real_node_id": "6"
+    }
+   }
+  }
+ },
+ {
+  "type": "progress",
+  "data": {
+   "value": 1,
+   "max": 4,
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "node": "6"
+  }
+ },
+ {
+  "type": "progress_state",
+  "data": {
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "nodes": {
+    "1": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "1",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "1",
+     "parent_node_id": null,
+     "real_node_id": "1"
+    },
+    "5": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "5",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "5",
+     "parent_node_id": null,
+     "real_node_id": "5"
+    },
+    "2": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "2",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "2",
+     "parent_node_id": null,
+     "real_node_id": "2"
+    },
+    "4": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "4",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "4",
+     "parent_node_id": null,
+     "real_node_id": "4"
+    },
+    "3": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "3",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "3",
+     "parent_node_id": null,
+     "real_node_id": "3"
+    },
+    "6": {
+     "value": 2,
+     "max": 4,
+     "state": "running",
+     "node_id": "6",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "6",
+     "parent_node_id": null,
+     "real_node_id": "6"
+    }
+   }
+  }
+ },
+ {
+  "type": "progress",
+  "data": {
+   "value": 2,
+   "max": 4,
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "node": "6"
+  }
+ },
+ {
+  "type": "progress_state",
+  "data": {
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "nodes": {
+    "1": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "1",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "1",
+     "parent_node_id": null,
+     "real_node_id": "1"
+    },
+    "5": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "5",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "5",
+     "parent_node_id": null,
+     "real_node_id": "5"
+    },
+    "2": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "2",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "2",
+     "parent_node_id": null,
+     "real_node_id": "2"
+    },
+    "4": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "4",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "4",
+     "parent_node_id": null,
+     "real_node_id": "4"
+    },
+    "3": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "3",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "3",
+     "parent_node_id": null,
+     "real_node_id": "3"
+    },
+    "6": {
+     "value": 3,
+     "max": 4,
+     "state": "running",
+     "node_id": "6",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "6",
+     "parent_node_id": null,
+     "real_node_id": "6"
+    }
+   }
+  }
+ },
+ {
+  "type": "progress",
+  "data": {
+   "value": 3,
+   "max": 4,
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "node": "6"
+  }
+ },
+ {
+  "type": "progress_state",
+  "data": {
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "nodes": {
+    "1": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "1",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "1",
+     "parent_node_id": null,
+     "real_node_id": "1"
+    },
+    "5": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "5",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "5",
+     "parent_node_id": null,
+     "real_node_id": "5"
+    },
+    "2": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "2",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "2",
+     "parent_node_id": null,
+     "real_node_id": "2"
+    },
+    "4": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "4",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "4",
+     "parent_node_id": null,
+     "real_node_id": "4"
+    },
+    "3": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "3",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "3",
+     "parent_node_id": null,
+     "real_node_id": "3"
+    },
+    "6": {
+     "value": 4,
+     "max": 4,
+     "state": "running",
+     "node_id": "6",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "6",
+     "parent_node_id": null,
+     "real_node_id": "6"
+    }
+   }
+  }
+ },
+ {
+  "type": "progress",
+  "data": {
+   "value": 4,
+   "max": 4,
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "node": "6"
+  }
+ },
+ {
+  "type": "progress_state",
+  "data": {
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "nodes": {
+    "1": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "1",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "1",
+     "parent_node_id": null,
+     "real_node_id": "1"
+    },
+    "5": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "5",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "5",
+     "parent_node_id": null,
+     "real_node_id": "5"
+    },
+    "2": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "2",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "2",
+     "parent_node_id": null,
+     "real_node_id": "2"
+    },
+    "4": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "4",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "4",
+     "parent_node_id": null,
+     "real_node_id": "4"
+    },
+    "3": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "3",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "3",
+     "parent_node_id": null,
+     "real_node_id": "3"
+    },
+    "6": {
+     "value": 4,
+     "max": 4,
+     "state": "finished",
+     "node_id": "6",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "6",
+     "parent_node_id": null,
+     "real_node_id": "6"
+    }
+   }
+  }
+ },
+ {
+  "type": "progress_state",
+  "data": {
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "nodes": {
+    "1": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "1",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "1",
+     "parent_node_id": null,
+     "real_node_id": "1"
+    },
+    "5": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "5",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "5",
+     "parent_node_id": null,
+     "real_node_id": "5"
+    },
+    "2": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "2",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "2",
+     "parent_node_id": null,
+     "real_node_id": "2"
+    },
+    "4": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "4",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "4",
+     "parent_node_id": null,
+     "real_node_id": "4"
+    },
+    "3": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "3",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "3",
+     "parent_node_id": null,
+     "real_node_id": "3"
+    },
+    "6": {
+     "value": 4,
+     "max": 4,
+     "state": "finished",
+     "node_id": "6",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "6",
+     "parent_node_id": null,
+     "real_node_id": "6"
+    },
+    "7": {
+     "value": 0.0,
+     "max": 1.0,
+     "state": "running",
+     "node_id": "7",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "7",
+     "parent_node_id": null,
+     "real_node_id": "7"
+    }
+   }
+  }
+ },
+ {
+  "type": "executing",
+  "data": {
+   "node": "7",
+   "display_node": "7",
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73"
+  }
+ },
+ {
+  "type": "progress_state",
+  "data": {
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "nodes": {
+    "1": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "1",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "1",
+     "parent_node_id": null,
+     "real_node_id": "1"
+    },
+    "5": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "5",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "5",
+     "parent_node_id": null,
+     "real_node_id": "5"
+    },
+    "2": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "2",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "2",
+     "parent_node_id": null,
+     "real_node_id": "2"
+    },
+    "4": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "4",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "4",
+     "parent_node_id": null,
+     "real_node_id": "4"
+    },
+    "3": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "3",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "3",
+     "parent_node_id": null,
+     "real_node_id": "3"
+    },
+    "6": {
+     "value": 4,
+     "max": 4,
+     "state": "finished",
+     "node_id": "6",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "6",
+     "parent_node_id": null,
+     "real_node_id": "6"
+    },
+    "7": {
+     "value": 1,
+     "max": 26,
+     "state": "running",
+     "node_id": "7",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "7",
+     "parent_node_id": null,
+     "real_node_id": "7"
+    }
+   }
+  }
+ },
+ {
+  "type": "progress",
+  "data": {
+   "value": 1,
+   "max": 26,
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "node": "7"
+  }
+ },
+ {
+  "type": "progress_state",
+  "data": {
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "nodes": {
+    "1": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "1",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "1",
+     "parent_node_id": null,
+     "real_node_id": "1"
+    },
+    "5": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "5",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "5",
+     "parent_node_id": null,
+     "real_node_id": "5"
+    },
+    "2": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "2",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "2",
+     "parent_node_id": null,
+     "real_node_id": "2"
+    },
+    "4": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "4",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "4",
+     "parent_node_id": null,
+     "real_node_id": "4"
+    },
+    "3": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "3",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "3",
+     "parent_node_id": null,
+     "real_node_id": "3"
+    },
+    "6": {
+     "value": 4,
+     "max": 4,
+     "state": "finished",
+     "node_id": "6",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "6",
+     "parent_node_id": null,
+     "real_node_id": "6"
+    },
+    "7": {
+     "value": 2,
+     "max": 26,
+     "state": "running",
+     "node_id": "7",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "7",
+     "parent_node_id": null,
+     "real_node_id": "7"
+    }
+   }
+  }
+ },
+ {
+  "type": "progress",
+  "data": {
+   "value": 2,
+   "max": 26,
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "node": "7"
+  }
+ },
+ {
+  "type": "progress_state",
+  "data": {
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "nodes": {
+    "1": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "1",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "1",
+     "parent_node_id": null,
+     "real_node_id": "1"
+    },
+    "5": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "5",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "5",
+     "parent_node_id": null,
+     "real_node_id": "5"
+    },
+    "2": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "2",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "2",
+     "parent_node_id": null,
+     "real_node_id": "2"
+    },
+    "4": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "4",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "4",
+     "parent_node_id": null,
+     "real_node_id": "4"
+    },
+    "3": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "3",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "3",
+     "parent_node_id": null,
+     "real_node_id": "3"
+    },
+    "6": {
+     "value": 4,
+     "max": 4,
+     "state": "finished",
+     "node_id": "6",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "6",
+     "parent_node_id": null,
+     "real_node_id": "6"
+    },
+    "7": {
+     "value": 3,
+     "max": 26,
+     "state": "running",
+     "node_id": "7",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "7",
+     "parent_node_id": null,
+     "real_node_id": "7"
+    }
+   }
+  }
+ },
+ {
+  "type": "progress",
+  "data": {
+   "value": 3,
+   "max": 26,
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "node": "7"
+  }
+ },
+ {
+  "type": "progress_state",
+  "data": {
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "nodes": {
+    "1": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "1",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "1",
+     "parent_node_id": null,
+     "real_node_id": "1"
+    },
+    "5": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "5",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "5",
+     "parent_node_id": null,
+     "real_node_id": "5"
+    },
+    "2": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "2",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "2",
+     "parent_node_id": null,
+     "real_node_id": "2"
+    },
+    "4": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "4",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "4",
+     "parent_node_id": null,
+     "real_node_id": "4"
+    },
+    "3": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "3",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "3",
+     "parent_node_id": null,
+     "real_node_id": "3"
+    },
+    "6": {
+     "value": 4,
+     "max": 4,
+     "state": "finished",
+     "node_id": "6",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "6",
+     "parent_node_id": null,
+     "real_node_id": "6"
+    },
+    "7": {
+     "value": 4,
+     "max": 26,
+     "state": "running",
+     "node_id": "7",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "7",
+     "parent_node_id": null,
+     "real_node_id": "7"
+    }
+   }
+  }
+ },
+ {
+  "type": "progress",
+  "data": {
+   "value": 4,
+   "max": 26,
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "node": "7"
+  }
+ },
+ {
+  "type": "progress_state",
+  "data": {
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "nodes": {
+    "1": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "1",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "1",
+     "parent_node_id": null,
+     "real_node_id": "1"
+    },
+    "5": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "5",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "5",
+     "parent_node_id": null,
+     "real_node_id": "5"
+    },
+    "2": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "2",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "2",
+     "parent_node_id": null,
+     "real_node_id": "2"
+    },
+    "4": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "4",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "4",
+     "parent_node_id": null,
+     "real_node_id": "4"
+    },
+    "3": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "3",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "3",
+     "parent_node_id": null,
+     "real_node_id": "3"
+    },
+    "6": {
+     "value": 4,
+     "max": 4,
+     "state": "finished",
+     "node_id": "6",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "6",
+     "parent_node_id": null,
+     "real_node_id": "6"
+    },
+    "7": {
+     "value": 5,
+     "max": 26,
+     "state": "running",
+     "node_id": "7",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "7",
+     "parent_node_id": null,
+     "real_node_id": "7"
+    }
+   }
+  }
+ },
+ {
+  "type": "progress",
+  "data": {
+   "value": 5,
+   "max": 26,
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "node": "7"
+  }
+ },
+ {
+  "type": "progress_state",
+  "data": {
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "nodes": {
+    "1": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "1",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "1",
+     "parent_node_id": null,
+     "real_node_id": "1"
+    },
+    "5": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "5",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "5",
+     "parent_node_id": null,
+     "real_node_id": "5"
+    },
+    "2": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "2",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "2",
+     "parent_node_id": null,
+     "real_node_id": "2"
+    },
+    "4": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "4",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "4",
+     "parent_node_id": null,
+     "real_node_id": "4"
+    },
+    "3": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "3",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "3",
+     "parent_node_id": null,
+     "real_node_id": "3"
+    },
+    "6": {
+     "value": 4,
+     "max": 4,
+     "state": "finished",
+     "node_id": "6",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "6",
+     "parent_node_id": null,
+     "real_node_id": "6"
+    },
+    "7": {
+     "value": 6,
+     "max": 26,
+     "state": "running",
+     "node_id": "7",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "7",
+     "parent_node_id": null,
+     "real_node_id": "7"
+    }
+   }
+  }
+ },
+ {
+  "type": "progress",
+  "data": {
+   "value": 6,
+   "max": 26,
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "node": "7"
+  }
+ },
+ {
+  "type": "progress_state",
+  "data": {
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "nodes": {
+    "1": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "1",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "1",
+     "parent_node_id": null,
+     "real_node_id": "1"
+    },
+    "5": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "5",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "5",
+     "parent_node_id": null,
+     "real_node_id": "5"
+    },
+    "2": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "2",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "2",
+     "parent_node_id": null,
+     "real_node_id": "2"
+    },
+    "4": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "4",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "4",
+     "parent_node_id": null,
+     "real_node_id": "4"
+    },
+    "3": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "3",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "3",
+     "parent_node_id": null,
+     "real_node_id": "3"
+    },
+    "6": {
+     "value": 4,
+     "max": 4,
+     "state": "finished",
+     "node_id": "6",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "6",
+     "parent_node_id": null,
+     "real_node_id": "6"
+    },
+    "7": {
+     "value": 7,
+     "max": 26,
+     "state": "running",
+     "node_id": "7",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "7",
+     "parent_node_id": null,
+     "real_node_id": "7"
+    }
+   }
+  }
+ },
+ {
+  "type": "progress",
+  "data": {
+   "value": 7,
+   "max": 26,
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "node": "7"
+  }
+ },
+ {
+  "type": "progress_state",
+  "data": {
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "nodes": {
+    "1": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "1",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "1",
+     "parent_node_id": null,
+     "real_node_id": "1"
+    },
+    "5": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "5",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "5",
+     "parent_node_id": null,
+     "real_node_id": "5"
+    },
+    "2": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "2",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "2",
+     "parent_node_id": null,
+     "real_node_id": "2"
+    },
+    "4": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "4",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "4",
+     "parent_node_id": null,
+     "real_node_id": "4"
+    },
+    "3": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "3",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "3",
+     "parent_node_id": null,
+     "real_node_id": "3"
+    },
+    "6": {
+     "value": 4,
+     "max": 4,
+     "state": "finished",
+     "node_id": "6",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "6",
+     "parent_node_id": null,
+     "real_node_id": "6"
+    },
+    "7": {
+     "value": 8,
+     "max": 26,
+     "state": "running",
+     "node_id": "7",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "7",
+     "parent_node_id": null,
+     "real_node_id": "7"
+    }
+   }
+  }
+ },
+ {
+  "type": "progress",
+  "data": {
+   "value": 8,
+   "max": 26,
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "node": "7"
+  }
+ },
+ {
+  "type": "progress_state",
+  "data": {
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "nodes": {
+    "1": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "1",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "1",
+     "parent_node_id": null,
+     "real_node_id": "1"
+    },
+    "5": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "5",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "5",
+     "parent_node_id": null,
+     "real_node_id": "5"
+    },
+    "2": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "2",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "2",
+     "parent_node_id": null,
+     "real_node_id": "2"
+    },
+    "4": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "4",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "4",
+     "parent_node_id": null,
+     "real_node_id": "4"
+    },
+    "3": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "3",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "3",
+     "parent_node_id": null,
+     "real_node_id": "3"
+    },
+    "6": {
+     "value": 4,
+     "max": 4,
+     "state": "finished",
+     "node_id": "6",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "6",
+     "parent_node_id": null,
+     "real_node_id": "6"
+    },
+    "7": {
+     "value": 9,
+     "max": 26,
+     "state": "running",
+     "node_id": "7",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "7",
+     "parent_node_id": null,
+     "real_node_id": "7"
+    }
+   }
+  }
+ },
+ {
+  "type": "progress",
+  "data": {
+   "value": 9,
+   "max": 26,
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "node": "7"
+  }
+ },
+ {
+  "type": "progress_state",
+  "data": {
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "nodes": {
+    "1": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "1",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "1",
+     "parent_node_id": null,
+     "real_node_id": "1"
+    },
+    "5": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "5",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "5",
+     "parent_node_id": null,
+     "real_node_id": "5"
+    },
+    "2": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "2",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "2",
+     "parent_node_id": null,
+     "real_node_id": "2"
+    },
+    "4": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "4",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "4",
+     "parent_node_id": null,
+     "real_node_id": "4"
+    },
+    "3": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "3",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "3",
+     "parent_node_id": null,
+     "real_node_id": "3"
+    },
+    "6": {
+     "value": 4,
+     "max": 4,
+     "state": "finished",
+     "node_id": "6",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "6",
+     "parent_node_id": null,
+     "real_node_id": "6"
+    },
+    "7": {
+     "value": 10,
+     "max": 26,
+     "state": "running",
+     "node_id": "7",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "7",
+     "parent_node_id": null,
+     "real_node_id": "7"
+    }
+   }
+  }
+ },
+ {
+  "type": "progress",
+  "data": {
+   "value": 10,
+   "max": 26,
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "node": "7"
+  }
+ },
+ {
+  "type": "progress_state",
+  "data": {
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "nodes": {
+    "1": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "1",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "1",
+     "parent_node_id": null,
+     "real_node_id": "1"
+    },
+    "5": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "5",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "5",
+     "parent_node_id": null,
+     "real_node_id": "5"
+    },
+    "2": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "2",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "2",
+     "parent_node_id": null,
+     "real_node_id": "2"
+    },
+    "4": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "4",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "4",
+     "parent_node_id": null,
+     "real_node_id": "4"
+    },
+    "3": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "3",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "3",
+     "parent_node_id": null,
+     "real_node_id": "3"
+    },
+    "6": {
+     "value": 4,
+     "max": 4,
+     "state": "finished",
+     "node_id": "6",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "6",
+     "parent_node_id": null,
+     "real_node_id": "6"
+    },
+    "7": {
+     "value": 11,
+     "max": 26,
+     "state": "running",
+     "node_id": "7",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "7",
+     "parent_node_id": null,
+     "real_node_id": "7"
+    }
+   }
+  }
+ },
+ {
+  "type": "progress",
+  "data": {
+   "value": 11,
+   "max": 26,
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "node": "7"
+  }
+ },
+ {
+  "type": "progress_state",
+  "data": {
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "nodes": {
+    "1": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "1",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "1",
+     "parent_node_id": null,
+     "real_node_id": "1"
+    },
+    "5": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "5",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "5",
+     "parent_node_id": null,
+     "real_node_id": "5"
+    },
+    "2": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "2",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "2",
+     "parent_node_id": null,
+     "real_node_id": "2"
+    },
+    "4": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "4",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "4",
+     "parent_node_id": null,
+     "real_node_id": "4"
+    },
+    "3": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "3",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "3",
+     "parent_node_id": null,
+     "real_node_id": "3"
+    },
+    "6": {
+     "value": 4,
+     "max": 4,
+     "state": "finished",
+     "node_id": "6",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "6",
+     "parent_node_id": null,
+     "real_node_id": "6"
+    },
+    "7": {
+     "value": 12,
+     "max": 26,
+     "state": "running",
+     "node_id": "7",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "7",
+     "parent_node_id": null,
+     "real_node_id": "7"
+    }
+   }
+  }
+ },
+ {
+  "type": "progress",
+  "data": {
+   "value": 12,
+   "max": 26,
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "node": "7"
+  }
+ },
+ {
+  "type": "progress_state",
+  "data": {
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "nodes": {
+    "1": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "1",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "1",
+     "parent_node_id": null,
+     "real_node_id": "1"
+    },
+    "5": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "5",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "5",
+     "parent_node_id": null,
+     "real_node_id": "5"
+    },
+    "2": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "2",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "2",
+     "parent_node_id": null,
+     "real_node_id": "2"
+    },
+    "4": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "4",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "4",
+     "parent_node_id": null,
+     "real_node_id": "4"
+    },
+    "3": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "3",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "3",
+     "parent_node_id": null,
+     "real_node_id": "3"
+    },
+    "6": {
+     "value": 4,
+     "max": 4,
+     "state": "finished",
+     "node_id": "6",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "6",
+     "parent_node_id": null,
+     "real_node_id": "6"
+    },
+    "7": {
+     "value": 13,
+     "max": 26,
+     "state": "running",
+     "node_id": "7",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "7",
+     "parent_node_id": null,
+     "real_node_id": "7"
+    }
+   }
+  }
+ },
+ {
+  "type": "progress",
+  "data": {
+   "value": 13,
+   "max": 26,
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "node": "7"
+  }
+ },
+ {
+  "type": "progress_state",
+  "data": {
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "nodes": {
+    "1": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "1",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "1",
+     "parent_node_id": null,
+     "real_node_id": "1"
+    },
+    "5": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "5",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "5",
+     "parent_node_id": null,
+     "real_node_id": "5"
+    },
+    "2": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "2",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "2",
+     "parent_node_id": null,
+     "real_node_id": "2"
+    },
+    "4": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "4",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "4",
+     "parent_node_id": null,
+     "real_node_id": "4"
+    },
+    "3": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "3",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "3",
+     "parent_node_id": null,
+     "real_node_id": "3"
+    },
+    "6": {
+     "value": 4,
+     "max": 4,
+     "state": "finished",
+     "node_id": "6",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "6",
+     "parent_node_id": null,
+     "real_node_id": "6"
+    },
+    "7": {
+     "value": 14,
+     "max": 26,
+     "state": "running",
+     "node_id": "7",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "7",
+     "parent_node_id": null,
+     "real_node_id": "7"
+    }
+   }
+  }
+ },
+ {
+  "type": "progress",
+  "data": {
+   "value": 14,
+   "max": 26,
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "node": "7"
+  }
+ },
+ {
+  "type": "progress_state",
+  "data": {
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "nodes": {
+    "1": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "1",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "1",
+     "parent_node_id": null,
+     "real_node_id": "1"
+    },
+    "5": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "5",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "5",
+     "parent_node_id": null,
+     "real_node_id": "5"
+    },
+    "2": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "2",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "2",
+     "parent_node_id": null,
+     "real_node_id": "2"
+    },
+    "4": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "4",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "4",
+     "parent_node_id": null,
+     "real_node_id": "4"
+    },
+    "3": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "3",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "3",
+     "parent_node_id": null,
+     "real_node_id": "3"
+    },
+    "6": {
+     "value": 4,
+     "max": 4,
+     "state": "finished",
+     "node_id": "6",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "6",
+     "parent_node_id": null,
+     "real_node_id": "6"
+    },
+    "7": {
+     "value": 15,
+     "max": 26,
+     "state": "running",
+     "node_id": "7",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "7",
+     "parent_node_id": null,
+     "real_node_id": "7"
+    }
+   }
+  }
+ },
+ {
+  "type": "progress",
+  "data": {
+   "value": 15,
+   "max": 26,
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "node": "7"
+  }
+ },
+ {
+  "type": "progress_state",
+  "data": {
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "nodes": {
+    "1": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "1",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "1",
+     "parent_node_id": null,
+     "real_node_id": "1"
+    },
+    "5": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "5",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "5",
+     "parent_node_id": null,
+     "real_node_id": "5"
+    },
+    "2": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "2",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "2",
+     "parent_node_id": null,
+     "real_node_id": "2"
+    },
+    "4": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "4",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "4",
+     "parent_node_id": null,
+     "real_node_id": "4"
+    },
+    "3": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "3",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "3",
+     "parent_node_id": null,
+     "real_node_id": "3"
+    },
+    "6": {
+     "value": 4,
+     "max": 4,
+     "state": "finished",
+     "node_id": "6",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "6",
+     "parent_node_id": null,
+     "real_node_id": "6"
+    },
+    "7": {
+     "value": 16,
+     "max": 26,
+     "state": "running",
+     "node_id": "7",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "7",
+     "parent_node_id": null,
+     "real_node_id": "7"
+    }
+   }
+  }
+ },
+ {
+  "type": "progress",
+  "data": {
+   "value": 16,
+   "max": 26,
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "node": "7"
+  }
+ },
+ {
+  "type": "progress_state",
+  "data": {
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "nodes": {
+    "1": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "1",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "1",
+     "parent_node_id": null,
+     "real_node_id": "1"
+    },
+    "5": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "5",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "5",
+     "parent_node_id": null,
+     "real_node_id": "5"
+    },
+    "2": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "2",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "2",
+     "parent_node_id": null,
+     "real_node_id": "2"
+    },
+    "4": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "4",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "4",
+     "parent_node_id": null,
+     "real_node_id": "4"
+    },
+    "3": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "3",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "3",
+     "parent_node_id": null,
+     "real_node_id": "3"
+    },
+    "6": {
+     "value": 4,
+     "max": 4,
+     "state": "finished",
+     "node_id": "6",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "6",
+     "parent_node_id": null,
+     "real_node_id": "6"
+    },
+    "7": {
+     "value": 17,
+     "max": 26,
+     "state": "running",
+     "node_id": "7",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "7",
+     "parent_node_id": null,
+     "real_node_id": "7"
+    }
+   }
+  }
+ },
+ {
+  "type": "progress",
+  "data": {
+   "value": 17,
+   "max": 26,
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "node": "7"
+  }
+ },
+ {
+  "type": "progress_state",
+  "data": {
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "nodes": {
+    "1": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "1",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "1",
+     "parent_node_id": null,
+     "real_node_id": "1"
+    },
+    "5": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "5",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "5",
+     "parent_node_id": null,
+     "real_node_id": "5"
+    },
+    "2": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "2",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "2",
+     "parent_node_id": null,
+     "real_node_id": "2"
+    },
+    "4": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "4",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "4",
+     "parent_node_id": null,
+     "real_node_id": "4"
+    },
+    "3": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "3",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "3",
+     "parent_node_id": null,
+     "real_node_id": "3"
+    },
+    "6": {
+     "value": 4,
+     "max": 4,
+     "state": "finished",
+     "node_id": "6",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "6",
+     "parent_node_id": null,
+     "real_node_id": "6"
+    },
+    "7": {
+     "value": 18,
+     "max": 26,
+     "state": "running",
+     "node_id": "7",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "7",
+     "parent_node_id": null,
+     "real_node_id": "7"
+    }
+   }
+  }
+ },
+ {
+  "type": "progress",
+  "data": {
+   "value": 18,
+   "max": 26,
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "node": "7"
+  }
+ },
+ {
+  "type": "progress_state",
+  "data": {
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "nodes": {
+    "1": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "1",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "1",
+     "parent_node_id": null,
+     "real_node_id": "1"
+    },
+    "5": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "5",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "5",
+     "parent_node_id": null,
+     "real_node_id": "5"
+    },
+    "2": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "2",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "2",
+     "parent_node_id": null,
+     "real_node_id": "2"
+    },
+    "4": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "4",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "4",
+     "parent_node_id": null,
+     "real_node_id": "4"
+    },
+    "3": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "3",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "3",
+     "parent_node_id": null,
+     "real_node_id": "3"
+    },
+    "6": {
+     "value": 4,
+     "max": 4,
+     "state": "finished",
+     "node_id": "6",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "6",
+     "parent_node_id": null,
+     "real_node_id": "6"
+    },
+    "7": {
+     "value": 19,
+     "max": 26,
+     "state": "running",
+     "node_id": "7",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "7",
+     "parent_node_id": null,
+     "real_node_id": "7"
+    }
+   }
+  }
+ },
+ {
+  "type": "progress",
+  "data": {
+   "value": 19,
+   "max": 26,
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "node": "7"
+  }
+ },
+ {
+  "type": "progress_state",
+  "data": {
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "nodes": {
+    "1": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "1",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "1",
+     "parent_node_id": null,
+     "real_node_id": "1"
+    },
+    "5": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "5",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "5",
+     "parent_node_id": null,
+     "real_node_id": "5"
+    },
+    "2": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "2",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "2",
+     "parent_node_id": null,
+     "real_node_id": "2"
+    },
+    "4": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "4",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "4",
+     "parent_node_id": null,
+     "real_node_id": "4"
+    },
+    "3": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "3",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "3",
+     "parent_node_id": null,
+     "real_node_id": "3"
+    },
+    "6": {
+     "value": 4,
+     "max": 4,
+     "state": "finished",
+     "node_id": "6",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "6",
+     "parent_node_id": null,
+     "real_node_id": "6"
+    },
+    "7": {
+     "value": 20,
+     "max": 26,
+     "state": "running",
+     "node_id": "7",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "7",
+     "parent_node_id": null,
+     "real_node_id": "7"
+    }
+   }
+  }
+ },
+ {
+  "type": "progress",
+  "data": {
+   "value": 20,
+   "max": 26,
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "node": "7"
+  }
+ },
+ {
+  "type": "progress_state",
+  "data": {
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "nodes": {
+    "1": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "1",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "1",
+     "parent_node_id": null,
+     "real_node_id": "1"
+    },
+    "5": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "5",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "5",
+     "parent_node_id": null,
+     "real_node_id": "5"
+    },
+    "2": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "2",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "2",
+     "parent_node_id": null,
+     "real_node_id": "2"
+    },
+    "4": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "4",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "4",
+     "parent_node_id": null,
+     "real_node_id": "4"
+    },
+    "3": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "3",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "3",
+     "parent_node_id": null,
+     "real_node_id": "3"
+    },
+    "6": {
+     "value": 4,
+     "max": 4,
+     "state": "finished",
+     "node_id": "6",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "6",
+     "parent_node_id": null,
+     "real_node_id": "6"
+    },
+    "7": {
+     "value": 21,
+     "max": 26,
+     "state": "running",
+     "node_id": "7",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "7",
+     "parent_node_id": null,
+     "real_node_id": "7"
+    }
+   }
+  }
+ },
+ {
+  "type": "progress",
+  "data": {
+   "value": 21,
+   "max": 26,
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "node": "7"
+  }
+ },
+ {
+  "type": "progress_state",
+  "data": {
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "nodes": {
+    "1": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "1",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "1",
+     "parent_node_id": null,
+     "real_node_id": "1"
+    },
+    "5": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "5",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "5",
+     "parent_node_id": null,
+     "real_node_id": "5"
+    },
+    "2": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "2",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "2",
+     "parent_node_id": null,
+     "real_node_id": "2"
+    },
+    "4": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "4",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "4",
+     "parent_node_id": null,
+     "real_node_id": "4"
+    },
+    "3": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "3",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "3",
+     "parent_node_id": null,
+     "real_node_id": "3"
+    },
+    "6": {
+     "value": 4,
+     "max": 4,
+     "state": "finished",
+     "node_id": "6",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "6",
+     "parent_node_id": null,
+     "real_node_id": "6"
+    },
+    "7": {
+     "value": 22,
+     "max": 26,
+     "state": "running",
+     "node_id": "7",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "7",
+     "parent_node_id": null,
+     "real_node_id": "7"
+    }
+   }
+  }
+ },
+ {
+  "type": "progress",
+  "data": {
+   "value": 22,
+   "max": 26,
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "node": "7"
+  }
+ },
+ {
+  "type": "progress_state",
+  "data": {
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "nodes": {
+    "1": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "1",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "1",
+     "parent_node_id": null,
+     "real_node_id": "1"
+    },
+    "5": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "5",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "5",
+     "parent_node_id": null,
+     "real_node_id": "5"
+    },
+    "2": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "2",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "2",
+     "parent_node_id": null,
+     "real_node_id": "2"
+    },
+    "4": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "4",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "4",
+     "parent_node_id": null,
+     "real_node_id": "4"
+    },
+    "3": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "3",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "3",
+     "parent_node_id": null,
+     "real_node_id": "3"
+    },
+    "6": {
+     "value": 4,
+     "max": 4,
+     "state": "finished",
+     "node_id": "6",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "6",
+     "parent_node_id": null,
+     "real_node_id": "6"
+    },
+    "7": {
+     "value": 23,
+     "max": 26,
+     "state": "running",
+     "node_id": "7",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "7",
+     "parent_node_id": null,
+     "real_node_id": "7"
+    }
+   }
+  }
+ },
+ {
+  "type": "progress",
+  "data": {
+   "value": 23,
+   "max": 26,
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "node": "7"
+  }
+ },
+ {
+  "type": "progress_state",
+  "data": {
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "nodes": {
+    "1": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "1",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "1",
+     "parent_node_id": null,
+     "real_node_id": "1"
+    },
+    "5": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "5",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "5",
+     "parent_node_id": null,
+     "real_node_id": "5"
+    },
+    "2": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "2",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "2",
+     "parent_node_id": null,
+     "real_node_id": "2"
+    },
+    "4": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "4",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "4",
+     "parent_node_id": null,
+     "real_node_id": "4"
+    },
+    "3": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "3",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "3",
+     "parent_node_id": null,
+     "real_node_id": "3"
+    },
+    "6": {
+     "value": 4,
+     "max": 4,
+     "state": "finished",
+     "node_id": "6",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "6",
+     "parent_node_id": null,
+     "real_node_id": "6"
+    },
+    "7": {
+     "value": 24,
+     "max": 26,
+     "state": "running",
+     "node_id": "7",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "7",
+     "parent_node_id": null,
+     "real_node_id": "7"
+    }
+   }
+  }
+ },
+ {
+  "type": "progress",
+  "data": {
+   "value": 24,
+   "max": 26,
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "node": "7"
+  }
+ },
+ {
+  "type": "progress_state",
+  "data": {
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "nodes": {
+    "1": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "1",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "1",
+     "parent_node_id": null,
+     "real_node_id": "1"
+    },
+    "5": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "5",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "5",
+     "parent_node_id": null,
+     "real_node_id": "5"
+    },
+    "2": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "2",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "2",
+     "parent_node_id": null,
+     "real_node_id": "2"
+    },
+    "4": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "4",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "4",
+     "parent_node_id": null,
+     "real_node_id": "4"
+    },
+    "3": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "3",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "3",
+     "parent_node_id": null,
+     "real_node_id": "3"
+    },
+    "6": {
+     "value": 4,
+     "max": 4,
+     "state": "finished",
+     "node_id": "6",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "6",
+     "parent_node_id": null,
+     "real_node_id": "6"
+    },
+    "7": {
+     "value": 25,
+     "max": 26,
+     "state": "running",
+     "node_id": "7",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "7",
+     "parent_node_id": null,
+     "real_node_id": "7"
+    }
+   }
+  }
+ },
+ {
+  "type": "progress",
+  "data": {
+   "value": 25,
+   "max": 26,
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "node": "7"
+  }
+ },
+ {
+  "type": "progress_state",
+  "data": {
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "nodes": {
+    "1": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "1",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "1",
+     "parent_node_id": null,
+     "real_node_id": "1"
+    },
+    "5": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "5",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "5",
+     "parent_node_id": null,
+     "real_node_id": "5"
+    },
+    "2": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "2",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "2",
+     "parent_node_id": null,
+     "real_node_id": "2"
+    },
+    "4": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "4",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "4",
+     "parent_node_id": null,
+     "real_node_id": "4"
+    },
+    "3": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "3",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "3",
+     "parent_node_id": null,
+     "real_node_id": "3"
+    },
+    "6": {
+     "value": 4,
+     "max": 4,
+     "state": "finished",
+     "node_id": "6",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "6",
+     "parent_node_id": null,
+     "real_node_id": "6"
+    },
+    "7": {
+     "value": 26,
+     "max": 26,
+     "state": "running",
+     "node_id": "7",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "7",
+     "parent_node_id": null,
+     "real_node_id": "7"
+    }
+   }
+  }
+ },
+ {
+  "type": "progress",
+  "data": {
+   "value": 26,
+   "max": 26,
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "node": "7"
+  }
+ },
+ {
+  "type": "progress_state",
+  "data": {
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "nodes": {
+    "1": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "1",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "1",
+     "parent_node_id": null,
+     "real_node_id": "1"
+    },
+    "5": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "5",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "5",
+     "parent_node_id": null,
+     "real_node_id": "5"
+    },
+    "2": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "2",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "2",
+     "parent_node_id": null,
+     "real_node_id": "2"
+    },
+    "4": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "4",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "4",
+     "parent_node_id": null,
+     "real_node_id": "4"
+    },
+    "3": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "3",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "3",
+     "parent_node_id": null,
+     "real_node_id": "3"
+    },
+    "6": {
+     "value": 4,
+     "max": 4,
+     "state": "finished",
+     "node_id": "6",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "6",
+     "parent_node_id": null,
+     "real_node_id": "6"
+    },
+    "7": {
+     "value": 26,
+     "max": 26,
+     "state": "finished",
+     "node_id": "7",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "7",
+     "parent_node_id": null,
+     "real_node_id": "7"
+    }
+   }
+  }
+ },
+ {
+  "type": "progress_state",
+  "data": {
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "nodes": {
+    "1": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "1",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "1",
+     "parent_node_id": null,
+     "real_node_id": "1"
+    },
+    "5": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "5",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "5",
+     "parent_node_id": null,
+     "real_node_id": "5"
+    },
+    "2": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "2",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "2",
+     "parent_node_id": null,
+     "real_node_id": "2"
+    },
+    "4": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "4",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "4",
+     "parent_node_id": null,
+     "real_node_id": "4"
+    },
+    "3": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "3",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "3",
+     "parent_node_id": null,
+     "real_node_id": "3"
+    },
+    "6": {
+     "value": 4,
+     "max": 4,
+     "state": "finished",
+     "node_id": "6",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "6",
+     "parent_node_id": null,
+     "real_node_id": "6"
+    },
+    "7": {
+     "value": 26,
+     "max": 26,
+     "state": "finished",
+     "node_id": "7",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "7",
+     "parent_node_id": null,
+     "real_node_id": "7"
+    },
+    "8": {
+     "value": 0.0,
+     "max": 1.0,
+     "state": "running",
+     "node_id": "8",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "8",
+     "parent_node_id": null,
+     "real_node_id": "8"
+    }
+   }
+  }
+ },
+ {
+  "type": "executing",
+  "data": {
+   "node": "8",
+   "display_node": "8",
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73"
+  }
+ },
+ {
+  "type": "executed",
+  "data": {
+   "node": "8",
+   "display_node": "8",
+   "output": {
+    "images": [
+     {
+      "filename": "sdxl_lightning_00001_.png",
+      "subfolder": "studio",
+      "type": "output"
+     }
+    ]
+   },
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73"
+  }
+ },
+ {
+  "type": "progress_state",
+  "data": {
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "nodes": {
+    "1": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "1",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "1",
+     "parent_node_id": null,
+     "real_node_id": "1"
+    },
+    "5": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "5",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "5",
+     "parent_node_id": null,
+     "real_node_id": "5"
+    },
+    "2": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "2",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "2",
+     "parent_node_id": null,
+     "real_node_id": "2"
+    },
+    "4": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "4",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "4",
+     "parent_node_id": null,
+     "real_node_id": "4"
+    },
+    "3": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "3",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "3",
+     "parent_node_id": null,
+     "real_node_id": "3"
+    },
+    "6": {
+     "value": 4,
+     "max": 4,
+     "state": "finished",
+     "node_id": "6",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "6",
+     "parent_node_id": null,
+     "real_node_id": "6"
+    },
+    "7": {
+     "value": 26,
+     "max": 26,
+     "state": "finished",
+     "node_id": "7",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "7",
+     "parent_node_id": null,
+     "real_node_id": "7"
+    },
+    "8": {
+     "value": 1.0,
+     "max": 1.0,
+     "state": "finished",
+     "node_id": "8",
+     "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+     "display_node_id": "8",
+     "parent_node_id": null,
+     "real_node_id": "8"
+    }
+   }
+  }
+ },
+ {
+  "type": "execution_success",
+  "data": {
+   "prompt_id": "c5a3efdb-d76c-42dc-9f2f-7b136d816d73",
+   "timestamp": 1791131940806
+  }
+ }
+]
