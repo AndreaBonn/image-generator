@@ -23,6 +23,7 @@ def generation_metadata(batch: GenerationBatch, output: GenerationOutput) -> dic
     job = batch.job
     params = {
         **job.params.model_dump(),
+        **job.binding_values,
         "seed": output.seed,
         "batch_index": output.batch_index,
         "negative_prompt_final": job.negative_final,
@@ -37,6 +38,7 @@ def generation_metadata(batch: GenerationBatch, output: GenerationOutput) -> dic
         "params": params,
         "seed": output.seed,
         "duration_ms": batch.duration_ms,
+        "parent_id": job.image_input.parent_id if job.image_input else None,
     }
 
 

@@ -1,10 +1,11 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Literal
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from app.models.task import TaskDefinition
+from app.models.image_input import ImageInput
+from app.models.task import Scalar, TaskDefinition
 
 MAX_SEED = 2**32 - 1
 MAX_PROMPT_LENGTH = 2000
@@ -24,7 +25,7 @@ class JobParams(BaseModel):
 class JobRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
     task_id: str
-    prompt: str = Field(max_length=MAX_PROMPT_LENGTH)
+    prompt: str = Field(default="", max_length=MAX_PROMPT_LENGTH)
     negative_prompt: str = Field(default="", max_length=MAX_PROMPT_LENGTH)
     params: JobParams = Field(default_factory=JobParams)
     input_upload_id: UUID | None = None
@@ -55,3 +56,5 @@ class ResolvedJob:
     params: ResolvedParams
     prompt_final: str
     negative_final: str
+    image_input: ImageInput | None = None
+    binding_values: dict[str, Scalar] = field(default_factory=dict)

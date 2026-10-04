@@ -1,6 +1,7 @@
 import asyncio
 from collections.abc import AsyncGenerator
 from io import BytesIO
+from typing import Any
 from uuid import uuid4
 
 from PIL import Image, ImageDraw
@@ -37,6 +38,7 @@ class FakeEngine:
         self.family: str | None = None
         self.is_interrupted = False
         self.deleted: set[str] = set()
+        self.uploaded_images: dict[str, bytes] = {}
 
     async def run(self, request: EngineRequest) -> AsyncGenerator[EngineEvent, None]:
         prompt_id = str(uuid4())
@@ -73,3 +75,10 @@ class FakeEngine:
 
     async def free(self) -> None:
         self.family = None
+
+    async def upload_image(self, image: bytes, name: str) -> str:
+        self.uploaded_images[name] = image
+        return name
+
+    async def system_stats(self) -> dict[str, Any]:
+        return {"system": {"comfyui_version": "fake"}, "devices": []}

@@ -1,6 +1,6 @@
 from collections.abc import AsyncGenerator
 from dataclasses import dataclass
-from typing import Literal, Protocol
+from typing import Any, Literal, Protocol
 
 from pydantic import BaseModel, ConfigDict
 
@@ -78,6 +78,8 @@ class EngineRequest:
 
 
 class EngineClient(Protocol):
+    async def system_stats(self) -> dict[str, Any]: ...
+    async def upload_image(self, image: bytes, name: str) -> str: ...
     def run(self, request: EngineRequest) -> AsyncGenerator[EngineEvent, None]: ...
     async def interrupt(self) -> None: ...
     async def delete_from_queue(self, prompt_id: str) -> None: ...

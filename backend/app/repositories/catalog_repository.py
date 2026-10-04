@@ -18,6 +18,10 @@ class ModelEntry(BaseModel):
     source: Literal["fooocus", "huggingface"]
     folder: str
     filename: str
+    family: str = ""
+    size_bytes: int = Field(default=0, ge=0)
+    enabled: bool = True
+    license: str = ""
 
     @model_validator(mode="after")
     def validate_relative_paths(self) -> Self:

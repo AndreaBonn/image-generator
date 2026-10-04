@@ -1,3 +1,5 @@
+from typing import Any
+
 import pytest
 
 from app.config import Settings
@@ -9,7 +11,7 @@ from app.services.style_service import StyleService
 from app.services.task_catalog import load_catalog
 
 
-def resolve(body: dict) -> ResolvedJob:
+def resolve(body: dict[str, Any]) -> ResolvedJob:
     return resolve_job(
         request=JobRequest.model_validate(body),
         catalog=load_catalog(settings=Settings(engine_mode="fake")),
@@ -44,7 +46,9 @@ def test_resolve_job_defaults_styles_and_seed(task_id: str, steps: int, prompt: 
         ({"aspect_ratio": "1*1"}, "params.aspect_ratio"),
     ],
 )
-def test_resolve_job_checks_catalog_limits(params: dict, field: str) -> None:
+def test_resolve_job_checks_catalog_limits(
+    params: dict[str, int | float | str], field: str
+) -> None:
     with pytest.raises(ValidationError) as error:
         resolve({"task_id": "bozza", "prompt": "cat", "params": params})
     assert error.value.details[0]["field"] == field
@@ -56,6 +60,7 @@ def test_resolve_job_ignores_styles_for_unsupported_task() -> None:
     assert result.params.style_ids == []
 
 
-def test_resolve_job_rejects_future_image_task() -> None:
-    with pytest.raises(ValidationError, match="non è ancora supportato"):
+def test_resolve_job_requires_image_for_inpaint() -> None:
+    with pytest.raises(ValidationError) as error:
         resolve({"task_id": "inpaint", "prompt": "cat"})
+    assert error.value.details[0]["field"] == "input_upload_id"

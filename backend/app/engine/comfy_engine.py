@@ -2,6 +2,7 @@ import asyncio
 import json
 import logging
 from collections.abc import AsyncGenerator, AsyncIterator
+from typing import Any
 from uuid import uuid4
 
 from websockets.asyncio.client import ClientConnection, connect
@@ -109,3 +110,9 @@ class ComfyEngine:
 
     async def free(self) -> None:
         await self.client.free()
+
+    async def upload_image(self, image: bytes, name: str) -> str:
+        return await self.client.upload_image(image=image, name=name)
+
+    async def system_stats(self) -> dict[str, Any]:
+        return await self.client.system_stats()

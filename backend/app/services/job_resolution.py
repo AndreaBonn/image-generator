@@ -7,6 +7,10 @@ from app.services.style_service import StyleService
 from app.services.task_catalog import TaskCatalog
 
 GENERATION_TASKS = frozenset({"bozza", "qualita", "testo"})
+IMAGE_TASKS = frozenset(
+    {"inpaint", "outpaint", "variazione_sottile", "variazione_forte", "upscale"}
+)
+SUPPORTED_TASKS = GENERATION_TASKS | IMAGE_TASKS
 
 
 def field_error(field: str, message: str) -> ValidationError:
@@ -17,15 +21,32 @@ def resolve_task(request: JobRequest, catalog: TaskCatalog, is_fake: bool) -> Ta
     task = next((task for task in catalog.tasks if task.id == request.task_id), None)
     if task is None:
         raise ModelNotInstalledError(message="Il compito richiesto non è disponibile.")
-    if task.id not in GENERATION_TASKS:
+    if task.id not in SUPPORTED_TASKS:
         raise ValidationError(message="Questo compito non è ancora supportato.")
     reason = catalog.unavailable_reason(task=task)
     has_workflow = catalog.repository.has_workflow(filename=task.workflow)
     if reason is not None and (not is_fake or not has_workflow):
         raise ModelNotInstalledError(message=reason)
-    if not request.prompt.strip():
+    if (task.id in GENERATION_TASKS or task.id == "inpaint") and not request.prompt.strip():
         raise field_error(field="prompt", message="Descrivi l'immagine da generare.")
+    if task.id in IMAGE_TASKS:
+        validate_image_request(request=request)
     return task
+
+
+def validate_image_request(request: JobRequest) -> None:
+    if request.input_upload_id is None and request.source_generation_id is None:
+        raise field_error(field="input_upload_id", message="Scegli un'immagine di partenza.")
+    if request.input_upload_id is not None and request.source_generation_id is not None:
+        raise field_error(field="input_upload_id", message="Scegli una sola immagine di partenza.")
+    if request.task_id == "inpaint" and request.mask_upload_id is None:
+        raise field_error(field="mask_upload_id", message="Carica una maschera per la modifica.")
+    if request.task_id == "outpaint" and not request.outpaint_directions:
+        raise field_error(field="outpaint_directions", message="Scegli almeno una direzione.")
+    if request.task_id == "upscale" and request.upscale_factor is None:
+        raise field_error(field="upscale_factor", message="Scegli il fattore 2 o 4.")
+    if request.params.batch != 1:
+        raise field_error(field="params.batch", message="Questo compito accetta una sola immagine.")
 
 
 def validate_limits(task: TaskDefinition, values: dict[str, Scalar]) -> None:
@@ -44,6 +65,8 @@ def validate_limits(task: TaskDefinition, values: dict[str, Scalar]) -> None:
 
 
 def resolve_params(request: JobRequest, task: TaskDefinition) -> ResolvedParams:
+    if task.id == "upscale":
+        return resolve_upscale_params(request=request)
     values = dict(task.defaults)
     overrides = request.params.model_dump(exclude_none=True, exclude={"style_ids"})
     values.update(overrides)
@@ -67,6 +90,15 @@ def resolve_params(request: JobRequest, task: TaskDefinition) -> ResolvedParams:
             "height": ratio.height,
             "style_ids": list(style_ids) if task.supports_styles else [],
         }
+    )
+
+
+def resolve_upscale_params(request: JobRequest) -> ResolvedParams:
+    seed = request.params.seed
+    if seed is None:
+        seed = secrets.randbelow(exclusive_upper_bound=MAX_SEED + 1)
+    return ResolvedParams(
+        aspect_ratio="", width=1, height=1, seed=seed, batch=1, steps=0, cfg=0, style_ids=[]
     )
 
 

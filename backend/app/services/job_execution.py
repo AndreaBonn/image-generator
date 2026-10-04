@@ -13,6 +13,7 @@ from app.engine.types import (
 from app.engine.workflow_builder import Graph, build_workflow
 from app.errors import EngineExecutionError
 from app.models.job import ResolvedJob
+from app.services.image_preparation import upload_job_images
 
 
 class JobInterruptedError(Exception):
@@ -39,6 +40,7 @@ def build_requests(job: ResolvedJob, template: Graph) -> list[EngineRequest]:
             seed=job.params.seed + offset,
             batch=batch,
         )
+        values.update(job.binding_values)
         graph = build_workflow(template=template, bindings=job.task.bindings, values=values)
         requests.append(
             EngineRequest(
@@ -59,6 +61,7 @@ async def execute_job(
     template: Graph,
     on_event: Callable[[EngineEvent], Awaitable[None]],
 ) -> list[GenerationOutput]:
+    job = await upload_job_images(job=job, engine=engine)
     results: list[GenerationOutput] = []
     for request in build_requests(job=job, template=template):
         images: tuple[bytes, ...] = ()

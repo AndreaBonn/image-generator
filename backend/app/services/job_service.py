@@ -4,9 +4,10 @@ from typing import Any
 
 from app.async_tasks import drain_task
 from app.engine.types import EngineClient
-from app.models.job import JobRequest
+from app.models.job import JobRequest, ResolvedJob
 from app.repositories.job_repository import TERMINAL_STATUSES
 from app.services.job_events import JobEvents
+from app.services.job_inputs import resolve_image_job
 from app.services.job_resolution import resolve_job
 from app.services.job_resources import JobResources
 from app.services.job_run import JobRun
@@ -42,11 +43,8 @@ class JobService:
         self, request: JobRequest, engine: EngineClient, idempotency_key: str | None
     ) -> str:
         resolved = await asyncio.to_thread(
-            resolve_job,
+            self._resolve,
             request=request,
-            catalog=self.resources.catalog,
-            styles=self.resources.styles,
-            is_fake=self.resources.settings.engine_mode == "fake",
         )
         record, created = await asyncio.to_thread(
             self.repository.create,
@@ -58,6 +56,15 @@ class JobService:
             self.runs[run.id] = run
             run.task = asyncio.create_task(coro=self._run(run=run), name=f"job-{run.id}")
         return record.id
+
+    def _resolve(self, request: JobRequest) -> ResolvedJob:
+        job = resolve_job(
+            request=request,
+            catalog=self.resources.catalog,
+            styles=self.resources.styles,
+            is_fake=self.resources.settings.engine_mode == "fake",
+        )
+        return resolve_image_job(job=job, resources=self.resources)
 
     async def _run(self, run: JobRun) -> None:
         try:
