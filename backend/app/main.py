@@ -1,6 +1,7 @@
 from fastapi import APIRouter, FastAPI
 from fastapi.exceptions import RequestValidationError
 
+from app.api.origin_guard import OriginGuardMiddleware
 from app.api.spa import register_spa
 from app.api.v1.generations import router as generations_router
 from app.api.v1.health import router as health_router
@@ -24,6 +25,7 @@ from app.lifespan import lifespan
 def create_app(config: Settings | None = None) -> FastAPI:
     application = FastAPI(title="Studio Immagini", lifespan=lifespan)
     application.state.settings = config if config is not None else settings
+    application.add_middleware(OriginGuardMiddleware)
     application.add_exception_handler(AppError, handle_app_error)
     application.add_exception_handler(RequestValidationError, handle_validation_error)
     application.add_exception_handler(Exception, handle_unexpected_error)

@@ -507,6 +507,7 @@ Indici: `idx_generations_created_at`, `idx_generations_task_id`, `idx_generation
 - I prompt entrano nel workflow come valori JSON, mai concatenati in codice o comandi.
 - Nessun `subprocess` con `shell=True` negli script; nessun segreto richiesto in v1. Se un modello richiede token HF, va in `.env` (escluso da git) e in `.env.example` come variabile vuota.
 - CORS: in sviluppo, solo l'origine del dev server Vite; in produzione nessuno, perché frontend e API hanno la stessa origine.
+- CSRF e DNS rebinding: l'assenza di CORS impedisce a un altro sito di *leggere* le risposte, non di *inviare* un form a `127.0.0.1:8000`. Per questo ogni richiesta che modifica dati (POST, PATCH, PUT, DELETE) passa da un middleware che risponde `403 CROSS_SITE_REQUEST` se `Sec-Fetch-Site` vale `cross-site` o `same-site`, oppure se l'header `Origin` ha un host diverso da `127.0.0.1`, `localhost`, `::1`. L'host di `Origin` si controlla anche quando il browser dichiara `same-origin`, perché sotto DNS rebinding il dominio dell'attaccante risulta same-origin. Le richieste senza questi header (curl, script, test) passano: la minaccia è una pagina web nel browser dell'utente.
 
 ---
 
