@@ -96,7 +96,7 @@ Ogni compito appartiene a una **famiglia di modello**: l'insieme dei pesi che il
 |---|---|---|---|---|
 | `bozza` | Bozza veloce | Juggernaut XL v8 + LoRA SDXL-Lightning 4-step | 4 step, CFG 1.0, sampler `euler`, scheduler `sgm_uniform` | Inglese |
 | `qualita` | Immagine di qualità | Juggernaut XL v8 + offset LoRA 0.1 | 30 step, CFG 4.0, sampler `dpmpp_2m_sde_gpu`, scheduler `karras` (default Fooocus "Speed") | Inglese |
-| `testo` | Testo nell'immagine e prompt complessi | FLUX.2 [klein] 4B distilled fp8 | 4 step, CFG 1.0, sampler `euler`, scheduler `simple` | Inglese consigliato; italiano **DA VERIFICARE** in Fase 0 |
+| `testo` | Testo nell'immagine e prompt complessi | FLUX.2 [klein] 4B distilled fp8 | 4 step, CFG 1.0, sampler `euler` con `Flux2Scheduler` (grafo del template ufficiale distilled: `CFGGuider`, negativo azzerato con `ConditioningZeroOut`, nessun prompt negativo) | Inglese consigliato; italiano **DA VERIFICARE** in Fase 0 |
 | `foto` | Foto realistica | Z-Image Turbo fp8, **solo se installato** (§ 6) | 8 step, CFG 1.0, sampler **DA VERIFICARE** in Fase 0 | Inglese; italiano **DA VERIFICARE** |
 
 Note:
@@ -115,6 +115,8 @@ Note:
 | `upscale` | Ingrandisci | Modello 4x-UltraSharp, nodi core `UpscaleModelLoader` + `ImageUpscaleWithModel`, poi ridimensionamento al fattore scelto | fattore ×2 o ×4 | Nessun prompt |
 
 Le variazioni si applicano a qualsiasi immagine (anche non generata da SDXL), ma passano sempre dal checkpoint SDXL. Il bordo dell'immagine di input si adatta alle proporzioni SDXL più vicine (§ 3.4).
+
+Per inpaint e outpaint il backend porta l'immagine di input a circa 1 megapixel (lati multipli di 8, proporzioni mantenute) prima di caricarla nel motore: SDXL lavora bene a quella scala. Il risultato viene ricomposto sull'originale con la maschera sfumata, quindi i pixel fuori dalla zona restano identici a quelli di partenza (alla risoluzione di lavoro).
 
 ### 3.3 Guida alla lingua del prompt (FN7)
 
@@ -178,7 +180,7 @@ Browser (React)  --HTTP /api/v1 + SSE-->  Backend FastAPI  --HTTP + WebSocket-->
 
 | Livello | Tecnologia | Note |
 |---|---|---|
-| Motore | ComfyUI **v0.38.0** (tag fissato), Python 3.12, PyTorch wheel `cu130` | Installazione con `uv venv` + `uv pip install` (§ 6.2) |
+| Motore | ComfyUI **v0.38.2** (tag fissato), Python 3.12, PyTorch wheel `cu130` | Installazione con `uv venv` + `uv pip install` (§ 6.2) |
 | Custom node | `Acly/comfyui-inpaint-nodes` (commit fissato) | Unico custom node della v1 |
 | Backend | Python 3.12, FastAPI, httpx (async), `websockets`, pydantic v2, pydantic-settings, SQLAlchemy 2 + SQLite, Pillow, sse-starlette | Gestito con uv |
 | Frontend | React 19 + TypeScript + Vite, TanStack Query, React Router, Tailwind CSS | Editor maschera su `<canvas>` nativo, nessuna libreria di disegno |
@@ -280,9 +282,9 @@ Fonte: [docs.comfy.org, server routes](https://docs.comfy.org/development/comfyu
 ### 5.2 Template di workflow
 
 - Ogni file in `workflows/` è un workflow in **API format**, esportato dalla UI di ComfyUI (Settings → Dev Mode → "Export (API)") dopo averlo costruito e provato a mano, oppure scritto a mano e poi verificato.
-- I nodi che ricevono parametri hanno un `_meta.title` con prefisso `@`: `@prompt_pos`, `@prompt_neg`, `@seed`, `@steps`, `@cfg`, `@sampler`, `@size`, `@checkpoint`, `@unet`, `@lora`, `@input_image`, `@input_mask`, `@denoise`, `@batch`, `@outpaint_pad`, `@upscale_model`, `@scale`, `@output`.
+- I nodi che il codice può toccare hanno un `_meta.title` con prefisso `@` che nomina il **nodo** (`@prompt_pos`, `@prompt_neg`, `@sampler`, `@latent`, `@noise`, `@scheduler`, `@guider`, `@input_image`, `@input_mask`, `@pad`, `@resize`, `@scale`, `@output`, ...). In `tasks.yaml` ogni parametro elenca i punti in cui va scritto, nel formato `@titolo.input`: `width: ["@latent.width", "@scheduler.width"]`. Un parametro può scrivere in più nodi.
 - `workflow_builder.py` carica il template, trova i nodi per titolo (mai per ID numerico, che cambia a ogni esportazione), scrive i valori nei campi indicati da `tasks.yaml`, restituisce un nuovo dict senza mutare il template in cache. È logica pura e va testata con golden file.
-- Un template che contiene un titolo `@...` non dichiarato nel binding, o un binding che punta a un titolo assente, fa fallire l'avvio del backend con un messaggio che nomina file e titolo.
+- Un binding che punta a un titolo assente o a un input inesistente fa fallire l'avvio del backend con un messaggio che nomina file e titolo. I nodi `@` non referenziati sono ammessi: sono nodi fissi (loader dei modelli).
 
 **Test di contratto** (marcato `engine`, gira solo con ComfyUI attivo): per ogni template, ogni `class_type` esiste in `GET /object_info`, e i campi bindati esistono negli input di quel nodo. Protegge dagli aggiornamenti di ComfyUI e del custom node.
 
@@ -296,6 +298,7 @@ I nomi esatti delle classi di nodo di `comfyui-inpaint-nodes` (patch Fooocus, VA
   1. emette l'evento SSE `model_switch` con il tempo stimato misurato in Fase 0 ("Cambio modello, circa N secondi");
   2. chiama `POST /free` prima di inviare il workflow, **solo se** la Fase 0 mostra che senza `/free` il cambio va in out-of-memory o è più lento. Altrimenti lascia fare a ComfyUI. Il valore si fissa in `config/tasks.yaml` dopo la Fase 0 (`free_on_family_switch: true | false`); finché la misura non c'è, il default è `false`.
 - La UI mostra il modello caricato in Impostazioni e, nel selettore dei compiti, un'icona "pronto subito" sui compiti della famiglia già in memoria.
+- **GPU condivisa**: sulla macchina gira anche Ollama, che carica modelli da 6 GB su richiesta di altri programmi. Il 2026-10-04 una generazione SDXL in contemporanea a un modello Ollama caricato ha portato a un errore Xid 79 ("GPU has fallen off the bus"), recuperabile solo con un riavvio. Per questo `/system` riporta la VRAM libera e i processi che la usano; sotto 6 GB liberi la UI mostra un avviso ("Un altro programma sta usando la scheda video") prima di generare, e `scripts/start.sh` avvisa se `ollama ps` elenca modelli caricati.
 
 ### 5.4 Coda e concorrenza
 
@@ -329,11 +332,11 @@ Conseguenza sul catalogo: il compito del candidato scartato resta in `tasks.yaml
 | Offset LoRA | già in Fooocus | `loras` | 0 (riuso) | Stability, OpenRAIL++ | attivo |
 | Fooocus inpaint head + patch | già in Fooocus | `inpaint` | 0 (riuso) | **DA VERIFICARE** | attivo |
 | SDXL-Lightning 4-step LoRA | `sdxl_lightning_4step_lora.safetensors` ([ByteDance/SDXL-Lightning](https://huggingface.co/ByteDance/SDXL-Lightning)) | `loras` | 0,39 | OpenRAIL++ | attivo |
-| 4x-UltraSharp | `4x-UltraSharp.pth` ([Kim2091/UltraSharp](https://huggingface.co/Kim2091/UltraSharp)) | `upscale_models` | 0,07 | **DA VERIFICARE** | attivo |
+| 4x-UltraSharp | `4x-UltraSharp.safetensors` ([Kim2091/UltraSharp](https://huggingface.co/Kim2091/UltraSharp)) | `upscale_models` | 0,07 | CC BY-NC-SA 4.0 (solo uso non commerciale) | attivo |
 | FLUX.2 [klein] 4B distilled fp8 | `flux-2-klein-4b-fp8.safetensors` ([black-forest-labs/FLUX.2-klein-4b-fp8](https://huggingface.co/black-forest-labs/FLUX.2-klein-4b-fp8)) | `diffusion_models` | 4,07 | Apache 2.0 (da fonte secondaria, rileggere la model card) | candidato A |
 | Text encoder Qwen3-4B fp4 | `qwen_3_4b_fp4_flux2.safetensors` ([Comfy-Org/vae-text-encorder-for-flux-klein-4b](https://huggingface.co/Comfy-Org/vae-text-encorder-for-flux-klein-4b)) | `text_encoders` | 3,85 | Apache 2.0 (Qwen3) | serve ad A e a B |
 | VAE FLUX.2 | `flux2-vae.safetensors` | `vae` | 0,34 | come FLUX.2 | serve ad A |
-| Z-Image Turbo fp8 | repack fp8 community, file **DA VERIFICARE** (Comfy-Org pubblica solo bf16 da 12,3 GB) | `diffusion_models` | circa 6,2 | Apache 2.0 (da fonte secondaria) | candidato B |
+| Z-Image Turbo int8 | `z_image_turbo_int8_convrot.safetensors` ([Comfy-Org/z_image_turbo](https://huggingface.co/Comfy-Org/z_image_turbo), ufficiale) | `diffusion_models` | 6,2 | Apache 2.0 (da fonte secondaria) | candidato B |
 | VAE Z-Image | `ae.safetensors` ([Comfy-Org/z_image_turbo](https://huggingface.co/Comfy-Org/z_image_turbo)) | `vae` | 0,34 | Apache 2.0 | serve a B; verificare se identico al VAE FLUX.2 |
 
 **Non usare FLUX.2 [klein] 9B**: licenza non commerciale BFL.
@@ -356,7 +359,7 @@ Nota per l'utente, non per Claude Code: `~/.cache/huggingface` occupa 7,9 GB e p
 Idempotente, rieseguibile, si ferma al primo errore (`set -euo pipefail`):
 
 1. Controlla lo spazio libero: se è sotto 10 GB, si ferma con un messaggio. La soglia è più alta dei 5 GB di `MIN_FREE_DISK_GB` perché l'ambiente PyTorch da solo occupa 5-8 GB. `MIN_FREE_DISK_GB` resta il margine da lasciare libero dopo ogni download di modello.
-2. `git clone https://github.com/Comfy-Org/ComfyUI.git engine/ComfyUI` e checkout del tag `v0.38.0`.
+2. `git clone https://github.com/Comfy-Org/ComfyUI.git engine/ComfyUI` e checkout del tag `v0.38.2`.
 3. `uv venv --python 3.12 engine/ComfyUI/.venv`.
 4. `uv pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu130` (il driver 580 supporta CUDA 13.0, misurato).
 5. `uv pip install -r engine/ComfyUI/requirements.txt`.
@@ -661,9 +664,9 @@ Ogni fase lascia il sistema usabile anche se la successiva non arriva. Ogni pass
 | Q4 | Sampler raccomandato per Z-Image Turbo e file fp8 da usare | 0, solo se si prova B |
 | Q5 | Schema dei messaggi WebSocket e dei frame di anteprima | 1 |
 | Q6 | Testo di `execution_error` in caso di OOM | 0 |
-| Q7 | Nomi delle classi di nodo di `comfyui-inpaint-nodes` | 0 |
+| Q7 | ~~Nomi delle classi di nodo di `comfyui-inpaint-nodes`~~ chiuso: `INPAINT_LoadFooocusInpaint`, `INPAINT_ApplyFooocusInpaint`, `INPAINT_VAEEncodeInpaintConditioning`, `INPAINT_ExpandMask`, `INPAINT_MaskedFill` | 0 |
 | Q8 | Batch nativo su FLUX.2 klein entro 8 GB | 0 |
-| Q9 | Peso reale dell'ambiente ComfyUI + PyTorch su disco | 0 |
+| Q9 | ~~Peso reale dell'ambiente ComfyUI + PyTorch su disco~~ chiuso: circa 7 GB misurati | 0 |
 
 ---
 
