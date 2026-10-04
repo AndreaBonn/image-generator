@@ -103,21 +103,25 @@ async def test_image_job_requires_mask_directions_and_single_batch(job_app: JobA
         assert response.json()["error"]["details"][0]["field"] == field
 
 
-async def test_source_generation_id_unknown_generation_fails_not_found(job_app: JobApp) -> None:
-    # job_resolution.validate_image_request only checks that *a* source is present; resolving
-    # the actual parent generation (job_inputs.resolve_source) runs synchronously inside
-    # JobService._resolve, before the job record even exists, so this 404s the POST itself
-    # instead of surfacing as a later async job failure.
+async def test_source_generation_id_unknown_generation_fails_with_field_error(
+    job_app: JobApp,
+) -> None:
     _, client = job_app
     response = await client.post(
         url="/api/v1/jobs",
         json={"task_id": "variazione_sottile", "source_generation_id": str(uuid4())},
     )
-    assert response.status_code == 404
-    assert response.json()["error"]["code"] == "NOT_FOUND"
+    assert response.status_code == 422
+    assert response.json()["error"] == {
+        "code": "VALIDATION_ERROR",
+        "message": "Immagine di partenza non trovata.",
+        "details": [
+            {"field": "source_generation_id", "message": "Immagine di partenza non trovata."}
+        ],
+    }
 
 
-async def test_source_generation_id_soft_deleted_generation_fails_not_found(
+async def test_source_generation_id_soft_deleted_generation_fails_with_field_error(
     job_app: JobApp,
 ) -> None:
     _, client = job_app
@@ -128,8 +132,14 @@ async def test_source_generation_id_soft_deleted_generation_fails_not_found(
         url="/api/v1/jobs",
         json={"task_id": "variazione_sottile", "source_generation_id": generation_id},
     )
-    assert response.status_code == 404
-    assert response.json()["error"]["code"] == "NOT_FOUND"
+    assert response.status_code == 422
+    assert response.json()["error"] == {
+        "code": "VALIDATION_ERROR",
+        "message": "Immagine di partenza non trovata.",
+        "details": [
+            {"field": "source_generation_id", "message": "Immagine di partenza non trovata."}
+        ],
+    }
 
 
 async def test_source_parent_and_rerun_keep_original_input(job_app: JobApp) -> None:

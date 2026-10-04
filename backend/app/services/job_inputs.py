@@ -4,7 +4,7 @@ from uuid import UUID
 
 from PIL import Image
 
-from app.errors import NotFoundError
+from app.errors import NotFoundError, ValidationError
 from app.models.image_input import ImageInput
 from app.models.job import ResolvedJob
 from app.models.task import Scalar
@@ -19,6 +19,8 @@ from app.services.image_geometry import (
 )
 from app.services.job_resolution import IMAGE_TASKS, field_error
 from app.services.job_resources import JobResources
+
+SOURCE_NOT_FOUND_MESSAGE = "Immagine di partenza non trovata."
 
 
 def upload_path(upload_id: UUID, kind: str, resources: JobResources) -> Path:
@@ -38,7 +40,15 @@ def resolve_source(job: ResolvedJob, resources: JobResources) -> ImageInput:
     parent_id = str(request.source_generation_id) if request.source_generation_id else None
     if parent_id is not None:
         repository = GenerationRepository(database=resources.repository.database)
-        record = repository.get(generation_id=parent_id)
+        try:
+            record = repository.get(generation_id=parent_id)
+        except NotFoundError as error:
+            # No form field shows this id (it comes from the URL), so the UI needs the
+            # top-level message as well as the field detail.
+            raise ValidationError(
+                message=SOURCE_NOT_FOUND_MESSAGE,
+                details=[{"field": "source_generation_id", "message": SOURCE_NOT_FOUND_MESSAGE}],
+            ) from error
         path = resolve_data_path(root=resources.settings.data_dir, relative=record.image_path)
     elif request.input_upload_id is not None:
         path = upload_path(upload_id=request.input_upload_id, kind="image", resources=resources)
