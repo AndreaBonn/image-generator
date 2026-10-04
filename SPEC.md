@@ -373,7 +373,7 @@ Il percorso uv non è quello documentato da Comfy-Org (che usa pip), ma installa
 
 - Legge `config/models.yaml`: per ogni modello id, famiglia, file, repo HF, cartella di destinazione, dimensione attesa, licenza, `enabled`.
 - `uv run --script scripts/install_models.py --list` mostra lo stato (installato / mancante / riusato da Fooocus) e lo spazio necessario.
-- `--install <id>`: prima di scaricare verifica `spazio_libero - dimensione >= MIN_FREE_DISK_GB`, altrimenti rifiuta con il conto esplicito. Scarica con `huggingface_hub` (`hf_hub_download`, `local_dir` nella cartella giusta, niente copia in cache). Dopo il download verifica la dimensione.
+- `--install <id>`: prima di scaricare verifica `spazio_libero - dimensione >= MIN_FREE_DISK_GB`, altrimenti rifiuta con il conto esplicito. Scarica con `huggingface_hub` (`hf_hub_download`, `local_dir` nella cartella giusta, niente copia in cache). Dopo il download verifica lo sha256 contro quello dichiarato in `config/models.yaml`: se non coincide elimina il file scaricato e fallisce, altrimenti lo sposta nella destinazione in modo atomico.
 - **Se l'installer rifiuta per spazio**, Claude Code non libera spazio da solo e non cancella nulla, né modelli né cache. Si ferma e riporta all'utente il conto (spazio libero, dimensione richiesta, margine), chiedendogli come procedere.
 - `--remove <id>`: cancella i file di un modello non riusato da Fooocus, chiedendo conferma.
 - Non scarica mai nulla senza un `--install` esplicito.
