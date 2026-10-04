@@ -1,3 +1,4 @@
+import asyncio
 from collections.abc import Awaitable, Callable
 from contextlib import aclosing
 from dataclasses import dataclass
@@ -13,7 +14,7 @@ from app.engine.types import (
 from app.engine.workflow_builder import Graph, build_workflow
 from app.errors import EngineExecutionError
 from app.models.job import ResolvedJob
-from app.services.image_preparation import upload_job_images
+from app.services.image_preparation import restore_inpaint_output, upload_job_images
 
 
 class JobInterruptedError(Exception):
@@ -78,8 +79,7 @@ async def execute_job(
             raise EngineExecutionError(
                 message="Il motore ha restituito un numero di immagini inatteso."
             )
-        results.extend(
-            GenerationOutput(image=image, seed=request.seed, batch_index=index)
-            for index, image in enumerate(images)
-        )
+        for index, image in enumerate(images):
+            restored = await asyncio.to_thread(restore_inpaint_output, job=job, image=image)
+            results.append(GenerationOutput(image=restored, seed=request.seed, batch_index=index))
     return results

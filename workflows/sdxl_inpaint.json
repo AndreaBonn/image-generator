@@ -38,12 +38,12 @@
   "7": {
     "class_type": "INPAINT_ExpandMask",
     "_meta": { "title": "@mask_grow" },
-    "inputs": { "mask": ["6", 0], "grow": 8, "blur": 7, "blur_type": "gaussian" }
+    "inputs": { "mask": ["6", 0], "grow": 12, "blur": 7, "blur_type": "gaussian" }
   },
   "8": {
     "class_type": "INPAINT_MaskedFill",
     "_meta": { "title": "@fill" },
-    "inputs": { "image": ["5", 0], "mask": ["7", 0], "fill": "neutral", "falloff": 0 }
+    "inputs": { "image": ["5", 0], "mask": ["7", 0], "fill": "navier-stokes", "falloff": 0 }
   },
   "9": {
     "class_type": "INPAINT_VAEEncodeInpaintConditioning",

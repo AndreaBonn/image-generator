@@ -108,7 +108,7 @@ Note:
 
 | ID compito | Etichetta UI | Modello e metodo | Parametri | Lingua del prompt |
 |---|---|---|---|---|
-| `inpaint` | Modifica una parte | Juggernaut XL + patch Fooocus inpaint (nodi `comfyui-inpaint-nodes`) | 30 step, CFG 4.0, denoise 1.0, maschera espansa di 8 px | Inglese, descrivi solo ciò che va nella zona |
+| `inpaint` | Modifica una parte | Juggernaut XL + patch Fooocus inpaint (nodi `comfyui-inpaint-nodes`) | 30 step, CFG 4.0, denoise 1.0, maschera espansa di 12 px, pre-riempimento navier-stokes; il risultato si ricompone sull'originale a piena risoluzione | Inglese, descrivi solo ciò che va nella zona |
 | `outpaint` | Allarga l'immagine | Come `inpaint`, con padding dell'immagine e pre-fill della zona nuova | Espansione 30% del lato per ogni direzione scelta (come Fooocus), denoise 1.0 | Inglese, facoltativo |
 | `variazione_sottile` | Variazione leggera | img2img sul checkpoint SDXL | denoise 0.5 (valore Fooocus "Vary Subtle") | Inglese, facoltativo |
 | `variazione_forte` | Variazione forte | img2img sul checkpoint SDXL | denoise 0.85 (valore Fooocus "Vary Strong") | Inglese, facoltativo |
