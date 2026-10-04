@@ -3,8 +3,8 @@ import logging
 from time import monotonic
 
 from app.async_tasks import drain_task
-from app.engine.types import EngineEvent, Progress, Queued, Started
-from app.errors import AppError, JobTimeoutError
+from app.engine.types import EngineEvent, PreviewImage, Progress, Queued, Started
+from app.errors import AppError, JobTimeoutError, NotFoundError
 from app.services.generation_storage import GenerationBatch, save_generations
 from app.services.job_events import JobEvent, JobEvents
 from app.services.job_execution import GenerationOutput, JobInterruptedError, execute_job
@@ -22,6 +22,8 @@ class JobRunner:
         self.events = events
         self.execution_lock = asyncio.Lock()
         self.family: str | None = None
+        self.previews: dict[str, PreviewImage] = {}
+        self._preview_counter = 0
 
     async def run(self, run: JobRun) -> None:
         started = monotonic()
@@ -31,6 +33,7 @@ class JobRunner:
         except asyncio.CancelledError:
             await self.finish(run=run, status="cancelled")
         finally:
+            self.previews.pop(run.id, None)
             logger.info(
                 "Job finished: id=%s task=%s duration_ms=%s",
                 run.id,
@@ -92,6 +95,7 @@ class JobRunner:
             )
             ids = await self._persist(batch=batch)
             self.family = run.job.task.family
+            self.previews.pop(run.id, None)
             self.events.publish(
                 job_id=run.id, event=JobEvent(event="completed", data={"generation_ids": ids})
             )
@@ -146,15 +150,31 @@ class JobRunner:
                 job_id=run.id,
                 event=JobEvent(
                     event="progress",
-                    data={
-                        "step": event.step,
-                        "total": event.total,
-                        "preview_url": event.preview_url,
-                    },
+                    data={"step": event.step, "total": event.total},
                 ),
             )
+        elif isinstance(event, PreviewImage):
+            self._publish_preview(job_id=run.id, preview=event)
+
+    def _publish_preview(self, job_id: str, preview: PreviewImage) -> None:
+        self.previews[job_id] = preview
+        self._preview_counter += 1
+        self.events.publish(
+            job_id=job_id,
+            event=JobEvent(
+                event="preview",
+                data={"url": f"/api/v1/jobs/{job_id}/preview?n={self._preview_counter}"},
+            ),
+        )
+
+    def get_preview(self, job_id: str) -> PreviewImage:
+        preview = self.previews.get(job_id)
+        if preview is None:
+            raise NotFoundError(message="Anteprima non disponibile.")
+        return preview
 
     async def finish(self, run: JobRun, status: str, error: AppError | None = None) -> None:
+        self.previews.pop(run.id, None)
         await asyncio.to_thread(self.repository.finish, job_id=run.id, status=status, error=error)
         self.events.publish(job_id=run.id, event=await self.events.snapshot(job_id=run.id))
 

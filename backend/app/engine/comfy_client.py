@@ -3,6 +3,7 @@ from typing import Any, cast
 
 import httpx
 
+from app.config import Settings, settings
 from app.engine.workflow_builder import Graph
 from app.errors import EngineRejectedError, EngineUnavailableError
 
@@ -29,8 +30,9 @@ def _json_or_empty(response: httpx.Response) -> dict[str, Any]:
 
 
 class ComfyClient:
-    def __init__(self, http: httpx.AsyncClient) -> None:
+    def __init__(self, http: httpx.AsyncClient, config: Settings = settings) -> None:
         self.http = http
+        self.config = config
 
     async def _send(self, request: httpx.Request) -> httpx.Response:
         try:
@@ -47,9 +49,10 @@ class ComfyClient:
         return response
 
     async def queue_prompt(self, graph: Graph, client_id: str) -> str:
-        request = self.http.build_request(
-            method="POST", url="/prompt", json={"prompt": graph, "client_id": client_id}
-        )
+        payload: dict[str, Any] = {"prompt": graph, "client_id": client_id}
+        if self.config.preview_method != "none":
+            payload["extra_data"] = {"preview_method": self.config.preview_method}
+        request = self.http.build_request(method="POST", url="/prompt", json=payload)
         response = await self._send(request=request)
         return str(response.json()["prompt_id"])
 

@@ -71,7 +71,7 @@ async def lifespan(application: FastAPI) -> AsyncIterator[None]:
         application.state.engine = (
             FakeEngine(model_switch_eta_s=config.model_switch_eta_s)
             if config.engine_mode == "fake"
-            else ComfyEngine(client=ComfyClient(http=http), url=config.comfy_url)
+            else ComfyEngine(client=ComfyClient(http=http, config=config), url=config.comfy_url)
         )
         try:
             yield

@@ -33,6 +33,7 @@ async def test_client_http_contracts() -> None:
     assert json.loads(prompt.calls[0].request.content) == {
         "prompt": {"1": {}},
         "client_id": "client",
+        "extra_data": {"preview_method": "latent2rgb"},
     }
     assert view.calls[0].request.url.params["subfolder"] == "studio"
     assert b'name="image"; filename="input.png"' in upload.calls[0].request.content

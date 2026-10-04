@@ -6,7 +6,9 @@ from pydantic import BaseModel, Field
 
 from app.repositories.job_repository import TERMINAL_STATUSES, JobRepository
 
-EventName = Literal["queued", "model_switch", "progress", "completed", "failed", "cancelled"]
+EventName = Literal[
+    "queued", "model_switch", "progress", "preview", "completed", "failed", "cancelled"
+]
 
 
 class JobEvent(BaseModel):

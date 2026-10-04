@@ -16,6 +16,7 @@ class Settings(BaseSettings):
 
     comfy_url: str = "http://127.0.0.1:8188"
     engine_mode: Literal["comfy", "fake"] = "comfy"
+    preview_method: Literal["latent2rgb", "none"] = "latent2rgb"
     fooocus_dir: Path = FOOOCUS_DEFAULT
     models_dir: Path = REPO_ROOT / "engine/models"
     comfy_output_dir: Path = REPO_ROOT / "engine/ComfyUI/output"

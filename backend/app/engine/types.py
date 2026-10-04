@@ -35,7 +35,12 @@ class ModelSwitch:
 class Progress:
     step: int
     total: int
-    preview_url: str | None = None
+
+
+@dataclass(frozen=True, kw_only=True)
+class PreviewImage:
+    content: bytes
+    media_type: Literal["image/jpeg", "image/png"]
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -63,7 +68,9 @@ class Failed:
     error: AppError
 
 
-type EngineEvent = Queued | Started | ModelSwitch | Progress | Generated | Failed | Interrupted
+type EngineEvent = (
+    Queued | Started | ModelSwitch | Progress | PreviewImage | Generated | Failed | Interrupted
+)
 type ParsedEvent = Started | Progress | OutputImages | Succeeded | Failed | Interrupted
 
 

@@ -22,11 +22,11 @@ def test_parser_real_run_filters_vae_progress_and_extracts_output() -> None:
     parser = make_parser()
     events = [parser.parse(message=message) for message in json.loads(FIXTURE.read_text())]
     progress = [event for event in events if isinstance(event, Progress)]
-    assert [(event.step, event.total, event.preview_url) for event in progress] == [
-        (1, 4, None),
-        (2, 4, None),
-        (3, 4, None),
-        (4, 4, None),
+    assert [(event.step, event.total) for event in progress] == [
+        (1, 4),
+        (2, 4),
+        (3, 4),
+        (4, 4),
     ]
     assert sum(isinstance(event, Started) for event in events) == 1
     assert sum(isinstance(event, Succeeded) for event in events) == 1

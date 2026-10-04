@@ -11,6 +11,7 @@ from websockets.exceptions import WebSocketException
 from app.async_tasks import drain_task
 from app.engine.comfy_client import ComfyClient
 from app.engine.events import EventParser
+from app.engine.previews import parse_preview
 from app.engine.types import (
     EngineEvent,
     EngineRequest,
@@ -71,6 +72,9 @@ class ComfyEngine:
         images: tuple[ImageReference, ...] = ()
         async for frame in socket:
             if isinstance(frame, bytes):
+                preview = parse_preview(frame=frame)
+                if preview is not None:
+                    yield preview
                 continue
             event = parser.parse(message=json.loads(s=frame))
             if isinstance(event, OutputImages):

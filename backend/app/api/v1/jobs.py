@@ -4,6 +4,7 @@ from typing import Annotated, Any, cast
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, Header, Request
+from fastapi.responses import Response
 from sse_starlette.sse import EventSourceResponse
 
 from app.api.v1.job_limits import enforce_job_rate_limit
@@ -40,6 +41,16 @@ async def create_job(
 @router.get(path="/{job_id}")
 async def get_job(job_id: UUID, service: ServiceDependency) -> dict[str, Any]:
     return {"data": await service.status(job_id=str(job_id))}
+
+
+@router.get(path="/{job_id}/preview")
+def get_preview(job_id: UUID, service: ServiceDependency) -> Response:
+    preview = service.runner.get_preview(job_id=str(job_id))
+    return Response(
+        content=preview.content,
+        media_type=preview.media_type,
+        headers={"Cache-Control": "no-store"},
+    )
 
 
 @router.post(path="/{job_id}/cancel")

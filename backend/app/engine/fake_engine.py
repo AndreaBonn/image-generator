@@ -12,6 +12,7 @@ from app.engine.types import (
     Generated,
     Interrupted,
     ModelSwitch,
+    PreviewImage,
     Progress,
     Queued,
     Started,
@@ -19,6 +20,7 @@ from app.engine.types import (
 
 FAKE_STEPS = 4
 FAKE_STEP_DELAY_S = 0.02
+PREVIEW_SIZE = (64, 64)
 
 
 def render_image(width: int, height: int, seed: int) -> bytes:
@@ -27,6 +29,25 @@ def render_image(width: int, height: int, seed: int) -> bytes:
     output = BytesIO()
     image.save(fp=output, format="PNG")
     return output.getvalue()
+
+
+def render_preview() -> PreviewImage:
+    output = BytesIO()
+    Image.new(mode="RGB", size=PREVIEW_SIZE, color="#294359").save(fp=output, format="JPEG")
+    return PreviewImage(content=output.getvalue(), media_type="image/jpeg")
+
+
+async def generate_images(request: EngineRequest) -> Generated:
+    images = [
+        await asyncio.to_thread(
+            render_image,
+            width=request.width,
+            height=request.height,
+            seed=request.seed,
+        )
+        for _ in range(request.batch)
+    ]
+    return Generated(images=tuple(images))
 
 
 class FakeEngine:
@@ -58,14 +79,11 @@ class FakeEngine:
                 yield Interrupted()
                 return
             yield Progress(step=step, total=FAKE_STEPS)
-        images = [
-            await asyncio.to_thread(
-                render_image, width=request.width, height=request.height, seed=request.seed
-            )
-            for _ in range(request.batch)
-        ]
+            if not self.is_interrupted:
+                yield render_preview()
+        generated = await generate_images(request=request)
         self.family = request.family
-        yield Generated(images=tuple(images))
+        yield generated
 
     async def interrupt(self) -> None:
         self.is_interrupted = True
