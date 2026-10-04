@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { cleanGpuName, formatMbAsGb, formatSizeGb } from "@/lib/format";
+import { cleanGpuName, formatBytes, formatMbAsGb, formatSizeGb } from "@/lib/format";
 
 describe("format helpers", () => {
   it("formats sizes in Italian with one decimal", () => {
@@ -21,5 +21,11 @@ describe("format helpers", () => {
       "NVIDIA GeForce RTX 4060 Laptop GPU",
     );
     expect(cleanGpuName("Apple M3")).toBe("Apple M3");
+  });
+
+  it("formats a byte count (A4 trash freed_bytes) the same way as formatSizeGb", () => {
+    expect(formatBytes(12 * 1024 ** 2)).toBe("12 MB");
+    expect(formatBytes(2.5 * 1024 ** 3)).toBe("2,5 GB");
+    expect(formatBytes(0)).toBe("0 kB");
   });
 });

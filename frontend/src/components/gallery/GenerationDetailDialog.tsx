@@ -8,15 +8,13 @@ import {
   rerunGeneration,
   setFavorite,
 } from "@/api/queries";
+import { useModalFocus } from "@/hooks/useModalFocus";
 
 interface GenerationDetailDialogProps {
   generationId: string;
   onClose: () => void;
   onOpenGeneration: (id: string) => void;
 }
-
-const FOCUSABLE_SELECTOR =
-  'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 /**
  * Accessible modal with the full record for one generation (SPEC.md § 11.2).
@@ -29,7 +27,6 @@ export function GenerationDetailDialog({
   onOpenGeneration,
 }: GenerationDetailDialogProps) {
   const dialogRef = useRef<HTMLDivElement | null>(null);
-  const previouslyFocused = useRef<HTMLElement | null>(null);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [rerunDone, setRerunDone] = useState(false);
   const queryClient = useQueryClient();
@@ -44,41 +41,7 @@ export function GenerationDetailDialog({
     setRerunDone(false);
   }, [generationId]);
 
-  useEffect(() => {
-    previouslyFocused.current = document.activeElement as HTMLElement | null;
-    dialogRef.current?.focus();
-    return () => {
-      previouslyFocused.current?.focus();
-    };
-  }, []);
-
-  useEffect(() => {
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        event.preventDefault();
-        onClose();
-        return;
-      }
-      if (event.key !== "Tab" || !dialogRef.current) return;
-
-      const focusable = Array.from(
-        dialogRef.current.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR),
-      );
-      if (focusable.length === 0) return;
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-
-      if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault();
-        last?.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault();
-        first?.focus();
-      }
-    }
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [onClose]);
+  useModalFocus(dialogRef, onClose);
 
   const favoriteMutation = useMutation({
     mutationFn: (favorite: boolean) => setFavorite(generationId, favorite),

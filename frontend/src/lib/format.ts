@@ -2,8 +2,14 @@ const ONE_DECIMAL = new Intl.NumberFormat("it-IT", { minimumFractionDigits: 1, m
 const WHOLE = new Intl.NumberFormat("it-IT", { maximumFractionDigits: 0 });
 const MB_PER_GB = 1024;
 const KB_PER_GB = 1024 * 1024;
+const BYTES_PER_GB = 1024 ** 3;
 const SMALL_GB = 0.1;
 const TINY_GB = 0.001;
+
+/** Formats a size given in bytes (e.g. trash freed_bytes, A4) the same way as formatSizeGb. */
+export function formatBytes(bytes: number): string {
+  return formatSizeGb(bytes / BYTES_PER_GB);
+}
 
 /** Formats a VRAM amount given in MB as a GB string with one decimal, e.g. "7,6 GB". */
 export function formatMbAsGb(mb: number): string {

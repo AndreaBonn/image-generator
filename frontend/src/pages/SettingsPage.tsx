@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { fetchSystem } from "@/api/queries";
+import { fetchSystem, fetchTrashSummary } from "@/api/queries";
 import { EngineStatusCard } from "@/components/settings/EngineStatusCard";
 import { GpuCard } from "@/components/settings/GpuCard";
 import { DiskCard } from "@/components/settings/DiskCard";
@@ -16,6 +16,11 @@ export function SettingsPage() {
     queryKey: ["system"],
     queryFn: ({ signal }) => fetchSystem(signal),
     refetchInterval: POLL_INTERVAL_MS,
+  });
+  // A4: nice-to-have trash size shown next to Disco; never blocks the page on failure.
+  const trashSummaryQuery = useQuery({
+    queryKey: ["trash-summary"],
+    queryFn: ({ signal }) => fetchTrashSummary(signal),
   });
 
   if (systemQuery.isLoading) {
@@ -51,7 +56,7 @@ export function SettingsPage() {
 
       <EngineStatusCard engine={system.engine} />
       {system.gpu ? <GpuCard gpu={system.gpu} /> : null}
-      <DiskCard disk={system.disk} />
+      <DiskCard disk={system.disk} trashSummary={trashSummaryQuery.data} />
       <LoadedModelCard family={system.loaded_family} />
       <ModelsTable models={system.models} installCommand={system.install_command} />
       <ClearOutputCard />

@@ -214,6 +214,18 @@ export interface ClearEngineOutputResult {
   freed_mb: number;
 }
 
+/** GET /generations/trash/summary (A4 trash). */
+export interface TrashSummary {
+  count: number;
+  bytes: number;
+}
+
+/** POST /generations/trash/empty (A4 trash). */
+export interface EmptyTrashResult {
+  purged: number;
+  freed_bytes: number;
+}
+
 export interface PaginationMeta {
   page: number;
   per_page: number;
