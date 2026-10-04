@@ -119,7 +119,7 @@ tasks:
     prompt_language:
       required: any
       label: Italiano o inglese
-      reason: Questo modello capisce bene anche l'italiano, come mostrato dalle prove fatte.
+      reason: Questo modello capisce bene sia l'italiano sia l'inglese.
     prompt_tips:
       - Put the exact text to render in quotation marks.
       - Describe where each object sits and how the objects relate to each other.
