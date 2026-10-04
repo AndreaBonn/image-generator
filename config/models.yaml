@@ -1,0 +1,142 @@
+---
+# Model registry.
+# `source: fooocus` entries are reused in place from FOOOCUS_DIR/models
+# and never downloaded; `source: huggingface` entries are installed into
+# MODELS_DIR by scripts/install_models.py.
+# Sizes and sha256 come from the Hugging Face API (2026-10-04).
+models:
+  - id: juggernaut_xl_v8
+    label: Juggernaut XL v8
+    family: sdxl
+    folder: checkpoints
+    filename: juggernautXL_v8Rundiffusion.safetensors
+    source: fooocus
+    license: "RunDiffusion, verify before commercial use"
+
+  - id: sdxl_offset_lora
+    label: SDXL offset LoRA
+    family: sdxl
+    folder: loras
+    filename: sd_xl_offset_example-lora_1.0.safetensors
+    source: fooocus
+    license: openrail++
+
+  - id: fooocus_inpaint_head
+    label: Fooocus inpaint head
+    family: sdxl
+    folder: inpaint
+    filename: fooocus_inpaint_head.pth
+    source: fooocus
+    license: "Fooocus, verify before commercial use"
+
+  - id: fooocus_inpaint_patch
+    label: Fooocus inpaint patch v2.6
+    family: sdxl
+    folder: inpaint
+    filename: inpaint_v26.fooocus.patch
+    source: fooocus
+    license: "Fooocus, verify before commercial use"
+
+  - id: sdxl_lightning_lora
+    label: SDXL-Lightning 4-step LoRA
+    family: sdxl
+    folder: loras
+    filename: sdxl_lightning_4step_lora.safetensors
+    source: huggingface
+    repo: ByteDance/SDXL-Lightning
+    repo_path: sdxl_lightning_4step_lora.safetensors
+    size_bytes: 393854592
+    sha256: bf56cf2657efb15e465d81402ed481d1e11c4677e4bcce1bc11fe71ad8506b79
+    license: openrail++
+    enabled: true
+
+  - id: ultrasharp_4x
+    label: 4x-UltraSharp
+    family: upscale
+    folder: upscale_models
+    filename: 4x-UltraSharp.safetensors
+    source: huggingface
+    repo: Kim2091/UltraSharp
+    repo_path: 4x-UltraSharp.safetensors
+    size_bytes: 66864028
+    sha256: 36a340b5509b699d2c06cb445ddc1d3d39199ac734d889ed6d7915f60e05bcbc
+    license: cc-by-nc-sa-4.0
+    enabled: true
+
+  - id: flux2_klein_4b
+    label: FLUX.2 [klein] 4B fp8
+    family: flux2_klein
+    folder: diffusion_models
+    filename: flux-2-klein-4b-fp8.safetensors
+    source: huggingface
+    repo: black-forest-labs/FLUX.2-klein-4b-fp8
+    repo_path: flux-2-klein-4b-fp8.safetensors
+    size_bytes: 4070624520
+    sha256: 97ed34fe0567e436200f2faee3939b88f2b5d99f8af2a4dc16532c4245c0ccb6
+    license: apache-2.0
+    enabled: true
+
+  - id: qwen3_4b_fp4
+    label: Qwen3-4B text encoder fp4 (FLUX.2 klein)
+    family: flux2_klein
+    folder: text_encoders
+    filename: qwen_3_4b_fp4_flux2.safetensors
+    source: huggingface
+    repo: Comfy-Org/vae-text-encorder-for-flux-klein-4b
+    repo_path: split_files/text_encoders/qwen_3_4b_fp4_flux2.safetensors
+    size_bytes: 3848213998
+    sha256: 3eab03a77adb0ee5304a4e677d5c10ac22f9049c1d7c894adca4f8bb39206ca8
+    license: apache-2.0
+    enabled: true
+
+  - id: qwen3_4b_bf16
+    label: Qwen3-4B text encoder bf16 (fallback for fp4)
+    family: flux2_klein
+    folder: text_encoders
+    filename: qwen_3_4b.safetensors
+    source: huggingface
+    repo: Comfy-Org/vae-text-encorder-for-flux-klein-4b
+    repo_path: split_files/text_encoders/qwen_3_4b.safetensors
+    size_bytes: 8044982048
+    sha256: 6c671498573ac2f7a5501502ccce8d2b08ea6ca2f661c458e708f36b36edfc5a
+    license: apache-2.0
+    enabled: false
+
+  - id: flux2_vae
+    label: FLUX.2 VAE
+    family: flux2_klein
+    folder: vae
+    filename: flux2-vae.safetensors
+    source: huggingface
+    repo: Comfy-Org/vae-text-encorder-for-flux-klein-4b
+    repo_path: split_files/vae/flux2-vae.safetensors
+    size_bytes: 336211292
+    sha256: 868fe7b343cc8f3a19dbcfcafbc3d5f888802be3f89bd81b65b3621a066ce8f3
+    license: apache-2.0
+    enabled: true
+
+  - id: zimage_turbo
+    label: Z-Image Turbo int8
+    family: zimage
+    folder: diffusion_models
+    filename: z_image_turbo_int8_convrot.safetensors
+    source: huggingface
+    repo: Comfy-Org/z_image_turbo
+    repo_path: split_files/diffusion_models/z_image_turbo_int8_convrot.safetensors
+    size_bytes: 6201001296
+    sha256: be517ebd47c912a5626a588e1aeea43e6be4a43c0cdcd2b48a2a780d9f358635
+    license: apache-2.0
+    enabled: false
+
+  - id: zimage_vae
+    label: Z-Image VAE
+    family: zimage
+    folder: vae
+    filename: ae.safetensors
+    source: huggingface
+    repo: Comfy-Org/z_image_turbo
+    repo_path: split_files/vae/ae.safetensors
+    size_bytes: 335304388
+    sha256: afc8e28272cd15db3919bacdb6918ce9c1ed22e96cb12c4d5ed0fba823529e38
+    license: apache-2.0
+    enabled: false
