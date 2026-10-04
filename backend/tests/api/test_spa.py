@@ -65,3 +65,22 @@ async def test_missing_asset_and_unknown_api_return_enveloped_404(
         traversal = await client.get(url="/..%2f..%2fsecret")
         assert traversal.status_code == 404
         assert "Generazione" not in traversal.json()["error"]["message"]
+
+
+async def test_index_is_never_cached_but_hashed_assets_can_be(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr("app.api.spa.REPO_ROOT", tmp_path)
+    dist = tmp_path / "frontend/dist"
+    (dist / "assets").mkdir(parents=True)
+    (dist / "index.html").write_text(data="<html>Studio</html>")
+    (dist / "assets/index-abc123.js").write_text(data="const app = 1;")
+    application = create_app()
+    async with httpx.AsyncClient(
+        transport=httpx.ASGITransport(app=application), base_url="http://test"
+    ) as client:
+        for path in ["/", "/galleria"]:
+            response = await client.get(url=path)
+            assert response.headers["cache-control"] == "no-cache"
+        asset = await client.get(url="/assets/index-abc123.js")
+        assert "no-cache" not in asset.headers.get("cache-control", "")

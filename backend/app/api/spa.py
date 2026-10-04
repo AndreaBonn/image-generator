@@ -15,6 +15,9 @@ def serve_spa(directory: Path, path: str) -> Response:
     file = resolve_spa_file(directory=directory, path=path)
     if file is None:
         return PlainTextResponse(content="Compila l'interfaccia con: cd frontend && npm run build")
+    if file.name == "index.html":
+        # The shell names the hashed bundles: a cached copy would keep loading an old build.
+        return FileResponse(path=file, headers={"Cache-Control": "no-cache"})
     return FileResponse(path=file)
 
 
