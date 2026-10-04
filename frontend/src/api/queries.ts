@@ -3,6 +3,7 @@ import type {
   CreateJobBody,
   CreateJobResponse,
   Generation,
+  GenerationSummary,
   HealthStatus,
   LanguageCheckResult,
   PaginationMeta,
@@ -36,7 +37,7 @@ export function cancelJob(jobId: string): Promise<void> {
 }
 
 export interface GenerationsPage {
-  items: Generation[];
+  items: GenerationSummary[];
   meta: PaginationMeta;
 }
 
@@ -54,12 +55,20 @@ export async function fetchGenerations(params: {
   if (params.query) search.set("q", params.query);
   if (params.favorite !== undefined) search.set("favorite", String(params.favorite));
   const suffix = search.toString() ? `?${search.toString()}` : "";
-  const envelope = await requestWithMeta<Generation[]>(`/generations${suffix}`);
+  const envelope = await requestWithMeta<GenerationSummary[]>(`/generations${suffix}`);
   return { items: envelope.data, meta: envelope.meta as PaginationMeta };
+}
+
+export function fetchGeneration(generationId: string, signal?: AbortSignal): Promise<Generation> {
+  return apiClient.get<Generation>(`/generations/${generationId}`, signal);
 }
 
 export function setFavorite(generationId: string, favorite: boolean): Promise<Generation> {
   return apiClient.patch<Generation>(`/generations/${generationId}`, { favorite });
+}
+
+export function deleteGeneration(generationId: string): Promise<void> {
+  return apiClient.del<void>(`/generations/${generationId}`);
 }
 
 export function rerunGeneration(
