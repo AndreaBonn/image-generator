@@ -27,12 +27,8 @@ def test_check_language_italian_and_english_returns_boolean() -> None:
     client = make_client()
     assert client.post(
         url="/api/v1/prompt/language-check", json={"text": "una casa con"}
-    ).json() == {
-        "looks_italian": True,
-    }
+    ).json() == {"data": {"looks_italian": True}}
     assert client.post(
         url="/api/v1/prompt/language-check", json={"text": "a house with"}
-    ).json() == {
-        "looks_italian": False,
-    }
+    ).json() == {"data": {"looks_italian": False}}
     assert client.post(url="/api/v1/prompt/language-check", json={"text": 10}).status_code == 422

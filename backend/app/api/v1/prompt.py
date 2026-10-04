@@ -10,10 +10,14 @@ class LanguageCheckRequest(BaseModel):
     text: str
 
 
-class LanguageCheckResponse(BaseModel):
+class LanguageCheck(BaseModel):
     looks_italian: bool
+
+
+class LanguageCheckResponse(BaseModel):
+    data: LanguageCheck
 
 
 @router.post(path="/prompt/language-check", response_model=LanguageCheckResponse)
 def check_language(body: LanguageCheckRequest) -> LanguageCheckResponse:
-    return LanguageCheckResponse(looks_italian=looks_italian(text=body.text))
+    return LanguageCheckResponse(data=LanguageCheck(looks_italian=looks_italian(text=body.text)))
