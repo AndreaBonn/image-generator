@@ -180,11 +180,17 @@ async def execute(
 
 
 def run_one(
-    task: str, prompt_key: str, out_name: str, size=None, batch=1, record_ws=False
+    task: str,
+    prompt_key: str,
+    out_name: str,
+    size: tuple[int, int] | None = None,
+    batch: int = 1,
+    record_ws: bool = False,
+    seed: int = SEED,
 ) -> RunResult:
     spec = TASKS[task]
     template = json.loads((WORKFLOWS / spec["template"]).read_text())
-    graph = bind(template, PROMPTS[prompt_key], SEED, size or spec["size"], batch)
+    graph = bind(template, PROMPTS[prompt_key], seed, size or spec["size"], batch)
     start = time.perf_counter()
     with VramSampler() as vram:
         images, error, log = asyncio.run(execute(graph, record_ws=record_ws))
@@ -235,27 +241,35 @@ def main() -> None:
         cold = run_one(
             task, "ritratto", f"{task}_ritratto_cold", record_ws=(task == args.tasks[0])
         )
-        if cold.ws_messages:
+        fixture = FIXTURE_DIR / f"{task}_run.json"
+        if cold.ws_messages and not fixture.exists():
             FIXTURE_DIR.mkdir(parents=True, exist_ok=True)
-            (FIXTURE_DIR / f"{task}_run.json").write_text(
-                json.dumps(cold.ws_messages, indent=1)
-            )
+            fixture.write_text(json.dumps(cold.ws_messages, indent=1))
         results["runs"].append({**cold.__dict__, "ws_messages": None, "cold": True})
         for key in PROMPTS:
+            if key == "ritratto":
+                continue  # same graph as the cold run: ComfyUI would serve it from cache
             run = run_one(task, key, f"{task}_{key}")
             results["runs"].append({**run.__dict__, "ws_messages": None, "cold": False})
-        if cold.image_path:
-            warm = OUT_DIR / "images" / f"{task}_ritratto.png"
+        # /free with free_memory also resets the node cache, so this really re-samples.
+        free_engine()
+        rerun = run_one(task, "ritratto", f"{task}_ritratto_rerun")
+        if cold.image_path and rerun.image_path:
             results["determinism"][TASKS[task]["family"]] = identical(
-                cold.image_path, str(warm)
+                cold.image_path, rerun.image_path
             )
 
     if {"bozza", "testo"} <= set(args.tasks):
-        run_one("bozza", "ritratto", "switch_warmup")
-        no_free = run_one("testo", "ritratto", "switch_sdxl_to_flux_nofree")
-        back = run_one("bozza", "ritratto", "switch_flux_to_sdxl_nofree")
+        # Fresh seeds so no node is served from ComfyUI's cache during the switch timings.
+        run_one("bozza", "ritratto", "switch_warmup", seed=SEED + 1)
+        no_free = run_one(
+            "testo", "ritratto", "switch_sdxl_to_flux_nofree", seed=SEED + 2
+        )
+        back = run_one("bozza", "ritratto", "switch_flux_to_sdxl_nofree", seed=SEED + 3)
         free_engine()
-        with_free = run_one("testo", "ritratto", "switch_to_flux_after_free")
+        with_free = run_one(
+            "testo", "ritratto", "switch_to_flux_after_free", seed=SEED + 4
+        )
         results["switch"] = {
             "sdxl_to_flux_nofree_s": no_free.seconds,
             "flux_to_sdxl_nofree_s": back.seconds,
