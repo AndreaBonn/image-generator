@@ -4,7 +4,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 import pytest
-from PIL import Image
+from PIL import Image, PngImagePlugin
 
 from app.engine.fake_engine import render_image
 from app.errors import DiskFullError
@@ -20,6 +20,7 @@ def test_save_png_metadata_relative_paths_and_webp_thumbnail(tmp_path: Path) -> 
     assert not Path(saved.thumb_path).is_absolute()
     assert saved.image_path.startswith("images/") and saved.thumb_path.startswith("thumbs/")
     with Image.open(tmp_path / saved.image_path) as image:
+        assert isinstance(image, PngImagePlugin.PngImageFile)
         assert json.loads(image.text["studio_immagini"]) == {"seed": 42, "prompt": "città"}
         assert image.size == (768, 512)
     with Image.open(tmp_path / saved.thumb_path) as thumb:
@@ -38,8 +39,12 @@ def test_save_disk_full_leaves_no_partial_files(tmp_path: Path, race: bool) -> N
         if race
         else "app.repositories.image_repository.shutil.disk_usage"
     )
-    kwargs = {"side_effect": OSError(errno.ENOSPC, "full")} if race else {"return_value": (0, 0, 0)}
-    with patch(target, **kwargs), pytest.raises(DiskFullError):
+    failure = (
+        patch(target=target, side_effect=OSError(errno.ENOSPC, "full"))
+        if race
+        else patch(target=target, return_value=(0, 0, 0))
+    )
+    with failure, pytest.raises(DiskFullError):
         repository.save(image=image, metadata={"seed": 1})
     assert list(tmp_path.rglob("*.png")) == []
     assert list(tmp_path.rglob("*.webp")) == []

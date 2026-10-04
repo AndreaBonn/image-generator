@@ -44,6 +44,7 @@ def test_repository_idempotency_conflict_expiry_and_restart(tmp_path: Path) -> N
     assert conflict.value.http_status == 409
     with db.sessions.begin() as session:
         record = session.get(JobRecord, first.id)
+        assert record is not None
         record.created_at = utc_now() - timedelta(seconds=61)
     third, created = repository.create(request=body, idempotency_key="k")
     assert created and third.id != first.id

@@ -52,7 +52,9 @@ async def test_fake_engine_steps_family_switch_and_seed_image() -> None:
     with Image.open(BytesIO(images[0])) as image:
         assert image.size == (128, 64)
         assert image.format == "PNG"
-        assert len(image.getcolors()) > 1
+        colors = image.getcolors()
+        assert colors is not None
+        assert len(colors) > 1
     other = [event async for event in fake.run(request=request(seed=43))]
     assert images[0] != next(event.images[0] for event in other if isinstance(event, Generated))
 

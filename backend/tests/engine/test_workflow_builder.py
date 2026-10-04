@@ -5,6 +5,7 @@ import pytest
 
 from app.config import REPO_ROOT, Settings
 from app.engine.workflow_builder import build_workflow
+from app.models.task import Scalar
 from app.services.task_catalog import load_catalog
 
 
@@ -14,7 +15,7 @@ def test_build_workflow_matches_explicit_graph_without_mutating_template(task_id
     template = json.loads((REPO_ROOT / "workflows" / task.workflow).read_text())
     original = deepcopy(template)
     expected = deepcopy(template)
-    values = dict(
+    values: dict[str, Scalar] = dict(
         prompt='A sign "OPEN"',
         negative_prompt="blur",
         seed=42,

@@ -1,6 +1,6 @@
 import asyncio
 from dataclasses import dataclass
-from typing import Any, cast
+from typing import cast
 
 from app.repositories.job_repository import JobRepository
 from app.services.job_events import JobEvent, JobEvents
@@ -31,7 +31,7 @@ def make_events() -> JobEvents:
 async def test_stream_does_not_repeat_an_event_published_while_subscribing() -> None:
     events = make_events()
     stream = events.stream(job_id="job-1")
-    first_pending: asyncio.Task[Any] = asyncio.create_task(stream.__anext__())
+    first_pending = asyncio.ensure_future(coro_or_future=anext(stream))
     await asyncio.sleep(0)  # let the stream subscribe and start its snapshot
     events.publish(job_id="job-1", event=JobEvent(event="progress", data={"step": 1, "total": 4}))
 

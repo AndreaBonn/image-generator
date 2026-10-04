@@ -49,7 +49,8 @@ async def test_timeout_during_save_rolls_back_and_interrupts(
         settings=service.resources.settings.model_copy(update={"job_timeout_s": 1}),
     )
     engine = FakeEngine(step_delay_s=0)
-    engine.interrupt = AsyncMock(wraps=engine.interrupt)
+    interrupt = AsyncMock(wraps=engine.interrupt)
+    monkeypatch.setattr(engine, "interrupt", interrupt)
     application.dependency_overrides[get_engine] = lambda: engine
     target = service.resources.images if boundary == "image" else service.repository
     method = "save" if boundary == "image" else "complete"
@@ -63,5 +64,5 @@ async def test_timeout_during_save_rolls_back_and_interrupts(
     response = await client.post("/api/v1/jobs", json={"task_id": "bozza", "prompt": "cat"})
     result = await wait_terminal(client=client, job_id=response.json()["data"]["job_id"])
     assert result["status"] == "failed" and result["error_code"] == "JOB_TIMEOUT"
-    engine.interrupt.assert_awaited_once()
+    interrupt.assert_awaited_once()
     assert result["generation_ids"] == []

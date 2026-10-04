@@ -8,7 +8,8 @@ from unittest.mock import patch
 import httpx
 import pytest
 from fastapi import FastAPI
-from PIL import Image
+from PIL import Image, PngImagePlugin
+from pydantic import TypeAdapter
 from sqlalchemy import select
 
 from app.api.v1.jobs import get_engine
@@ -20,6 +21,7 @@ from app.main import create_app
 from app.models.records import GenerationRecord
 
 type JobApp = tuple[FastAPI, httpx.AsyncClient]
+JOB_STATUS = TypeAdapter(dict[str, Any])
 
 
 @pytest.fixture
@@ -42,7 +44,7 @@ async def wait_terminal(client: httpx.AsyncClient, job_id: str) -> dict[str, Any
     async with asyncio.timeout(delay=5):
         while True:
             response = await client.get(url=f"/api/v1/jobs/{job_id}")
-            result = response.json()["data"]
+            result = JOB_STATUS.validate_python(response.json()["data"])
             if result["status"] in {"completed", "cancelled", "failed"}:
                 return result
             await asyncio.sleep(delay=0.01)
@@ -81,6 +83,7 @@ async def test_jobs_complete_persist_metadata_and_replay_sse(
 def assert_metadata(rows: Sequence[GenerationRecord], data_dir: Path) -> None:
     for row in rows:
         with Image.open(data_dir / row.image_path) as image:
+            assert isinstance(image, PngImagePlugin.PngImageFile)
             metadata = json.loads(image.text["studio_immagini"])
             assert image.size == (1152, 896)
             assert metadata["seed"] == row.seed

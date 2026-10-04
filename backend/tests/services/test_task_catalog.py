@@ -1,13 +1,18 @@
 import json
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import pytest
 import yaml
-from pydantic import ValidationError
+from pydantic import TypeAdapter, ValidationError
 
 from app.config import REPO_ROOT, Settings
 from app.services.task_catalog import load_catalog
+
+read_yaml = cast(Callable[[str], object], yaml.safe_load)
+write_yaml = cast(Callable[[object], str], yaml.safe_dump)
+TASK_DATA = TypeAdapter(dict[str, list[dict[str, Any]]])
 
 
 @pytest.fixture
@@ -32,9 +37,9 @@ def catalog_settings(tmp_path: Path) -> Settings:
 
 def rewrite_task(settings: Settings, field: str, value: Any) -> None:
     path = settings.config_dir / "tasks.yaml"
-    data = yaml.safe_load(path.read_text(encoding="utf-8"))
+    data = TASK_DATA.validate_python(read_yaml(path.read_text(encoding="utf-8")))
     data["tasks"][0][field] = value
-    path.write_text(yaml.safe_dump(data=data), encoding="utf-8")
+    path.write_text(data=write_yaml(data), encoding="utf-8")
 
 
 def test_load_catalog_real_templates_and_missing_models(catalog_settings: Settings) -> None:
@@ -42,6 +47,7 @@ def test_load_catalog_real_templates_and_missing_models(catalog_settings: Settin
     tasks = {task.id: task for task in catalog.list_tasks()}
     assert len(tasks) == 9
     assert tasks["bozza"].available is False
+    assert tasks["bozza"].unavailable_reason is not None
     assert "modelli" in tasks["bozza"].unavailable_reason.lower()
     assert tasks["testo"].bindings["width"] == ["@latent.width", "@scheduler.width"]
     assert tasks["qualita"].default_styles == ["Fooocus Enhance", "Fooocus Sharp"]
@@ -69,6 +75,7 @@ def test_list_tasks_checks_both_model_sources_and_updates(catalog_settings: Sett
     new_model.unlink()
     task = next(task for task in catalog.list_tasks() if task.id == "bozza")
     assert task.available is False
+    assert task.unavailable_reason is not None
     assert "SDXL-Lightning" in task.unavailable_reason
 
 
@@ -88,6 +95,7 @@ def test_load_catalog_missing_template_warns_and_skips_bindings(
     rewrite_task(settings=catalog_settings, field="bindings", value={"prompt": ["@missing.text"]})
     task = load_catalog(settings=catalog_settings).list_tasks()[0]
     assert task.available is False
+    assert task.unavailable_reason is not None
     assert "workflow" in task.unavailable_reason.lower()
     assert "missing.json" in caplog.text
 
@@ -169,8 +177,8 @@ def test_load_catalog_invalid_schema_names_field(
 
 def test_load_catalog_rejects_duplicate_task_ids(catalog_settings: Settings) -> None:
     path = catalog_settings.config_dir / "tasks.yaml"
-    data = yaml.safe_load(path.read_text(encoding="utf-8"))
+    data = TASK_DATA.validate_python(read_yaml(path.read_text(encoding="utf-8")))
     data["tasks"].append(data["tasks"][0])
-    path.write_text(yaml.safe_dump(data=data), encoding="utf-8")
+    path.write_text(data=write_yaml(data), encoding="utf-8")
     with pytest.raises(ValidationError, match="tasks.id"):
         load_catalog(settings=catalog_settings)

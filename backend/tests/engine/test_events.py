@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -36,7 +37,7 @@ def test_parser_real_run_filters_vae_progress_and_extracts_output() -> None:
 
 def test_parser_flux_fallback_and_foreign_prompt_filter() -> None:
     parser = make_parser(filename="flux2_klein_txt2img.json")
-    message = {
+    message: dict[str, Any] = {
         "type": "progress",
         "data": {"prompt_id": PROMPT_ID, "node": "11", "value": 2, "max": 4},
     }

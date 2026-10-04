@@ -11,6 +11,7 @@ from app.api.v1.jobs import get_engine
 from app.engine.fake_engine import FakeEngine
 from app.engine.types import EngineEvent, EngineRequest, Queued
 from app.main import create_app
+from app.services.job_events import JobEvent
 
 
 class QueueGate(FakeEngine):
@@ -46,13 +47,16 @@ async def test_live_stream_reports_sampler_progress_and_closes(job_app: JobApp) 
     assert application.state.job_service.events.subscribers == {}
 
 
-async def test_switch_family_emits_configured_eta_and_conditionally_frees(job_app: JobApp) -> None:
+async def test_switch_family_emits_configured_eta_and_conditionally_frees(
+    job_app: JobApp, monkeypatch: pytest.MonkeyPatch
+) -> None:
     application, client = job_app
     service = application.state.job_service
-    events = []
-    service.events.publish = lambda job_id, event: events.append(event)
+    events: list[JobEvent] = []
+    monkeypatch.setattr(service.events, "publish", lambda job_id, event: events.append(event))
     engine = FakeEngine(step_delay_s=0)
-    engine.free = AsyncMock(wraps=engine.free)
+    free = AsyncMock(wraps=engine.free)
+    monkeypatch.setattr(engine, "free", free)
     application.dependency_overrides[get_engine] = lambda: engine
     for task in service.resources.catalog.tasks:
         if task.id == "testo":
@@ -69,7 +73,7 @@ async def test_switch_family_emits_configured_eta_and_conditionally_frees(job_ap
         for event in events
         if event.event == "model_switch"
     ] == [("sdxl", 13), ("flux2_klein", 13)]
-    engine.free.assert_awaited_once()
+    free.assert_awaited_once()
 
 
 async def test_app_restart_reconciles_pending_jobs_and_replays_failure(job_app: JobApp) -> None:
