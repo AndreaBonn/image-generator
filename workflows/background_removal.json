@@ -1,0 +1,32 @@
+{
+  "1": {
+    "class_type": "LoadImage",
+    "_meta": { "title": "@input_image" },
+    "inputs": { "image": "example.png" }
+  },
+  "2": {
+    "class_type": "LoadBackgroundRemovalModel",
+    "_meta": { "title": "@bg_model" },
+    "inputs": { "bg_removal_name": "birefnet.safetensors" }
+  },
+  "3": {
+    "class_type": "RemoveBackground",
+    "_meta": { "title": "Foreground mask" },
+    "inputs": { "bg_removal_model": ["2", 0], "image": ["1", 0] }
+  },
+  "4": {
+    "class_type": "InvertMask",
+    "_meta": { "title": "Background mask" },
+    "inputs": { "mask": ["3", 0] }
+  },
+  "5": {
+    "class_type": "JoinImageWithAlpha",
+    "_meta": { "title": "Cut out" },
+    "inputs": { "image": ["1", 0], "alpha": ["4", 0] }
+  },
+  "6": {
+    "class_type": "SaveImage",
+    "_meta": { "title": "@output" },
+    "inputs": { "images": ["5", 0], "filename_prefix": "studio/background_removal" }
+  }
+}

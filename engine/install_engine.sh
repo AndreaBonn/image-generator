@@ -60,7 +60,7 @@ install_inpaint_nodes() {
 }
 
 write_model_paths() {
-  mkdir -p "${MODELS_DIR}"/{checkpoints,diffusion_models,text_encoders,vae,loras,inpaint,upscale_models}
+  mkdir -p "${MODELS_DIR}"/{checkpoints,diffusion_models,text_encoders,vae,loras,inpaint,upscale_models,background_removal}
   # envsubst takes the literal variable names to substitute, hence the single quotes.
   # shellcheck disable=SC2016
   FOOOCUS_DIR="${FOOOCUS_DIR}" MODELS_DIR="${MODELS_DIR}" \

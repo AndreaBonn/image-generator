@@ -17,3 +17,4 @@ studio:
   loras: loras
   inpaint: inpaint
   upscale_models: upscale_models
+  background_removal: background_removal

@@ -140,3 +140,16 @@ models:
     sha256: afc8e28272cd15db3919bacdb6918ce9c1ed22e96cb12c4d5ed0fba823529e38
     license: apache-2.0
     enabled: false
+
+  - id: birefnet
+    label: BiRefNet (rimozione sfondo)
+    family: background
+    folder: background_removal
+    filename: birefnet.safetensors
+    source: huggingface
+    repo: Comfy-Org/BiRefNet
+    repo_path: background_removal/birefnet.safetensors
+    size_bytes: 444473596
+    sha256: 9ab37426bf4de0567af6b5d21b16151357149139362e6e8992021b8ce356a154
+    license: mit
+    enabled: true
