@@ -5,10 +5,15 @@ const ACCEPTED_TYPES = ["image/png", "image/jpeg", "image/webp"];
 interface ImageInputProps {
   onFileSelected: (file: File) => void;
   disabled?: boolean;
+  inputLabel?: string;
 }
 
 /** Drag-and-drop zone or file picker for the source image (SPEC.md § 11.2, PNG/JPEG/WebP). */
-export function ImageInput({ onFileSelected, disabled = false }: ImageInputProps) {
+export function ImageInput({
+  onFileSelected,
+  disabled = false,
+  inputLabel = "Scegli un'immagine da modificare",
+}: ImageInputProps) {
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   function handleFiles(files: FileList | null) {
@@ -46,7 +51,7 @@ export function ImageInput({ onFileSelected, disabled = false }: ImageInputProps
         disabled={disabled}
         onChange={(event) => handleFiles(event.target.files)}
         className="sr-only"
-        aria-label="Scegli un'immagine da modificare"
+        aria-label={inputLabel}
       />
     </div>
   );

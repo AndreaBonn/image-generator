@@ -103,6 +103,24 @@ function ResultsGrid({ generationIds }: { generationIds: string[] }) {
 }
 
 function ResultCard({ generationId }: { generationId: string }) {
+  return (
+    <figure className="flex flex-col gap-1 rounded-md border border-border bg-paper-2 p-2">
+      <img
+        src={imageUrl(generationId)}
+        alt="Immagine generata"
+        className="aspect-square w-full rounded-md object-cover"
+      />
+      <ResultCardActions generationId={generationId} />
+    </figure>
+  );
+}
+
+/**
+ * Scarica/preferito/rigenera for one generation. Exported so other result
+ * layouts (e.g. ImprovePage's before/after slider, SPEC.md § 11.2) reuse
+ * the same actions instead of duplicating the mutations.
+ */
+export function ResultCardActions({ generationId }: { generationId: string }) {
   const favoriteMutation = useMutation({
     mutationFn: (favorite: boolean) => setFavorite(generationId, favorite),
   });
@@ -111,35 +129,28 @@ function ResultCard({ generationId }: { generationId: string }) {
   });
 
   return (
-    <figure className="flex flex-col gap-1 rounded-md border border-border bg-paper-2 p-2">
-      <img
-        src={imageUrl(generationId)}
-        alt="Immagine generata"
-        className="aspect-square w-full rounded-md object-cover"
-      />
-      <div className="flex flex-wrap gap-1">
-        <a
-          href={imageUrl(generationId)}
-          download
-          className="min-h-11 rounded-md border border-border px-2 py-1 text-xs text-ink-muted"
-        >
-          Scarica
-        </a>
-        <button
-          type="button"
-          onClick={() => favoriteMutation.mutate(true)}
-          className="min-h-11 rounded-md border border-border px-2 py-1 text-xs text-ink-muted"
-        >
-          Preferito
-        </button>
-        <button
-          type="button"
-          onClick={() => rerunMutation.mutate(true)}
-          className="min-h-11 rounded-md border border-border px-2 py-1 text-xs text-ink-muted"
-        >
-          Rigenera
-        </button>
-      </div>
-    </figure>
+    <div className="flex flex-wrap gap-1">
+      <a
+        href={imageUrl(generationId)}
+        download
+        className="min-h-11 rounded-md border border-border px-2 py-1 text-xs text-ink-muted"
+      >
+        Scarica
+      </a>
+      <button
+        type="button"
+        onClick={() => favoriteMutation.mutate(true)}
+        className="min-h-11 rounded-md border border-border px-2 py-1 text-xs text-ink-muted"
+      >
+        Preferito
+      </button>
+      <button
+        type="button"
+        onClick={() => rerunMutation.mutate(true)}
+        className="min-h-11 rounded-md border border-border px-2 py-1 text-xs text-ink-muted"
+      >
+        Rigenera
+      </button>
+    </div>
   );
 }
