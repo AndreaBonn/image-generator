@@ -30,3 +30,7 @@ docs/benchmark/images/
 engine/*.log
 docs/benchmark_run.log
 .playwright-mcp/
+
+# Personal working notes, kept local only
+CLAUDE.md
+docs/REPORT_ATTIVITA.md
