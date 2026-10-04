@@ -1,0 +1,234 @@
+tasks:
+  - &sdxl
+    id: bozza
+    label: Bozza veloce
+    description: Prova rapidamente un'idea prima di rifinire i dettagli.
+    group: crea
+    family: sdxl
+    workflow: sdxl_lightning_txt2img.json
+    model_ids: [juggernaut_xl_v8, sdxl_lightning_lora]
+    bindings: &sdxl_bindings
+      prompt: ['@prompt_pos.text']
+      negative_prompt: ['@prompt_neg.text']
+      seed: ['@sampler.seed']
+      steps: ['@sampler.steps']
+      cfg: ['@sampler.cfg']
+      width: ['@latent.width']
+      height: ['@latent.height']
+      batch: ['@latent.batch_size']
+    defaults: &sdxl_defaults
+      prompt: ''
+      negative_prompt: ''
+      steps: 4
+      cfg: 1.0
+      seed: null
+      batch: 1
+      aspect_ratio: '1152*896'
+    limits: &sdxl_limits
+      steps: {min: 2, max: 8}
+      cfg: {min: 1, max: 2}
+      seed: {min: 0, max: 4294967295}
+      batch: {min: 1, max: 4}
+    aspect_ratios: &ratios
+      - {id: '704*1408', width: 704, height: 1408, label: 'Verticale 1:2', featured: false}
+      - {id: '704*1344', width: 704, height: 1344, label: 'Verticale 11:21', featured: false}
+      - {id: '768*1344', width: 768, height: 1344, label: 'Verticale 4:7', featured: true}
+      - {id: '768*1280', width: 768, height: 1280, label: 'Verticale 3:5', featured: false}
+      - {id: '832*1216', width: 832, height: 1216, label: 'Verticale 13:19', featured: false}
+      - {id: '832*1152', width: 832, height: 1152, label: 'Verticale 13:18', featured: false}
+      - {id: '896*1152', width: 896, height: 1152, label: 'Verticale 7:9', featured: true}
+      - {id: '896*1088', width: 896, height: 1088, label: 'Verticale 14:17', featured: false}
+      - {id: '960*1088', width: 960, height: 1088, label: 'Verticale 15:17', featured: false}
+      - {id: '960*1024', width: 960, height: 1024, label: 'Verticale 15:16', featured: false}
+      - {id: '1024*1024', width: 1024, height: 1024, label: 'Quadrato 1:1', featured: true}
+      - {id: '1024*960', width: 1024, height: 960, label: 'Orizzontale 16:15', featured: false}
+      - {id: '1088*960', width: 1088, height: 960, label: 'Orizzontale 17:15', featured: false}
+      - {id: '1088*896', width: 1088, height: 896, label: 'Orizzontale 17:14', featured: false}
+      - {id: '1152*896', width: 1152, height: 896, label: 'Orizzontale 9:7', featured: true}
+      - {id: '1152*832', width: 1152, height: 832, label: 'Orizzontale 18:13', featured: false}
+      - {id: '1216*832', width: 1216, height: 832, label: 'Orizzontale 19:13', featured: true}
+      - {id: '1280*768', width: 1280, height: 768, label: 'Orizzontale 5:3', featured: false}
+      - {id: '1344*768', width: 1344, height: 768, label: 'Orizzontale 7:4', featured: true}
+      - {id: '1344*704', width: 1344, height: 704, label: 'Orizzontale 21:11', featured: false}
+      - {id: '1408*704', width: 1408, height: 704, label: 'Orizzontale 2:1', featured: false}
+      - {id: '1472*704', width: 1472, height: 704, label: 'Orizzontale 23:11', featured: false}
+      - {id: '1536*640', width: 1536, height: 640, label: 'Orizzontale 12:5', featured: false}
+      - {id: '1600*640', width: 1600, height: 640, label: 'Orizzontale 5:2', featured: false}
+      - {id: '1664*576', width: 1664, height: 576, label: 'Orizzontale 26:9', featured: false}
+      - {id: '1728*576', width: 1728, height: 576, label: 'Orizzontale 3:1', featured: false}
+    supports_styles: true
+    supports_negative: true
+    default_styles: []
+    prompt_language: &english
+      required: en
+      label: Scrivi in inglese
+      reason: "Questo modello capisce bene solo l'inglese: le parole italiane vengono in gran parte ignorate."
+    prompt_tips:
+      - Describe the subject, setting, lighting and style, in that order.
+      - Use short phrases separated by commas to explore an idea quickly.
+    prompt_examples:
+      - 'red bicycle beside a stone wall, watercolor'
+      - 'a small wooden cabin beside a mountain lake, morning mist, soft golden light, wide landscape photograph'
+
+  - <<: *sdxl
+    id: qualita
+    label: Immagine di qualità
+    description: Crea immagini curate con dettagli e stili personalizzabili.
+    workflow: sdxl_txt2img.json
+    model_ids: [juggernaut_xl_v8, sdxl_offset_lora]
+    defaults: &quality_defaults
+      <<: *sdxl_defaults
+      steps: 30
+      cfg: 4.0
+    limits: &quality_limits
+      <<: *sdxl_limits
+      steps: {min: 10, max: 60}
+      cfg: {min: 1, max: 10}
+    default_styles: [Fooocus Enhance, Fooocus Sharp]
+    prompt_tips:
+      - Specify the subject, material, lighting and composition.
+      - Add a photographic lens or an illustration style when useful.
+    prompt_examples:
+      - 'portrait of an old fisherman, weathered face, golden hour, 85mm photo'
+      - 'cozy reading corner, wooden shelves, rain on the window, soft warm light, detailed illustration'
+
+  - <<: *sdxl
+    id: testo
+    label: Testo nell'immagine e prompt complessi
+    description: Componi scene articolate e immagini con brevi scritte.
+    family: flux2_klein
+    workflow: flux2_klein_txt2img.json
+    model_ids: [flux2_klein_4b, qwen3_4b_fp4, flux2_vae]
+    bindings:
+      prompt: ['@prompt_pos.text']
+      seed: ['@noise.noise_seed']
+      steps: ['@scheduler.steps']
+      cfg: ['@guider.cfg']
+      width: ['@latent.width', '@scheduler.width']
+      height: ['@latent.height', '@scheduler.height']
+      batch: ['@latent.batch_size']
+    defaults: {prompt: '', steps: 4, cfg: 1.0, seed: null, batch: 1, aspect_ratio: '1152*896'}
+    limits:
+      <<: *sdxl_limits
+      steps: {min: 4, max: 8}
+      cfg: {min: 1, max: 1.5}
+    supports_styles: false
+    supports_negative: false
+    prompt_language: &multilingual
+      required: en
+      label: Inglese consigliato
+      reason: Questo modello capisce anche altre lingue, ma rende meglio in inglese.
+    prompt_tips:
+      - Put the exact text to render in quotation marks.
+      - Describe where each object sits and how the objects relate to each other.
+    prompt_examples:
+      - 'A bakery sign reading "FRESH BREAD", clean bold lettering.'
+      - 'A red mug to the left of a blue book on a wooden desk, a small plant behind the book, soft window light.'
+
+  - <<: *sdxl
+    id: foto
+    label: Foto realistica
+    description: Realizza fotografie naturali con il modello Z-Image, se installato.
+    family: zimage
+    workflow: zimage_txt2img.json
+    model_ids: [zimage_turbo, zimage_vae, qwen3_4b_fp4]
+    bindings: {}
+    defaults: {prompt: '', steps: 8, cfg: 1.0, seed: null, batch: 1, aspect_ratio: '1152*896'}
+    supports_styles: false
+    supports_negative: false
+    prompt_language: *multilingual
+    prompt_tips:
+      - Describe natural light, camera distance and the main subject.
+      - Use concrete details about materials and surroundings.
+    prompt_examples:
+      - 'a ceramic cup on a linen tablecloth, natural window light, photograph'
+      - 'candid portrait of a gardener in a greenhouse, soil on hands, backlit leaves, shallow depth of field, documentary photography'
+
+  - <<: *sdxl
+    id: inpaint
+    label: Modifica una parte
+    description: Ridisegna la zona selezionata mantenendo il resto dell'immagine.
+    group: modifica
+    workflow: sdxl_inpaint.json
+    model_ids: &inpaint_models [juggernaut_xl_v8, sdxl_offset_lora, fooocus_inpaint_head, fooocus_inpaint_patch]
+    bindings: {}
+    defaults: {<<: *quality_defaults, denoise: 1.0, mask_expansion: 8}
+    limits: {<<: *quality_limits, denoise: {min: 0, max: 1}, mask_expansion: {min: 0, max: 64}}
+    prompt_tips:
+      - Describe only what should appear inside the selected area.
+      - Match the lighting and style of the surrounding image.
+    prompt_examples:
+      - 'a red wool scarf'
+      - 'a small vase of white daisies on the table, soft light from the left, realistic photograph'
+
+  - <<: *sdxl
+    id: outpaint
+    label: Allarga l'immagine
+    description: Estendi la scena oltre i bordi dell'immagine originale.
+    group: modifica
+    workflow: sdxl_outpaint.json
+    model_ids: *inpaint_models
+    bindings: {}
+    defaults: {<<: *quality_defaults, denoise: 1.0, expansion: 0.3}
+    limits: {<<: *quality_limits, denoise: {min: 0, max: 1}, expansion: {min: 0.1, max: 1}}
+    prompt_tips:
+      - Describe the scenery that should continue beyond the image edges.
+      - Leave the prompt empty to let the existing scene guide the extension.
+    prompt_examples:
+      - 'rolling hills and a clear blue sky'
+      - 'the forest path continues between tall pine trees, scattered autumn leaves, matching warm evening light'
+
+  - &variation
+    <<: *sdxl
+    id: variazione_sottile
+    label: Variazione leggera
+    description: Introduci piccoli cambiamenti conservando la composizione.
+    group: migliora
+    workflow: sdxl_img2img.json
+    model_ids: [juggernaut_xl_v8, sdxl_offset_lora]
+    bindings: {}
+    defaults: {<<: *quality_defaults, denoise: 0.5}
+    limits: {<<: *quality_limits, denoise: {min: 0, max: 1}}
+    prompt_tips:
+      - Mention only the details you want to adjust.
+      - Leave the prompt empty for a variation guided by the original image.
+    prompt_examples:
+      - 'slightly warmer afternoon light'
+      - 'the same quiet garden, a few more yellow flowers, gentle sunlight, natural colors'
+
+  - <<: *variation
+    id: variazione_forte
+    label: Variazione forte
+    description: Reinterpreta l'immagine con cambiamenti più marcati.
+    defaults: {<<: *quality_defaults, denoise: 0.85}
+    prompt_tips:
+      - Describe the new mood, style or setting you want to explore.
+      - Keep a few key subject details to preserve a connection with the original.
+    prompt_examples:
+      - 'the city at night, neon lights, cinematic mood'
+      - 'reinterpret the stone cottage as a colorful storybook illustration, oversized flowers, bright morning sky'
+
+  - id: upscale
+    label: Ingrandisci
+    description: Aumenta la risoluzione dell'immagine di due o quattro volte.
+    group: migliora
+    family: upscale
+    workflow: upscale.json
+    model_ids: [ultrasharp_4x]
+    bindings: {}
+    defaults: {upscale_factor: 2}
+    limits: {upscale_factor: {min: 2, max: 4, options: [2, 4]}}
+    aspect_ratios: []
+    supports_styles: false
+    supports_negative: false
+    default_styles: []
+    prompt_language:
+      required: any
+      label: Nessun prompt necessario
+      reason: Questo compito ingrandisce l'immagine senza usare un prompt.
+    prompt_tips:
+      - No prompt is needed; choose an input image and a scale factor.
+      - Use two times for a smaller output or four times for a larger output.
+    prompt_examples:
+      - 'Upscale a portrait to twice its original size.'
+      - 'Enlarge a detailed landscape illustration to four times its original size.'
