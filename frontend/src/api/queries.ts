@@ -1,5 +1,6 @@
 import { apiClient, newIdempotencyKey, requestWithMeta } from "@/api/client";
 import type {
+  ClearEngineOutputResult,
   CreateJobBody,
   CreateJobResponse,
   Generation,
@@ -8,6 +9,7 @@ import type {
   LanguageCheckResult,
   PaginationMeta,
   Style,
+  SystemInfo,
   Task,
   UploadKind,
   UploadResponse,
@@ -15,6 +17,16 @@ import type {
 
 export function fetchHealth(signal?: AbortSignal): Promise<HealthStatus> {
   return apiClient.get<HealthStatus>("/health", signal);
+}
+
+/** Engine, GPU, disk and model inventory shown in Impostazioni (SPEC.md § 11.2). */
+export function fetchSystem(signal?: AbortSignal): Promise<SystemInfo> {
+  return apiClient.get<SystemInfo>("/system", signal);
+}
+
+/** Deletes ComfyUI's own output folder; saved generations are untouched (SPEC.md § 5.5). */
+export function clearEngineOutput(): Promise<ClearEngineOutputResult> {
+  return apiClient.post<ClearEngineOutputResult>("/maintenance/clear-engine-output");
 }
 
 export function fetchTasks(signal?: AbortSignal): Promise<Task[]> {

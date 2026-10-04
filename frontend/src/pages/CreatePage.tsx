@@ -10,6 +10,7 @@ import { SeedField } from "@/components/create/SeedField";
 import { StyleSelector } from "@/components/create/StyleSelector";
 import { AdvancedOptions } from "@/components/create/AdvancedOptions";
 import { ResultArea } from "@/components/create/ResultArea";
+import { GpuWarning } from "@/components/layout/GpuWarning";
 import type { Task } from "@/api/types";
 
 const MAX_PROMPT_LENGTH = 2000;
@@ -209,6 +210,8 @@ export function CreatePage() {
               onCfgChange={setCfg}
               onNegativePromptChange={setNegativePrompt}
             />
+
+            <GpuWarning />
 
             <button
               type="button"

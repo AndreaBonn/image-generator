@@ -9,6 +9,7 @@ import { ResultArea } from "@/components/create/ResultArea";
 import { ImageInput } from "@/components/edit/ImageInput";
 import { MaskEditor } from "@/components/edit/MaskEditor";
 import { OutpaintPanel } from "@/components/edit/OutpaintPanel";
+import { GpuWarning } from "@/components/layout/GpuWarning";
 import { exportMaskPng } from "@/lib/maskExport";
 import { isMaskEmpty } from "@/lib/mask";
 import { toggleDirection, type OutpaintDirection } from "@/lib/outpaint";
@@ -234,6 +235,8 @@ export function EditPage() {
             </div>
           </>
         ) : null}
+
+        <GpuWarning />
 
         <div className="flex flex-col gap-1">
           <button

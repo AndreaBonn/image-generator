@@ -10,6 +10,7 @@ import { ResultArea, ResultCardActions } from "@/components/create/ResultArea";
 import { SeedField } from "@/components/create/SeedField";
 import { ImageSourceInput } from "@/components/common/ImageSourceInput";
 import { BeforeAfterSlider } from "@/components/common/BeforeAfterSlider";
+import { GpuWarning } from "@/components/layout/GpuWarning";
 import type { CreateJobBody, Task } from "@/api/types";
 
 type ImproveActionId = "variazione_sottile" | "variazione_forte" | "upscale";
@@ -164,6 +165,8 @@ export function ImprovePage() {
         ) : null}
 
         <SeedField seed={seed} locked={seedLocked} onChange={setSeed} onToggleLocked={setSeedLocked} />
+
+        <GpuWarning />
 
         <div className="flex flex-col gap-1">
           <ActionButton
