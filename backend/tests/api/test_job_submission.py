@@ -11,6 +11,48 @@ from app.engine.fake_engine import FakeEngine
 from app.models.job import JobRequest
 
 
+async def test_create_job_missing_task_id_returns_required_field_error(job_app: JobApp) -> None:
+    _, client = job_app
+
+    response = await client.post(url="/api/v1/jobs", json={"prompt": "cat"})
+
+    assert response.status_code == 422
+    assert response.json()["error"]["code"] == "VALIDATION_ERROR"
+    assert {"field": "task_id", "message": "Campo obbligatorio."} in response.json()["error"][
+        "details"
+    ]
+
+
+@pytest.mark.parametrize("field", ["unexpected", "params.unexpected"])
+async def test_create_job_extra_field_returns_forbidden_field_error(
+    job_app: JobApp, field: str
+) -> None:
+    _, client = job_app
+    extra: dict[str, object] = (
+        {"unexpected": True} if field == "unexpected" else {"params": {"unexpected": True}}
+    )
+
+    response = await client.post(url="/api/v1/jobs", json={"task_id": "bozza", **extra})
+
+    assert response.status_code == 422
+    assert response.json()["error"]["code"] == "VALIDATION_ERROR"
+    assert {"field": field, "message": "Campo non previsto."} in response.json()["error"]["details"]
+
+
+async def test_create_job_malformed_json_returns_translated_error(job_app: JobApp) -> None:
+    _, client = job_app
+
+    response = await client.post(
+        url="/api/v1/jobs", content=b"{", headers={"Content-Type": "application/json"}
+    )
+
+    assert response.status_code == 422
+    assert response.json()["error"]["code"] == "VALIDATION_ERROR"
+    assert response.json()["error"]["details"] == [
+        {"field": "1", "message": "Il corpo della richiesta non è un JSON valido."}
+    ]
+
+
 @pytest.mark.parametrize("cancel_count", [1, 2])
 async def test_disconnected_submit_still_schedules_committed_job(
     job_app: JobApp, monkeypatch: pytest.MonkeyPatch, cancel_count: int

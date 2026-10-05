@@ -1,5 +1,6 @@
 from pathlib import Path
 from typing import Any
+from uuid import uuid4
 
 import pytest
 from test_generations import generate
@@ -7,6 +8,16 @@ from test_jobs import JobApp
 from test_jobs import job_app as job_app
 
 from app.models.records import GenerationRecord
+
+
+async def test_get_generation_unknown_uuid_returns_not_found(job_app: JobApp) -> None:
+    _, client = job_app
+    generation_id = uuid4()
+
+    response = await client.get(url=f"/api/v1/generations/{generation_id}")
+
+    assert response.status_code == 404
+    assert response.json()["error"]["code"] == "NOT_FOUND"
 
 
 @pytest.mark.parametrize("path", ["image", "thumbnail"])
