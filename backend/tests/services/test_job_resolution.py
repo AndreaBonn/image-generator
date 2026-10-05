@@ -8,7 +8,7 @@ from app.errors import ValidationError
 from app.models.job import JobRequest, ResolvedJob
 from app.models.style import Style
 from app.models.task import ParameterLimit
-from app.services.job_resolution import resolve_job, validate_limits
+from app.services.job_resolution import resolve_job, resolve_task, validate_limits
 from app.services.style_service import StyleService
 from app.services.task_catalog import load_catalog
 
@@ -120,3 +120,16 @@ def test_validate_limits_checks_non_numeric_value_only_against_options() -> None
     with pytest.raises(ValidationError) as error:
         validate_limits(task=task, values={"theme": "ice"})
     assert error.value.details[0]["field"] == "params.theme"
+
+
+def test_resolve_task_rejects_a_catalog_task_without_an_implementation() -> None:
+    catalog = load_catalog(settings=Settings(engine_mode="fake"))
+    bozza = next(task for task in catalog.tasks if task.id == "bozza")
+    catalog.tasks = [*catalog.tasks, bozza.model_copy(update={"id": "futuro"})]
+
+    with pytest.raises(ValidationError) as error:
+        resolve_task(
+            request=JobRequest(task_id="futuro", prompt="cat"), catalog=catalog, is_fake=True
+        )
+
+    assert error.value.message == "Questo compito non è ancora supportato."

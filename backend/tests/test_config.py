@@ -49,3 +49,26 @@ def test_settings_read_environment_and_dotenv(
 def test_settings_invalid_values_fail(field: str, value: object) -> None:
     with pytest.raises(ValidationError, match=field):
         Settings.model_validate({field: value})
+
+
+@pytest.mark.parametrize(
+    "url",
+    [
+        "http://localhost:8188",
+        "http://0.0.0.0:8188",
+        "http://user@127.0.0.1:8188",
+        "http://:secret@127.0.0.1:8188",
+        "http://127.0.0.1:8188/api",
+        "http://127.0.0.1:8188/?token=x",
+        "http://127.0.0.1:8188/#frag",
+    ],
+)
+def test_settings_comfy_url_accepts_only_bare_loopback_http(url: str) -> None:
+    with pytest.raises(ValidationError, match="COMFY_URL must be an HTTP URL on 127.0.0.1"):
+        Settings.model_validate({"comfy_url": url})
+
+
+def test_settings_comfy_url_strips_trailing_slash() -> None:
+    settings = Settings.model_validate({"comfy_url": "http://127.0.0.1:9000/"})
+
+    assert settings.comfy_url == "http://127.0.0.1:9000"

@@ -1,6 +1,17 @@
+from dataclasses import replace
+from io import BytesIO
+from pathlib import Path
+from uuid import uuid4
+
 from PIL import Image, ImageDraw
 
-from app.services.image_preparation import composite_at_original
+from app.config import Settings
+from app.models.image_input import ImageInput
+from app.models.job import JobRequest, ResolvedJob
+from app.services.image_preparation import composite_at_original, restore_inpaint_output
+from app.services.job_resolution import resolve_job
+from app.services.style_service import StyleService
+from app.services.task_catalog import load_catalog
 
 ORIGINAL_SIZE = (1280, 1280)
 WORK_SIZE = (1024, 1024)
@@ -40,3 +51,60 @@ def test_composite_takes_the_result_inside_the_mask() -> None:
     pixel = restored.getpixel(xy=(650, 650))
     assert isinstance(pixel, tuple)
     assert pixel[0] > 200 and pixel[1] < 20
+
+
+def inpaint_job(tmp_path: Path) -> ResolvedJob:
+    original_path, mask_path = tmp_path / "original.png", tmp_path / "mask.png"
+    striped_original().save(fp=original_path)
+    square_mask().save(fp=mask_path)
+    request = JobRequest(
+        task_id="inpaint", prompt="cat", input_upload_id=uuid4(), mask_upload_id=uuid4()
+    )
+    job = resolve_job(
+        request=request,
+        catalog=load_catalog(settings=Settings(engine_mode="fake")),
+        styles=StyleService(styles=()),
+        is_fake=True,
+    )
+    source = ImageInput(path=original_path, size=ORIGINAL_SIZE, mask_path=mask_path)
+    return replace(job, image_input=source)
+
+
+def png_bytes(image: Image.Image) -> bytes:
+    buffer = BytesIO()
+    image.save(fp=buffer, format="PNG")
+    return buffer.getvalue()
+
+
+def test_restore_inpaint_output_returns_the_result_at_source_resolution(tmp_path: Path) -> None:
+    job = inpaint_job(tmp_path=tmp_path)
+    result = png_bytes(image=Image.new(mode="RGB", size=WORK_SIZE, color=(220, 0, 0)))
+
+    restored = Image.open(fp=BytesIO(restore_inpaint_output(job=job, image=result)))
+
+    assert restored.size == ORIGINAL_SIZE
+    assert restored.getpixel(xy=(10, 10)) == striped_original().getpixel(xy=(10, 10))
+
+
+def test_restore_inpaint_output_keeps_a_result_already_at_source_size(tmp_path: Path) -> None:
+    job = inpaint_job(tmp_path=tmp_path)
+    result = png_bytes(image=Image.new(mode="RGB", size=ORIGINAL_SIZE, color=(220, 0, 0)))
+
+    assert restore_inpaint_output(job=job, image=result) == result
+
+
+def test_restore_inpaint_output_leaves_other_tasks_untouched(tmp_path: Path) -> None:
+    job = inpaint_job(tmp_path=tmp_path)
+    other = replace(job, task=job.task.model_copy(update={"id": "variazione_sottile"}))
+    result = png_bytes(image=Image.new(mode="RGB", size=WORK_SIZE, color=(220, 0, 0)))
+
+    assert restore_inpaint_output(job=other, image=result) == result
+
+
+def test_restore_inpaint_output_needs_a_mask_to_composite(tmp_path: Path) -> None:
+    job = inpaint_job(tmp_path=tmp_path)
+    assert job.image_input is not None
+    unmasked = replace(job, image_input=replace(job.image_input, mask_path=None))
+    result = png_bytes(image=Image.new(mode="RGB", size=WORK_SIZE, color=(220, 0, 0)))
+
+    assert restore_inpaint_output(job=unmasked, image=result) == result
