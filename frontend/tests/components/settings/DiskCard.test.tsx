@@ -29,6 +29,7 @@ describe("DiskCard", () => {
   it("hides the trash line when there is nothing in the trash", () => {
     renderDiskCard({ disk: { free_gb: 40, min_free_gb: 10 }, trashSummary: { count: 0, bytes: 0 } });
 
+    expect(screen.getByText(/40,0 GB liberi/)).toBeInTheDocument();
     expect(screen.queryByText(/Cestino:/)).not.toBeInTheDocument();
   });
 
@@ -48,6 +49,16 @@ describe("DiskCard", () => {
   it("omits the trash line entirely while the summary has not loaded yet", () => {
     renderDiskCard({ disk: { free_gb: 40, min_free_gb: 10 } });
 
+    expect(screen.getByText(/40,0 GB liberi/)).toBeInTheDocument();
     expect(screen.queryByText(/Cestino:/)).not.toBeInTheDocument();
+  });
+
+  it("uses the singular 'immagine' when the trash holds exactly one item", () => {
+    renderDiskCard({
+      disk: { free_gb: 40, min_free_gb: 10 },
+      trashSummary: { count: 1, bytes: 1024 },
+    });
+
+    expect(screen.getByText(/Cestino: 1 immagine \(1 kB\)/)).toBeInTheDocument();
   });
 });
