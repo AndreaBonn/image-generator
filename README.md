@@ -27,7 +27,7 @@ Funziona senza internet una volta installata, e le immagini restano sul computer
 - Linux con scheda video NVIDIA da almeno 8 GB e driver recente (CUDA 13).
 - [uv](https://docs.astral.sh/uv/) per Python e Node.js 20 o successivo per l'interfaccia.
 - Circa 20 GB liberi su disco: 7 GB per il motore e 8-9 GB per i modelli nuovi.
-- Una copia di [Fooocus](https://github.com/lllyasviel/Fooocus) con i suoi modelli già scaricati: l'app li riusa senza copiarli. Il percorso predefinito è `~/Fooocus`; se è altrove, va indicato in `.env` alla voce `FOOOCUS_DIR` (vedi `.env.example`).
+- I modelli SDXL (Juggernaut XL v8, LoRA offset, patch di inpaint) e gli stili, presi una volta sola da una copia di [Fooocus](https://github.com/lllyasviel/Fooocus) con lo script di migrazione (vedi Installazione). Dopo la migrazione l'app non dipende più da Fooocus.
 
 ## Installazione
 
@@ -38,6 +38,14 @@ Dalla cartella del progetto:
 uv run --script scripts/install_models.py --install-enabled  # modelli nuovi (circa 8,5 GB)
 cd frontend && npm ci && npm run build && cd ..              # interfaccia
 ```
+
+Modelli SDXL e stili da Fooocus, una volta sola. Prima senza `--apply` per vedere cosa succede, poi con:
+
+```bash
+uv run --script scripts/migrate_from_fooocus.py --fooocus-dir ~/Fooocus --apply
+```
+
+Se Fooocus sta sulla stessa partizione i modelli vengono spostati, istantaneamente e senza spazio in più; altrimenti vengono copiati e verificati, e l'originale resta. Gli stili vengono sempre copiati. Dopo, la cartella di Fooocus si può cancellare.
 
 Per vedere quali modelli sono presenti e quanto spazio serve: `uv run --script scripts/install_models.py --list`. L'installazione si rifiuta di scaricare se dopo il download resterebbero meno di 5 GB liberi.
 

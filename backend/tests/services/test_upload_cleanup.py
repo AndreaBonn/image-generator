@@ -43,7 +43,7 @@ def test_startup_cleanup_preserves_job_references_and_recent_uploads(tmp_path: P
             stored.created_at = utc_now() - timedelta(days=8)
     database.close()
     resources = initialize_resources(
-        config=Settings(data_dir=tmp_path, engine_mode="fake", fooocus_dir=tmp_path / "fooocus")
+        config=Settings(data_dir=tmp_path, engine_mode="fake", styles_dir=tmp_path / "styles")
     )
     with resources.repository.database.sessions() as session:
         assert session.get(entity=UploadRecord, ident=expired.id) is None

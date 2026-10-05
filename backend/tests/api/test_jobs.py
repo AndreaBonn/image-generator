@@ -29,7 +29,7 @@ async def job_app(tmp_path: Path) -> AsyncIterator[JobApp]:
     config = Settings(
         engine_mode="fake",
         data_dir=tmp_path,
-        fooocus_dir=tmp_path / "fooocus",
+        styles_dir=tmp_path / "styles",
         model_switch_eta_s=13,
     )
     application = create_app(config=config)

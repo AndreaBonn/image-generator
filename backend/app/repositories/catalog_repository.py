@@ -15,7 +15,7 @@ read_yaml = cast(Callable[[str], object], yaml.safe_load)
 class ModelEntry(BaseModel):
     id: str
     label: str
-    source: Literal["fooocus", "huggingface"]
+    source: Literal["local", "huggingface"]
     folder: str
     filename: str
     family: str = ""
@@ -78,6 +78,4 @@ class CatalogRepository:
 
     def has_model(self, model: ModelEntry) -> bool:
         root = self.settings.models_dir
-        if model.source == "fooocus":
-            root = self.settings.fooocus_dir / "models"
         return (root / model.folder / model.filename).is_file()

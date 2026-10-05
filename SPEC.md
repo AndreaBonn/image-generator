@@ -21,7 +21,7 @@ Un'applicazione web locale, **Image Generator**, con interfaccia in italiano, ch
 1. fa scegliere all'utente **il compito** ("bozza veloce", "foto di qualità", "immagine con testo", "modifica una parte", ...) invece del modello;
 2. associa a ogni compito il modello e i parametri giusti tramite una tabella di configurazione;
 3. usa **ComfyUI** come motore di generazione headless, pilotato via API HTTP + WebSocket. L'app non contiene codice di inferenza;
-4. riusa i modelli già scaricati da Fooocus (checkpoint SDXL, patch di inpaint, LoRA) senza copiarli.
+4. migra una volta i modelli già scaricati da Fooocus (checkpoint SDXL, patch di inpaint, LoRA) nella propria cartella.
 
 ### 1.3 Utente e ambiente
 
@@ -40,9 +40,9 @@ Un'applicazione web locale, **Image Generator**, con interfaccia in italiano, ch
 
 I due vincoli che guidano l'architettura sono **8 GB di VRAM** (un modello grande caricato alla volta) e **23 GB di disco** (set minimo di modelli, vedi § 6).
 
-### 1.4 Risorse esistenti da riusare (senza copiarle)
+### 1.4 Risorse esistenti da migrare una volta
 
-Nel clone di Fooocus, `models/`:
+Il clone di Fooocus fornisce i file iniziali. Dopo la migrazione O1, i modelli vivono in `MODELS_DIR` e gli stili in `DATA_DIR/styles`; l'app non dipende più dal clone.
 
 | Risorsa | Path relativo | Dimensione | Uso in Image Generator |
 |---|---|---|---|
@@ -52,7 +52,7 @@ Nel clone di Fooocus, `models/`:
 | Fooocus inpaint patch | `models/inpaint/inpaint_v26.fooocus.patch` | 1,3 GB | inpaint/outpaint |
 | Stili SDXL | `sdxl_styles/*.json` (6 file) | KB | catalogo stili, letto da disco a runtime |
 
-Fooocus è GPL-3.0: gli stili si **leggono dal path configurato**, non si copiano nel repo.
+Gli stili vengono copiati nella cartella dati locale, senza essere versionati nel repository. `STYLES_DIR` permette di scegliere un'altra cartella di lettura.
 
 ---
 
@@ -159,7 +159,7 @@ In UI, sopra la casella del prompt: un badge con la lingua ("Scrivi in: inglese"
 
 ### 3.5 Stili (solo compiti SDXL)
 
-- Catalogo letto dai 6 JSON in `<FOOOCUS_DIR>/sdxl_styles/`. Ogni voce ha `name`, `prompt` (con segnaposto `{prompt}`), `negative_prompt`.
+- Catalogo letto dai JSON in `STYLES_DIR`, con default `<DATA_DIR>/styles`. Ogni voce ha `name`, `prompt` (con segnaposto `{prompt}`), `negative_prompt`.
 - Applicazione in backend, prima di costruire il workflow: il prompt dell'utente sostituisce `{prompt}` nel template; i negative prompt degli stili si concatenano con virgola, senza duplicati.
 - "Fooocus V2" non è uno stile ma la prompt expansion: escluso (§ 2.2).
 - Default per `qualita`: "Fooocus Enhance" + "Fooocus Sharp", come il preset di Fooocus.
@@ -176,7 +176,7 @@ In UI, sopra la casella del prompt: un badge con la lingua ("Scrivi in: inglese"
 Browser (React)  --HTTP /api/v1 + SSE-->  Backend FastAPI  --HTTP + WebSocket-->  ComfyUI (headless)
      :5173 dev / servito dal backend        127.0.0.1:8000                           127.0.0.1:8188
                                                  |                                         |
-                                       SQLite + immagini                    modelli (Fooocus + nuovi)
+                                       SQLite + immagini                    modelli in MODELS_DIR
                                          (data/)                            via extra_model_paths.yaml
 ```
 
@@ -263,9 +263,9 @@ Unico modulo `backend/app/config.py` con `BaseSettings`; nessun `os.getenv` spar
 |---|---|---|
 | `COMFY_URL` | `http://127.0.0.1:8188` | indirizzo del motore |
 | `ENGINE_MODE` | `comfy` | `comfy` oppure `fake` (§ 10.3) |
-| `FOOOCUS_DIR` | `~/Fooocus` | sorgente di modelli e stili |
-| `MODELS_DIR` | `<repo>/engine/models` | cartella dei modelli nuovi |
-| `DATA_DIR` | `<repo>/data` | db, immagini, upload |
+| `MODELS_DIR` | `<repo>/engine/models` | cartella di tutti i modelli |
+| `DATA_DIR` | `<repo>/data` | db, immagini, upload e stili |
+| `STYLES_DIR` | `<DATA_DIR>/styles` | catalogo stili letto dal backend |
 | `MIN_FREE_DISK_GB` | `5` | margine sotto cui l'installer rifiuta un download |
 | `JOB_TIMEOUT_S` | `600` | oltre questo tempo un job è marcato fallito |
 | `HOST` / `PORT` | `127.0.0.1` / `8000` | bind del backend; `127.0.0.1` è un vincolo di sicurezza (§ 9) |
@@ -339,9 +339,9 @@ Conseguenza sul catalogo: il compito del candidato scartato resta in `tasks.yaml
 
 | Modello | File | Cartella ComfyUI | GB | Licenza | Stato in v1 |
 |---|---|---|---|---|---|
-| Juggernaut XL v8 | già in Fooocus | `checkpoints` | 0 (riuso) | da Fooocus/RunDiffusion, **DA VERIFICARE** | attivo |
-| Offset LoRA | già in Fooocus | `loras` | 0 (riuso) | Stability, OpenRAIL++ | attivo |
-| Fooocus inpaint head + patch | già in Fooocus | `inpaint` | 0 (riuso) | **DA VERIFICARE** | attivo |
+| Juggernaut XL v8 | locale, migrato da Fooocus | `checkpoints` | 7,11 | da Fooocus/RunDiffusion, **DA VERIFICARE** | attivo |
+| Offset LoRA | locale, migrato da Fooocus | `loras` | 0,05 | Stability, OpenRAIL++ | attivo |
+| Fooocus inpaint head + patch | locali, migrati da Fooocus | `inpaint` | 1,32 | **DA VERIFICARE** | attivo |
 | SDXL-Lightning 4-step LoRA | `sdxl_lightning_4step_lora.safetensors` ([ByteDance/SDXL-Lightning](https://huggingface.co/ByteDance/SDXL-Lightning)) | `loras` | 0,39 | OpenRAIL++ | attivo |
 | 4x-UltraSharp | `4x-UltraSharp.safetensors` ([Kim2091/UltraSharp](https://huggingface.co/Kim2091/UltraSharp)) | `upscale_models` | 0,07 | CC BY-NC-SA 4.0 (solo uso non commerciale) | attivo |
 | FLUX.2 [klein] 4B distilled fp8 | `flux-2-klein-4b-fp8.safetensors` ([black-forest-labs/FLUX.2-klein-4b-fp8](https://huggingface.co/black-forest-labs/FLUX.2-klein-4b-fp8)) | `diffusion_models` | 4,07 | Apache 2.0 (da fonte secondaria, rileggere la model card) | candidato A |
@@ -376,7 +376,7 @@ Idempotente, rieseguibile, si ferma al primo errore (`set -euo pipefail`):
 4. `uv pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu130` (il driver 580 supporta CUDA 13.0, misurato).
 5. `uv pip install -r engine/ComfyUI/requirements.txt`.
 6. Clona `Acly/comfyui-inpaint-nodes` in `engine/ComfyUI/custom_nodes/` a un commit fissato, e installa le sue dipendenze (`opencv-python`).
-7. Genera `engine/ComfyUI/extra_model_paths.yaml` dal template, puntando a `FOOOCUS_DIR/models/{checkpoints,loras,inpaint,upscale_models}` e a `MODELS_DIR` per i modelli nuovi.
+7. Genera `engine/ComfyUI/extra_model_paths.yaml` dal template, puntando solo a `MODELS_DIR` per tutti i modelli.
 8. Avvia ComfyUI per 60 s al massimo, aspetta che `GET /system_stats` risponda (attesa su condizione, non sleep fisso), stampa device e VRAM, lo ferma.
 
 Il percorso uv non è quello documentato da Comfy-Org (che usa pip), ma installa gli stessi pacchetti. Se fallisce, il fallback è `comfy-cli` (`uv tool install comfy-cli`), da dichiarare nel report.
@@ -384,11 +384,19 @@ Il percorso uv non è quello documentato da Comfy-Org (che usa pip), ma installa
 ### 6.3 Installer dei modelli (`scripts/install_models.py`)
 
 - Legge `config/models.yaml`: per ogni modello id, famiglia, file, repo HF, cartella di destinazione, dimensione attesa, licenza, `enabled`.
-- `uv run --script scripts/install_models.py --list` mostra lo stato (installato / mancante / riusato da Fooocus) e lo spazio necessario.
+- `uv run --script scripts/install_models.py --list` mostra lo stato (`installed` / `missing`) e lo spazio necessario. I modelli `source: local` mancanti richiedono la migrazione.
 - `--install <id>`: prima di scaricare verifica `spazio_libero - dimensione >= MIN_FREE_DISK_GB`, altrimenti rifiuta con il conto esplicito. Scarica con `huggingface_hub` (`hf_hub_download`, `local_dir` nella cartella giusta, niente copia in cache). Dopo il download verifica lo sha256 contro quello dichiarato in `config/models.yaml`: se non coincide elimina il file scaricato e fallisce, altrimenti lo sposta nella destinazione in modo atomico.
 - **Se l'installer rifiuta per spazio**, Claude Code non libera spazio da solo e non cancella nulla, né modelli né cache. Si ferma e riporta all'utente il conto (spazio libero, dimensione richiesta, margine), chiedendogli come procedere.
-- `--remove <id>`: cancella i file di un modello non riusato da Fooocus, chiedendo conferma.
+- `--install <id>` e `--remove <id>` rifiutano i modelli `source: local`; questi file non vengono mai scaricati o cancellati dall'installer. La rimozione dei modelli Hugging Face richiede conferma.
 - Non scarica mai nulla senza un `--install` esplicito.
+
+### 6.4 Migrazione da Fooocus (O1)
+
+`uv run --script scripts/migrate_from_fooocus.py` stampa il piano senza modificare file. L'utente esegue lo stesso comando con `--apply` per applicarlo. `--fooocus-dir` prevale su `FOOOCUS_DIR`, usato solo dalla migrazione, con default `~/Fooocus`.
+
+Per ciascun modello locale il trasferimento usa una rinomina sullo stesso filesystem, con verifica della dimensione. Tra filesystem diversi usa una copia temporanea, verifica SHA256 e pubblica il file con rinomina atomica; la sorgente resta disponibile e lo script indica che può essere eliminata. Una destinazione della dimensione prevista viene saltata; una dimensione diversa blocca quel file senza sovrascriverlo.
+
+Gli stili `sdxl_styles/*.json` vengono copiati in `DATA_DIR/styles`, saltando file identici e rifiutando contenuti diversi. Ogni errore produce un codice di uscita non zero. Un catalogo stili assente o vuoto non blocca il backend: il log WARNING indica percorso e comando di migrazione. Dopo la migrazione l'utente rigenera i percorsi ComfyUI prima di eliminare il clone.
 
 ---
 
@@ -588,7 +596,7 @@ DIAL: strumento creativo personale per un utente non tecnico, linguaggio da tool
 
 **Galleria**: griglia di miniature, filtri per compito e preferiti, ricerca nel prompt, paginazione a scorrimento. Il dettaglio mostra l'immagine grande, prompt originale e finale, parametri, seed, modello, durata, catena padre → figli, azioni.
 
-**Impostazioni**: stato del motore, VRAM, disco libero (in rosso sotto `MIN_FREE_DISK_GB`), modello in memoria, elenco modelli con stato installato/mancante/riusato e spazio richiesto (l'installazione resta dallo script da terminale, la pagina mostra il comando esatto), "Svuota cartella output del motore", tema.
+**Impostazioni**: stato del motore, VRAM, disco libero (in rosso sotto `MIN_FREE_DISK_GB`), modello in memoria, elenco modelli con stato installato/mancante e spazio richiesto (la pagina mostra il comando di migrazione o download appropriato), "Svuota cartella output del motore", tema.
 
 ### 11.3 Stati obbligatori
 
@@ -609,7 +617,7 @@ Ogni fase lascia il sistema usabile anche se la successiva non arriva. Ogni pass
 ### Fase 0: motore e scelta del modello nuovo
 
 1. `engine/install_engine.sh` → verify: `curl -s 127.0.0.1:8188/system_stats` restituisce la RTX 4060 e circa 8 GB.
-2. `extra_model_paths.yaml` verso Fooocus → verify: in `/object_info` il nodo `CheckpointLoaderSimple` elenca `juggernautXL_v8Rundiffusion.safetensors`.
+2. `extra_model_paths.yaml` verso `MODELS_DIR` dopo la migrazione → verify: in `/object_info` il nodo `CheckpointLoaderSimple` elenca `juggernautXL_v8Rundiffusion.safetensors`.
 3. Installare `comfyui-inpaint-nodes` e la Lightning LoRA → verify: i nodi del pacchetto compaiono in `/object_info`.
 4. Scaricare il candidato A (FLUX.2 klein) con `install_models.py` → verify: `--list` lo dà installato e lo spazio libero resta sopra 5 GB.
 5. `uv run --script scripts/benchmark.py`: misura anche il determinismo di ogni famiglia (§ 13), su 8 prompt fissi (ritratto, paesaggio, prodotto, scritta "APERTO TUTTI I GIORNI" su un'insegna, scena con 3 oggetti e relazioni spaziali, illustrazione, 2 prompt in italiano), su `bozza`, `qualita` e candidato A, seed fisso. Misura il tempo per immagine, il picco di VRAM (da `/system_stats` o `nvidia-smi`), il tempo di cambio modello SDXL ↔ A con e senza `/free`, e se il cambio va in OOM. Provoca un OOM (formato massimo, batch 4) e salva il testo di `execution_error`.
@@ -657,7 +665,7 @@ Ogni fase lascia il sistema usabile anche se la successiva non arriva. Ogni pass
 - Inpaint modifica solo la zona mascherata; outpaint estende i lati scelti del 30%; variazioni e upscale funzionano su immagini caricate e da galleria.
 - Ogni immagine generata compare in galleria con prompt, parametri e seed, e "Rigenera" con lo stesso seed riproduce un'immagine identica a parità di modello e impostazioni. Il determinismo si misura in Fase 0 per ogni famiglia (stesso seed due volte, confronto pixel per pixel). Per una famiglia che risulta non deterministica il criterio diventa "immagine visivamente equivalente": lo si registra in `docs/benchmark.md` e la UI non promette la riproduzione identica.
 - Motore spento, OOM e disco pieno producono messaggi comprensibili e non perdono il prompt.
-- Nessun file di Fooocus copiato o modificato; lo spazio aggiunto su disco è documentato.
+- Modelli e stili migrati nelle cartelle dell'app tramite esecuzione esplicita dell'utente; nessuna dipendenza runtime dal clone Fooocus. Lo spazio aggiunto su disco è documentato.
 - Test backend e frontend verdi, copertura ≥ 80% su `services` ed `engine`, E2E verde, contratto dei template verde.
 
 ---
@@ -667,7 +675,7 @@ Ogni fase lascia il sistema usabile anche se la successiva non arriva. Ogni pass
 ### Assunzioni
 
 - AS1. L'app gira solo in locale per un utente: niente autenticazione.
-- AS2. Il clone di Fooocus resta dov'è: se si sposta, basta cambiare `FOOOCUS_DIR`.
+- AS2. Il clone Fooocus serve solo come sorgente iniziale della migrazione O1; dopo la verifica dei file e la rigenerazione dei percorsi ComfyUI può essere eliminato dall'utente.
 - AS3. L'utente installa i modelli da terminale con lo script; la UI informa, non scarica.
 - AS4. Juggernaut XL v8 resta il checkpoint SDXL unico della v1; sostituirlo è una modifica di `models.yaml`.
 - AS5. Le immagini generate sono per uso personale; le licenze vanno ricontrollate prima di ogni uso commerciale (Juggernaut e patch Fooocus non verificate).

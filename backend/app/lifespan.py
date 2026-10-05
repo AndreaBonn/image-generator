@@ -30,7 +30,7 @@ ENGINE_HTTP_TIMEOUT_S = 30
 
 def initialize_resources(config: Settings) -> JobResources:
     catalog = load_catalog(settings=config)
-    styles = StyleService(styles=load_styles(directory=config.fooocus_dir / "sdxl_styles"))
+    styles = StyleService(styles=load_styles(directory=config.styles_dir))
     database = Database(data_dir=config.data_dir)
     database.migrate()
     repository = JobRepository(database=database)

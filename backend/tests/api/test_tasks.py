@@ -13,7 +13,7 @@ def test_list_tasks_returns_groups_guidance_parameters_and_availability(tmp_path
         config_dir=REPO_ROOT / "config",
         workflows_dir=REPO_ROOT / "workflows",
         models_dir=tmp_path / "models",
-        fooocus_dir=tmp_path / "fooocus",
+        styles_dir=tmp_path / "styles",
     )
     app = FastAPI()
     app.state.task_catalog = load_catalog(settings=settings)
@@ -42,7 +42,7 @@ def test_list_tasks_matches_frontend_contract(tmp_path: Path) -> None:
         config_dir=REPO_ROOT / "config",
         workflows_dir=REPO_ROOT / "workflows",
         models_dir=tmp_path / "models",
-        fooocus_dir=tmp_path / "fooocus",
+        styles_dir=tmp_path / "styles",
     )
     app = FastAPI()
     app.state.task_catalog = load_catalog(settings=settings)

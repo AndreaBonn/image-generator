@@ -5,6 +5,7 @@ from app.models.task import ParameterLimit, ParameterSchema, TaskDefinition, Tas
 from app.repositories.catalog_repository import CatalogRepository, ModelEntry, WorkflowNode
 
 logger = logging.getLogger(__name__)
+MIGRATE_COMMAND = "uv run --script scripts/migrate_from_fooocus.py --apply"
 
 
 def index_titles(workflow: dict[str, WorkflowNode]) -> dict[str, WorkflowNode]:
@@ -64,12 +65,18 @@ class TaskCatalog:
         if not self.repository.has_workflow(filename=task.workflow):
             return "Il workflow per questo compito non è ancora disponibile."
         missing = [
-            self.models[model_id].label
+            self.models[model_id]
             for model_id in task.model_ids
             if not self.repository.has_model(model=self.models[model_id])
         ]
         if missing:
-            return f"Modelli non installati: {', '.join(missing)}. Vedi Impostazioni."
+            labels = ", ".join(model.label for model in missing)
+            hint = (
+                f"Esegui {MIGRATE_COMMAND}. Vedi Impostazioni."
+                if any(model.source == "local" for model in missing)
+                else "Vedi Impostazioni."
+            )
+            return f"Modelli non installati: {labels}. {hint}"
         return None
 
     def list_tasks(self) -> list[TaskView]:

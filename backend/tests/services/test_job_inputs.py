@@ -20,7 +20,7 @@ PLACEHOLDER_PARAMS = ResolvedParams(
 
 
 def build_resources(tmp_path: Path, catalog: TaskCatalog) -> JobResources:
-    settings = Settings(data_dir=tmp_path, engine_mode="fake", fooocus_dir=tmp_path / "fooocus")
+    settings = Settings(data_dir=tmp_path, engine_mode="fake", styles_dir=tmp_path / "styles")
     database = Database(data_dir=tmp_path)
     database.migrate()
     return JobResources(

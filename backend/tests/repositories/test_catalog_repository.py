@@ -6,7 +6,7 @@ from app.repositories.catalog_repository import ModelDocument, ModelEntry
 BASE_ENTRY = {
     "id": "model",
     "label": "Model",
-    "source": "fooocus",
+    "source": "local",
     "folder": "checkpoints",
     "filename": "model.safetensors",
 }

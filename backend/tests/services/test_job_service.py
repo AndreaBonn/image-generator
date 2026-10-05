@@ -14,7 +14,7 @@ from app.services.job_service import JobService
 
 @pytest.fixture
 async def job_service(tmp_path: Path) -> AsyncIterator[JobService]:
-    config = Settings(engine_mode="fake", data_dir=tmp_path, fooocus_dir=tmp_path / "fooocus")
+    config = Settings(engine_mode="fake", data_dir=tmp_path, styles_dir=tmp_path / "styles")
     application: FastAPI = create_app(config=config)
     async with application.router.lifespan_context(application):
         yield application.state.job_service

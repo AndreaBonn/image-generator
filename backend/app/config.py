@@ -6,7 +6,6 @@ from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-FOOOCUS_DEFAULT = Path.home() / "Fooocus"
 
 
 class Settings(BaseSettings):
@@ -17,10 +16,10 @@ class Settings(BaseSettings):
     comfy_url: str = "http://127.0.0.1:8188"
     engine_mode: Literal["comfy", "fake"] = "comfy"
     preview_method: Literal["latent2rgb", "none"] = "latent2rgb"
-    fooocus_dir: Path = FOOOCUS_DEFAULT
     models_dir: Path = REPO_ROOT / "engine/models"
     comfy_output_dir: Path = REPO_ROOT / "engine/ComfyUI/output"
     data_dir: Path = REPO_ROOT / "data"
+    styles_dir: Path = Field(default_factory=lambda data: data["data_dir"] / "styles")
     workflows_dir: Path = REPO_ROOT / "workflows"
     config_dir: Path = REPO_ROOT / "config"
     min_free_disk_gb: float = Field(default=5, ge=0)

@@ -30,7 +30,7 @@ def catalog_settings(tmp_path: Path) -> Settings:
     return Settings(
         config_dir=config_dir,
         workflows_dir=REPO_ROOT / "workflows",
-        fooocus_dir=tmp_path / "fooocus",
+        styles_dir=tmp_path / "styles",
         models_dir=tmp_path / "models",
     )
 
@@ -63,7 +63,7 @@ def test_load_catalog_real_templates_and_missing_models(catalog_settings: Settin
 def test_list_tasks_checks_both_model_sources_and_updates(catalog_settings: Settings) -> None:
     catalog = load_catalog(settings=catalog_settings)
     fooocus_model = (
-        catalog_settings.fooocus_dir / "models/checkpoints/juggernautXL_v8Rundiffusion.safetensors"
+        catalog_settings.models_dir / "checkpoints/juggernautXL_v8Rundiffusion.safetensors"
     )
     new_model = catalog_settings.models_dir / "loras/sdxl_lightning_4step_lora.safetensors"
     for path in (fooocus_model, new_model):

@@ -7,6 +7,21 @@ import { buildModelInfo } from "../../fixtures/system";
 const INSTALL_COMMAND = "uv run --script scripts/install_models.py";
 
 describe("ModelsTable", () => {
+  it("copies the migration command for a missing local model without appending its id", async () => {
+    const command = "uv run --script scripts/migrate_from_fooocus.py --apply";
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, "clipboard", {
+      value: { writeText }, configurable: true,
+    });
+    render(<ModelsTable models={[{
+      ...buildModelInfo({ id: "juggernaut_xl_v8", status: "missing", enabled: true }),
+      install_command: command,
+    }]} installCommand={INSTALL_COMMAND} />);
+    expect(screen.getByText(command)).toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: "Copia" }));
+    expect(writeText).toHaveBeenCalledWith(command);
+    expect(screen.getByRole("button", { name: "Copiato" })).toBeInTheDocument();
+  });
   afterEach(() => {
     vi.restoreAllMocks();
   });

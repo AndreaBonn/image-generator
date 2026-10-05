@@ -1,16 +1,18 @@
 ---
 # Model registry.
-# `source: fooocus` entries are reused in place from FOOOCUS_DIR/models
-# and never downloaded; `source: huggingface` entries are installed into
-# MODELS_DIR by scripts/install_models.py.
-# Sizes and sha256 come from the Hugging Face API (2026-10-04).
+# All files live in MODELS_DIR/<folder>. `source: local` entries are migrated
+# once by scripts/migrate_from_fooocus.py, never downloaded or removed by the installer.
+# `source: huggingface` entries are downloaded by scripts/install_models.py.
+# Local sizes and sha256 were measured by the user; HF metadata is from 2026-10-04.
 models:
   - id: juggernaut_xl_v8
     label: Juggernaut XL v8
     family: sdxl
     folder: checkpoints
     filename: juggernautXL_v8Rundiffusion.safetensors
-    source: fooocus
+    source: local
+    size_bytes: 7105348592
+    sha256: aeb7e9e6897a1e58b10494bd989d001e3d4bc9b634633cd7b559838f612c2867
     license: "RunDiffusion, da verificare prima di un uso commerciale"
 
   - id: sdxl_offset_lora
@@ -18,7 +20,9 @@ models:
     family: sdxl
     folder: loras
     filename: sd_xl_offset_example-lora_1.0.safetensors
-    source: fooocus
+    source: local
+    size_bytes: 49553604
+    sha256: 4852686128f953d0277d0793e2f0335352f96a919c9c16a09787d77f55cbdf6f
     license: openrail++
 
   - id: fooocus_inpaint_head
@@ -26,7 +30,9 @@ models:
     family: sdxl
     folder: inpaint
     filename: fooocus_inpaint_head.pth
-    source: fooocus
+    source: local
+    size_bytes: 52602
+    sha256: 32f7f838e0c6d8f13437ba8411e77a4688d77a2e34df8857e4ef4d51f6b97692
     license: "Fooocus, da verificare prima di un uso commerciale"
 
   - id: fooocus_inpaint_patch
@@ -34,7 +40,9 @@ models:
     family: sdxl
     folder: inpaint
     filename: inpaint_v26.fooocus.patch
-    source: fooocus
+    source: local
+    size_bytes: 1323362033
+    sha256: f8657a025104e22d70f9c060635d8e8c2196f433871a2f68dc40abd2171f0d59
     license: "Fooocus, da verificare prima di un uso commerciale"
 
   - id: sdxl_lightning_lora

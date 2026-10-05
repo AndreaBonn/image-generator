@@ -12,6 +12,6 @@ def isolate_default_storage(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> 
         app.main,
         "settings",
         settings.model_copy(
-            update={"data_dir": tmp_path / "data", "fooocus_dir": tmp_path / "fooocus"}
+            update={"data_dir": tmp_path / "data", "styles_dir": tmp_path / "styles"}
         ),
     )

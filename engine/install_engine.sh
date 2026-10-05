@@ -12,7 +12,6 @@ MIN_FREE_GB_FOR_ENGINE=10
 COMFY_PORT="${COMFY_PORT:-8188}"
 STARTUP_TIMEOUT_S=120
 
-FOOOCUS_DIR="${FOOOCUS_DIR:-$HOME/Fooocus}"
 MODELS_DIR="${MODELS_DIR:-${REPO_ROOT}/engine/models}"
 
 SMOKE_PID=""
@@ -63,11 +62,11 @@ write_model_paths() {
   mkdir -p "${MODELS_DIR}"/{checkpoints,diffusion_models,text_encoders,vae,loras,inpaint,upscale_models,background_removal}
   # envsubst takes the literal variable names to substitute, hence the single quotes.
   # shellcheck disable=SC2016
-  FOOOCUS_DIR="${FOOOCUS_DIR}" MODELS_DIR="${MODELS_DIR}" \
-    envsubst '${FOOOCUS_DIR} ${MODELS_DIR}' \
+  MODELS_DIR="${MODELS_DIR}" \
+    envsubst '${MODELS_DIR}' \
     < "${REPO_ROOT}/config/comfy/extra_model_paths.yaml.template" \
     > "${ENGINE_DIR}/extra_model_paths.yaml"
-  log "extra_model_paths.yaml written (Fooocus: ${FOOOCUS_DIR}, models: ${MODELS_DIR})"
+  log "extra_model_paths.yaml written (models: ${MODELS_DIR})"
 }
 
 smoke_test() {

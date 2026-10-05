@@ -1,12 +1,5 @@
 # Generated into engine/ComfyUI/extra_model_paths.yaml by engine/install_engine.sh.
-# Fooocus models are reused in place (never copied); new models live in MODELS_DIR.
-fooocus:
-  base_path: ${FOOOCUS_DIR}/models
-  checkpoints: checkpoints
-  loras: loras
-  inpaint: inpaint
-  upscale_models: upscale_models
-
+# All models live in MODELS_DIR, including local models migrated from Fooocus.
 studio:
   base_path: ${MODELS_DIR}
   is_default: true

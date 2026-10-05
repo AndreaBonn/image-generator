@@ -7,7 +7,7 @@ from app.engine.types import EngineClient
 from app.errors import EngineUnavailableError
 from app.repositories.catalog_repository import ModelEntry
 from app.repositories.system_repository import gpu_processes
-from app.services.task_catalog import TaskCatalog
+from app.services.task_catalog import MIGRATE_COMMAND, TaskCatalog
 
 BYTES_PER_MB = 1024**2
 BYTES_PER_GB = 1024**3
@@ -16,15 +16,9 @@ INSTALL_COMMAND = "uv run --script scripts/install_models.py --install"
 
 def model_status(model: ModelEntry, catalog: TaskCatalog) -> dict[str, Any]:
     config = catalog.repository.settings
-    reused = model.source == "fooocus"
-    root = config.fooocus_dir / "models" if reused else config.models_dir
-    path = root / model.folder / model.filename
+    path = config.models_dir / model.folder / model.filename
     installed = path.is_file()
-    status = (
-        ("reused" if installed else "reused-missing")
-        if reused
-        else ("installed" if installed else "missing")
-    )
+    status = "installed" if installed else "missing"
     size = model.size_bytes or (path.stat().st_size if installed else 0)
     return {
         "id": model.id,
@@ -34,6 +28,9 @@ def model_status(model: ModelEntry, catalog: TaskCatalog) -> dict[str, Any]:
         "size_gb": size / BYTES_PER_GB,
         "enabled": model.enabled,
         "license": model.license,
+        "install_command": MIGRATE_COMMAND
+        if model.source == "local"
+        else f"{INSTALL_COMMAND} {model.id}",
     }
 
 

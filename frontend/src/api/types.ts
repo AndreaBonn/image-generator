@@ -214,9 +214,10 @@ export interface DiskInfo {
   min_free_gb: number;
 }
 
-export type ModelStatus = "installed" | "missing" | "reused" | "reused-missing";
+export type ModelStatus = "installed" | "missing";
 
 export interface ModelInfo {
+  install_command?: string;
   id: string;
   label: string;
   family: string;

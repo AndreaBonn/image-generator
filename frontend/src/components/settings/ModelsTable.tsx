@@ -81,7 +81,7 @@ function ModelRow({
       {needsInstall ? (
         <tr className="border-b border-border/50">
           <td colSpan={4} className="py-1">
-            <InstallCommand command={`${installCommand} ${model.id}`} />
+            <InstallCommand command={model.install_command ?? `${installCommand} ${model.id}`} />
           </td>
         </tr>
       ) : null}

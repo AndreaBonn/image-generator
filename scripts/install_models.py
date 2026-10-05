@@ -19,7 +19,7 @@ import yaml
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 REGISTRY_PATH = REPO_ROOT / "config" / "models.yaml"
-DEFAULT_FOOOCUS_DIR = Path.home() / "Fooocus"
+MIGRATE_COMMAND = "uv run --script scripts/migrate_from_fooocus.py --apply"
 DEFAULT_MODELS_DIR = REPO_ROOT / "engine" / "models"
 DEFAULT_MIN_FREE_GB = 5.0
 GB = 1024**3
@@ -45,7 +45,6 @@ class ModelEntry:
 
 @dataclass(frozen=True)
 class Paths:
-    fooocus_dir: Path
     models_dir: Path
 
 
@@ -54,11 +53,9 @@ def load_registry(path: Path = REGISTRY_PATH) -> list[ModelEntry]:
     raw = yaml.safe_load(path.read_text(encoding="utf-8"))
     entries = [ModelEntry(**item) for item in raw["models"]]
     for entry in entries:
-        if entry.source not in ("fooocus", "huggingface"):
+        if entry.source not in ("local", "huggingface"):
             raise ValueError(f"Model {entry.id}: unknown source '{entry.source}'")
-        if entry.source == "huggingface" and not (
-            entry.repo and entry.repo_path and entry.sha256
-        ):
+        if entry.source == "huggingface" and not (entry.repo and entry.repo_path and entry.sha256):
             raise ValueError(
                 f"Model {entry.id}: huggingface entries need repo, repo_path and sha256"
             )
@@ -66,18 +63,13 @@ def load_registry(path: Path = REGISTRY_PATH) -> list[ModelEntry]:
 
 
 def target_path(entry: ModelEntry, paths: Paths) -> Path:
-    """Where the model file lives (Fooocus tree for reused models, MODELS_DIR otherwise)."""
-    base = (
-        paths.fooocus_dir / "models" if entry.source == "fooocus" else paths.models_dir
-    )
-    return base / entry.folder / entry.filename
+    """Return the model's location inside MODELS_DIR."""
+    return paths.models_dir / entry.folder / entry.filename
 
 
 def model_status(entry: ModelEntry, paths: Paths) -> str:
-    """One of: reused, reused-missing, installed, missing."""
+    """Return installed or missing for either model source."""
     exists = target_path(entry, paths).is_file()
-    if entry.source == "fooocus":
-        return "reused" if exists else "reused-missing"
     return "installed" if exists else "missing"
 
 
@@ -111,12 +103,17 @@ def print_listing(entries: list[ModelEntry], paths: Paths) -> None:
         enabled = "yes" if entry.enabled else "no"
         status = model_status(entry, paths)
         print(
-            f"{entry.id:<22} {entry.family:<12} {status:<15} {size:>6}  {enabled:<7}  {entry.license}"
+            f"{entry.id:<22} {entry.family:<12} {status:<15} "
+            f"{size:>6}  {enabled:<7}  {entry.license}"
         )
+        if entry.source == "local" and status == "missing":
+            print(f"  Modello locale mancante. Esegui {MIGRATE_COMMAND}.")
 
 
 def download(entry: ModelEntry, paths: Paths, min_free_gb: float) -> None:
     """Download one huggingface entry, verify sha256, then move it into place atomically."""
+    if entry.source == "local":
+        raise SystemExit(f"{entry.id}: modello locale, usa la migrazione: {MIGRATE_COMMAND}")
     from huggingface_hub import hf_hub_download
 
     destination = target_path(entry, paths)
@@ -124,9 +121,7 @@ def download(entry: ModelEntry, paths: Paths, min_free_gb: float) -> None:
         print(f"{entry.id}: already installed at {destination}")
         return
     free = shutil.disk_usage(paths.models_dir).free
-    if not has_room(
-        free_bytes=free, size_bytes=entry.size_bytes, min_free_gb=min_free_gb
-    ):
+    if not has_room(free_bytes=free, size_bytes=entry.size_bytes, min_free_gb=min_free_gb):
         raise SystemExit(
             f"{entry.id}: not enough space. Free {free / GB:.1f} GB, needed "
             f"{entry.size_bytes / GB:.2f} GB + {min_free_gb:.0f} GB margin. Nothing was downloaded."
@@ -147,10 +142,8 @@ def download(entry: ModelEntry, paths: Paths, min_free_gb: float) -> None:
 
 
 def remove(entry: ModelEntry, paths: Paths, assume_yes: bool) -> None:
-    if entry.source == "fooocus":
-        raise SystemExit(
-            f"{entry.id}: reused from Fooocus, never removed by this script"
-        )
+    if entry.source == "local":
+        raise SystemExit(f"{entry.id}: modello locale, rimozione non consentita da questo script.")
     destination = target_path(entry, paths)
     if not destination.is_file():
         print(f"{entry.id}: not installed")
@@ -168,15 +161,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("--list", action="store_true", help="show status of every model")
-    group.add_argument(
-        "--install", nargs="+", metavar="ID", help="download the given models"
-    )
+    group.add_argument("--install", nargs="+", metavar="ID", help="download the given models")
     group.add_argument(
         "--install-enabled", action="store_true", help="download every enabled model"
     )
-    group.add_argument(
-        "--remove", nargs="+", metavar="ID", help="delete the given models"
-    )
+    group.add_argument("--remove", nargs="+", metavar="ID", help="delete the given models")
     parser.add_argument(
         "--yes", action="store_true", help="do not ask for confirmation on --remove"
     )
@@ -186,7 +175,6 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     paths = Paths(
-        fooocus_dir=Path(os.environ.get("FOOOCUS_DIR", DEFAULT_FOOOCUS_DIR)),
         models_dir=Path(os.environ.get("MODELS_DIR", DEFAULT_MODELS_DIR)),
     )
     paths.models_dir.mkdir(parents=True, exist_ok=True)
@@ -201,15 +189,10 @@ def main(argv: list[str] | None = None) -> int:
             else [e for e in entries if e.enabled and e.source == "huggingface"]
         )
         for entry in selected:
-            if entry.source == "fooocus":
-                print(f"{entry.id}: reused from Fooocus, nothing to download")
-                continue
             download(entry=entry, paths=paths, min_free_gb=min_free_gb)
     else:
         for model_id in args.remove:
-            remove(
-                entry=find_entry(entries, model_id), paths=paths, assume_yes=args.yes
-            )
+            remove(entry=find_entry(entries, model_id), paths=paths, assume_yes=args.yes)
     return 0
 
 
