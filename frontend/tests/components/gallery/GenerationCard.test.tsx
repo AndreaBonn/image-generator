@@ -6,6 +6,25 @@ import { thumbnailUrl } from "@/api/queries";
 import { buildGenerationSummary } from "../../fixtures/generation";
 
 describe("GenerationCard", () => {
+  it("shows a checkerboard behind the image for background removal", () => {
+    const generation = buildGenerationSummary({ task_id: "rimuovi_sfondo" });
+
+    const { container } = render(<GenerationCard generation={generation} onOpen={vi.fn()} />);
+
+    const checkerboard = container.querySelector(".bg-checkerboard");
+    expect(checkerboard).not.toBeNull();
+    expect(checkerboard).toContainElement(screen.getByRole("img"));
+  });
+
+  it("does not show a checkerboard behind the image for quality generation", () => {
+    const generation = buildGenerationSummary({ task_id: "qualita" });
+
+    const { container } = render(<GenerationCard generation={generation} onOpen={vi.fn()} />);
+
+    expect(screen.getByRole("img")).toBeInTheDocument();
+    expect(container.querySelector(".bg-checkerboard")).toBeNull();
+  });
+
   it("uses the generation's own thumbnail_url when present", () => {
     const generation = buildGenerationSummary({
       id: "gen-1",

@@ -53,6 +53,26 @@ describe("GenerationDetailDialog", () => {
     vi.restoreAllMocks();
   });
 
+  it("shows a checkerboard behind the image for background removal", async () => {
+    vi.spyOn(queries, "fetchGeneration").mockResolvedValue(buildGeneration({ task_id: "rimuovi_sfondo" }));
+
+    const { container } = renderDialog();
+
+    const img = await screen.findByRole("img");
+    const checkerboard = container.querySelector(".bg-checkerboard");
+    expect(checkerboard).not.toBeNull();
+    expect(checkerboard).toContainElement(img);
+  });
+
+  it("does not show a checkerboard behind the image for quality generation", async () => {
+    vi.spyOn(queries, "fetchGeneration").mockResolvedValue(buildGeneration({ task_id: "qualita" }));
+
+    const { container } = renderDialog();
+
+    expect(await screen.findByRole("img")).toBeInTheDocument();
+    expect(container.querySelector(".bg-checkerboard")).toBeNull();
+  });
+
   it("shows a loading message while the detail is being fetched", async () => {
     vi.spyOn(queries, "fetchGeneration").mockReturnValue(new Promise(() => {}));
 

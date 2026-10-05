@@ -25,6 +25,34 @@ describe("TrashView", () => {
     vi.restoreAllMocks();
   });
 
+  it("shows a checkerboard behind the image for background removal", async () => {
+    vi.spyOn(queries, "fetchGenerations").mockResolvedValue({
+      items: [buildGenerationSummary({ task_id: "rimuovi_sfondo" })],
+      meta: meta({ total: 1, total_pages: 1 }),
+    });
+    vi.spyOn(queries, "fetchTrashSummary").mockResolvedValue({ count: 1, bytes: 1024 });
+
+    const { container } = renderTrashView();
+
+    const img = await screen.findByRole("img");
+    const checkerboard = container.querySelector(".bg-checkerboard");
+    expect(checkerboard).not.toBeNull();
+    expect(checkerboard).toContainElement(img);
+  });
+
+  it("does not show a checkerboard behind the image for quality generation", async () => {
+    vi.spyOn(queries, "fetchGenerations").mockResolvedValue({
+      items: [buildGenerationSummary({ task_id: "qualita" })],
+      meta: meta({ total: 1, total_pages: 1 }),
+    });
+    vi.spyOn(queries, "fetchTrashSummary").mockResolvedValue({ count: 1, bytes: 1024 });
+
+    const { container } = renderTrashView();
+
+    expect(await screen.findByRole("img")).toBeInTheDocument();
+    expect(container.querySelector(".bg-checkerboard")).toBeNull();
+  });
+
   it("shows a fetch error and reloads the trash when retry is clicked", async () => {
     const fetchSpy = vi.spyOn(queries, "fetchGenerations")
       .mockRejectedValueOnce(new Error("network down"))
