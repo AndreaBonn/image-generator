@@ -43,6 +43,16 @@ Per vedere quali modelli sono presenti e quanto spazio serve: `uv run --script s
 
 ## Avvio
 
+Dal menu delle applicazioni (consigliato). Una volta sola, dalla cartella del progetto:
+
+```bash
+./scripts/install_launcher.sh
+```
+
+Nel menu compaiono **Image Generator**, che avvia app e motore e apre una finestra dedicata, e **Chiudi Image Generator**, che li ferma e libera la memoria della scheda video. Per toglierle: `./scripts/install_launcher.sh --uninstall`.
+
+Dal terminale:
+
 ```bash
 ./scripts/start.sh
 ```
