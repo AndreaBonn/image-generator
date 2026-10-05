@@ -6,7 +6,7 @@ from app.models.task import Scalar, TaskDefinition
 from app.services.style_service import StyleService
 from app.services.task_catalog import TaskCatalog
 
-GENERATION_TASKS = frozenset({"bozza", "qualita", "testo"})
+GENERATION_TASKS = frozenset({"bozza", "qualita", "testo", "foto"})
 IMAGE_TASKS = frozenset(
     {
         "inpaint",

@@ -131,18 +131,29 @@ tasks:
   - <<: *sdxl
     id: foto
     label: Foto realistica
-    description: Realizza fotografie naturali con il modello Z-Image, se installato.
+    description: Realizza fotografie naturali e credibili, anche di persone.
     family: zimage
     workflow: zimage_txt2img.json
     model_ids: [zimage_turbo, zimage_vae, qwen3_4b_fp4]
-    bindings: {}
+    bindings:
+      prompt: ['@prompt_pos.text']
+      seed: ['@sampler.seed']
+      steps: ['@sampler.steps']
+      cfg: ['@sampler.cfg']
+      width: ['@latent.width']
+      height: ['@latent.height']
+      batch: ['@latent.batch_size']
     defaults: {prompt: '', steps: 8, cfg: 1.0, seed: null, batch: 1, aspect_ratio: '1152*896'}
+    limits:
+      <<: *sdxl_limits
+      steps: {min: 6, max: 12}
+      cfg: {min: 1, max: 1.5}
     supports_styles: false
     supports_negative: false
     prompt_language:
-      required: en
-      label: Inglese consigliato
-      reason: Questo modello capisce anche altre lingue, ma l'italiano non è ancora stato provato.
+      required: any
+      label: Italiano o inglese
+      reason: Questo modello capisce bene sia l'italiano sia l'inglese.
     prompt_tips:
       - Describe natural light, camera distance and the main subject.
       - Use concrete details about materials and surroundings.

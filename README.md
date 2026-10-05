@@ -11,6 +11,7 @@ Funziona senza internet una volta installata, e le immagini restano sul computer
 | Crea | Bozza veloce | SDXL Juggernaut + Lightning | 4 s |
 | Crea | Immagine di qualità | SDXL Juggernaut | 30 s |
 | Crea | Testo nell'immagine e scene complesse | FLUX.2 klein 4B | 9 s |
+| Crea | Foto realistica, anche di persone | Z-Image Turbo | 17 s |
 | Modifica | Rigenerare la zona disegnata con il pennello | SDXL + inpaint di Fooocus | 30 s |
 | Modifica | Allargare l'immagine verso uno o più lati | SDXL + inpaint di Fooocus | 30 s |
 | Migliora | Variazione leggera o forte di un'immagine | SDXL | 15-30 s |
@@ -82,7 +83,7 @@ L'app ascolta solo su questo computer (`127.0.0.1`): non è raggiungibile da alt
 
 ## Aggiungere un modello
 
-I modelli sono elencati in `config/models.yaml` e i lavori in `config/tasks.yaml`. Il lavoro "Foto realistica" con Z-Image Turbo è già previsto ma disattivato: serve installare il modello (`uv run --script scripts/install_models.py --install zimage_turbo zimage_vae`) e aggiungere il suo schema in `workflows/zimage_txt2img.json`.
+I modelli sono elencati in `config/models.yaml`, i lavori in `config/tasks.yaml` e gli schemi del motore in `workflows/`. Un lavoro nuovo richiede la sua voce in `tasks.yaml`, lo schema in `workflows/` e i modelli registrati e installati con `scripts/install_models.py`.
 
 ## Licenze dei modelli
 

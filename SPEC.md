@@ -102,7 +102,7 @@ Ogni compito appartiene a una **famiglia di modello**: l'insieme dei pesi che il
 | `bozza` | Bozza veloce | Juggernaut XL v8 + LoRA SDXL-Lightning 4-step | 4 step, CFG 1.0, sampler `euler`, scheduler `sgm_uniform` | Inglese |
 | `qualita` | Immagine di qualità | Juggernaut XL v8 + offset LoRA 0.1 | 30 step, CFG 4.0, sampler `dpmpp_2m_sde_gpu`, scheduler `karras` (default Fooocus "Speed") | Inglese |
 | `testo` | Testo nell'immagine e prompt complessi | FLUX.2 [klein] 4B distilled fp8 | 4 step, CFG 1.0, sampler `euler` con `Flux2Scheduler` (grafo del template ufficiale distilled: `CFGGuider`, negativo azzerato con `ConditioningZeroOut`, nessun prompt negativo) | Inglese consigliato; italiano **DA VERIFICARE** in Fase 0 |
-| `foto` | Foto realistica | Z-Image Turbo fp8, **solo se installato** (§ 6) | 8 step, CFG 1.0, sampler **DA VERIFICARE** in Fase 0 | Inglese; italiano **DA VERIFICARE** |
+| `foto` | Foto realistica | Z-Image Turbo int8 (attivo da v1.1), text encoder Qwen3-4B fp4 condiviso con FLUX.2 klein (`CLIPLoader` tipo `lumina2`), grafo del template ufficiale | 8 step, CFG 1.0, sampler `res_multistep`, scheduler `simple`, `ModelSamplingAuraFlow` shift 3; misurato 21 s a freddo, 17 s a regime, 7,5 GB di picco a 1152×896 | Italiano o inglese (provato: segue un prompt italiano) |
 
 Note:
 - `bozza` e `qualita` condividono il checkpoint: passare dall'uno all'altro non ricarica il modello.
@@ -347,8 +347,8 @@ Conseguenza sul catalogo: il compito del candidato scartato resta in `tasks.yaml
 | FLUX.2 [klein] 4B distilled fp8 | `flux-2-klein-4b-fp8.safetensors` ([black-forest-labs/FLUX.2-klein-4b-fp8](https://huggingface.co/black-forest-labs/FLUX.2-klein-4b-fp8)) | `diffusion_models` | 4,07 | Apache 2.0 (da fonte secondaria, rileggere la model card) | candidato A |
 | Text encoder Qwen3-4B fp4 | `qwen_3_4b_fp4_flux2.safetensors` ([Comfy-Org/vae-text-encorder-for-flux-klein-4b](https://huggingface.co/Comfy-Org/vae-text-encorder-for-flux-klein-4b)) | `text_encoders` | 3,85 | Apache 2.0 (Qwen3) | serve ad A e a B |
 | VAE FLUX.2 | `flux2-vae.safetensors` | `vae` | 0,34 | come FLUX.2 | serve ad A |
-| Z-Image Turbo int8 | `z_image_turbo_int8_convrot.safetensors` ([Comfy-Org/z_image_turbo](https://huggingface.co/Comfy-Org/z_image_turbo), ufficiale) | `diffusion_models` | 6,2 | Apache 2.0 (da fonte secondaria) | candidato B |
-| VAE Z-Image | `ae.safetensors` ([Comfy-Org/z_image_turbo](https://huggingface.co/Comfy-Org/z_image_turbo)) | `vae` | 0,34 | Apache 2.0 | serve a B; verificare se identico al VAE FLUX.2 |
+| Z-Image Turbo int8 | `z_image_turbo_int8_convrot.safetensors` ([Comfy-Org/z_image_turbo](https://huggingface.co/Comfy-Org/z_image_turbo), ufficiale) | `diffusion_models` | 6,2 | Apache 2.0 (da fonte secondaria) | attivo (v1.1) |
+| VAE Z-Image | `ae.safetensors` ([Comfy-Org/z_image_turbo](https://huggingface.co/Comfy-Org/z_image_turbo)) | `vae` | 0,34 | Apache 2.0 | attivo (v1.1) |
 | BiRefNet (v1.1) | `birefnet.safetensors` ([Comfy-Org/BiRefNet](https://huggingface.co/Comfy-Org/BiRefNet)) | `background_removal` | 0,44 | MIT | attivo |
 
 **Non usare FLUX.2 [klein] 9B**: licenza non commerciale BFL.
@@ -687,7 +687,7 @@ Ogni fase lascia il sistema usabile anche se la successiva non arriva. Ogni pass
 | Q1 | FLUX.2 klein o Z-Image come modello nuovo | 0, decisione dell'utente sul benchmark |
 | Q2 | Qualità dei prompt in italiano su FLUX.2 klein / Z-Image | 0 |
 | Q3 | Text encoder fp4 su GPU Ada (RTX 40): funziona, e a che velocità rispetto a fp8? Se non funziona, serve un encoder fp8, e il budget disco cambia | 0 |
-| Q4 | Sampler raccomandato per Z-Image Turbo e file fp8 da usare | 0, solo se si prova B |
+| Q4 | ~~Sampler raccomandato per Z-Image Turbo e file da usare~~ chiuso in v1.1: `res_multistep` + `simple`, file int8, encoder fp4 di FLUX.2 riusato | 0, solo se si prova B |
 | Q5 | Schema dei messaggi WebSocket e dei frame di anteprima | 1 |
 | Q6 | Testo di `execution_error` in caso di OOM | 0 |
 | Q7 | ~~Nomi delle classi di nodo di `comfyui-inpaint-nodes`~~ chiuso: `INPAINT_LoadFooocusInpaint`, `INPAINT_ApplyFooocusInpaint`, `INPAINT_VAEEncodeInpaintConditioning`, `INPAINT_ExpandMask`, `INPAINT_MaskedFill` | 0 |

@@ -136,10 +136,9 @@ def test_load_catalog_ratios_and_guidance(catalog_settings: Settings) -> None:
         assert len(task.prompt_examples) >= 2
         assert len(set(task.prompt_examples)) == len(task.prompt_examples)
         assert task.prompt_tips
-        # FLUX.2 klein handled Italian prompts in the phase 0 benchmark; SDXL lost detail.
-        expected = (
-            "any" if task.id in {"upscale", "testo", "modifica_libera", "rimuovi_sfondo"} else "en"
-        )
+        # FLUX.2 klein and Z-Image handled Italian prompts in real runs; SDXL lost detail.
+        italian_ok = {"upscale", "testo", "foto", "modifica_libera", "rimuovi_sfondo"}
+        expected = "any" if task.id in italian_ok else "en"
         assert task.prompt_language.required == expected
         if task.id not in {"upscale", "rimuovi_sfondo"}:
             assert len(task.aspect_ratios) == 26

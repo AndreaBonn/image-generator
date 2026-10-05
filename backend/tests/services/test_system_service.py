@@ -27,7 +27,7 @@ def test_model_status_covers_downloaded_and_local_models(tmp_path: Path) -> None
         result = model_status(model=model, catalog=catalog)
         assert result["status"] == installed and result["size_gb"] > 0
         assert result["license"] == model.license and result["enabled"] == model.enabled
-    assert model_status(model=catalog.models["zimage_turbo"], catalog=catalog)["enabled"] is False
+    assert model_status(model=catalog.models["qwen3_4b_bf16"], catalog=catalog)["enabled"] is False
 
 
 def test_gpu_status_none_without_a_gpu_device(monkeypatch: pytest.MonkeyPatch) -> None:

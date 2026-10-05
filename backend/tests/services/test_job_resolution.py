@@ -68,11 +68,19 @@ def test_resolve_job_requires_image_for_inpaint() -> None:
     assert error.value.details[0]["field"] == "input_upload_id"
 
 
-def test_resolve_job_rejects_task_present_in_catalog_but_not_yet_supported() -> None:
-    # "foto" is declared in config/tasks.yaml but is not in job_resolution.SUPPORTED_TASKS.
+def test_resolve_job_foto_uses_zimage_defaults() -> None:
+    result = resolve({"task_id": "foto", "prompt": "cat", "params": {"seed": 5}})
+
+    assert result.task.family == "zimage"
+    assert (result.params.steps, result.params.cfg) == (8, 1.0)
+    assert (result.params.width, result.params.height) == (1152, 896)
+    assert result.prompt_final == "cat"
+
+
+def test_resolve_job_foto_requires_a_prompt() -> None:
     with pytest.raises(ValidationError) as error:
-        resolve({"task_id": "foto", "prompt": "cat"})
-    assert error.value.message == "Questo compito non è ancora supportato."
+        resolve({"task_id": "foto", "prompt": "  "})
+    assert error.value.details[0]["field"] == "prompt"
 
 
 def test_resolve_job_rejects_both_upload_and_generation_source() -> None:
