@@ -3,6 +3,7 @@ import logging
 from collections.abc import AsyncGenerator
 from dataclasses import replace
 from unittest.mock import AsyncMock
+from uuid import uuid4
 
 import pytest
 from test_jobs import JobApp, wait_terminal
@@ -12,6 +13,17 @@ from app.api.v1.jobs import get_engine
 from app.engine.fake_engine import FakeEngine
 from app.engine.types import EngineEvent, EngineRequest, Interrupted, Queued, Started
 from app.errors import EngineUnavailableError
+from app.services.job_service import JobService
+
+
+async def test_cancel_job_unknown_id_returns_not_found(job_app: JobApp) -> None:
+    _, client = job_app
+    job_id = uuid4()
+
+    response = await client.post(url=f"/api/v1/jobs/{job_id}/cancel")
+
+    assert response.status_code == 404
+    assert response.json()["error"]["code"] == "NOT_FOUND"
 
 
 class PausedEngine(FakeEngine):
@@ -63,23 +75,28 @@ async def test_cancel_internal_queue_never_interrupts_active_job(job_app: JobApp
 
 async def test_cancel_running_holds_serialization_until_interrupt_finishes(job_app: JobApp) -> None:
     application, client = job_app
+    service: JobService = application.state.job_service
     engine = PausedEngine()
     application.dependency_overrides[get_engine] = lambda: engine
-    first = await client.post("/api/v1/jobs", json={"task_id": "bozza", "prompt": "first"})
+    first = await client.post(url="/api/v1/jobs", json={"task_id": "bozza", "prompt": "first"})
     await engine.entered.wait()
-    second = await client.post("/api/v1/jobs", json={"task_id": "bozza", "prompt": "second"})
+    second = await client.post(url="/api/v1/jobs", json={"task_id": "bozza", "prompt": "second"})
     job_id = first.json()["data"]["job_id"]
-    cancellation = asyncio.create_task(client.post(f"/api/v1/jobs/{job_id}/cancel"))
+    first_task = service.runs[job_id].task
+    second_task = service.runs[second.json()["data"]["job_id"]].task
+    assert first_task is not None and second_task is not None
+    cancellation = asyncio.create_task(coro=client.post(url=f"/api/v1/jobs/{job_id}/cancel"))
     await engine.stop_entered.wait()
-    await asyncio.sleep(delay=0.05)
     try:
         assert engine.calls == 1
     finally:
         engine.allow_stop.set()
         engine.release.set()
         await cancellation
-    assert (await client.get(f"/api/v1/jobs/{job_id}")).json()["data"]["status"] == "cancelled"
-    assert (await wait_terminal(client=client, job_id=second.json()["data"]["job_id"]))[
+    await asyncio.gather(first_task, second_task)
+    assert engine.calls == 2
+    assert (await client.get(url=f"/api/v1/jobs/{job_id}")).json()["data"]["status"] == "cancelled"
+    assert (await client.get(url=f"/api/v1/jobs/{second.json()['data']['job_id']}")).json()["data"][
         "status"
     ] == "completed"
 

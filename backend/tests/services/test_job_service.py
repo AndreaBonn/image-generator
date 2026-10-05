@@ -1,3 +1,4 @@
+import asyncio
 from collections.abc import AsyncIterator
 from pathlib import Path
 
@@ -39,4 +40,33 @@ async def test_cancel_finishes_a_tracked_run_that_has_no_task_yet(
     result = await job_service.cancel(job_id=run.id)
 
     assert result["status"] == "cancelled"
+    assert run.id not in job_service.runs
+
+
+async def test_cancel_settles_a_run_whose_task_does_not_absorb_the_cancellation(
+    job_service: JobService,
+) -> None:
+    # The runner normally catches CancelledError and finishes the job itself; a task that
+    # lets the cancellation escape must still leave the job "cancelled", not stuck.
+    record, _ = job_service.repository.create(
+        request={"task_id": "bozza", "prompt": "cat"}, idempotency_key=None
+    )
+    resolved = job_service._resolve(request=JobRequest(task_id="bozza", prompt="cat"))
+    never = asyncio.Event()
+
+    async def wait_forever() -> None:
+        await never.wait()
+
+    run = JobRun(
+        id=record.id,
+        job=resolved,
+        engine=FakeEngine(step_delay_s=0),
+        task=asyncio.create_task(wait_forever()),
+    )
+    job_service.runs[run.id] = run
+
+    result = await job_service.cancel(job_id=run.id)
+
+    assert result["status"] == "cancelled"
+    assert run.task is not None and run.task.cancelled()
     assert run.id not in job_service.runs

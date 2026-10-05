@@ -88,6 +88,18 @@ async def test_client_server_error_on_prompt_is_engine_unavailable() -> None:
             await ComfyClient(http=http).queue_prompt(graph={}, client_id="c")
 
 
+@respx.mock
+async def test_view_client_error_is_reported_as_engine_unavailable() -> None:
+    # Only a 4xx on /prompt means the engine rejected the graph; elsewhere it is an engine fault.
+    respx.get(url=URL + "/view").respond(status_code=404, text="not found")
+
+    async with httpx.AsyncClient(base_url=URL) as http:
+        with pytest.raises(EngineUnavailableError):
+            await ComfyClient(http=http).view(
+                filename="image.png", subfolder="studio", type="output"
+            )
+
+
 @pytest.mark.parametrize("failure", [httpx.ConnectError, httpx.ReadTimeout])
 @respx.mock
 async def test_client_translates_transport_errors(failure: type[httpx.RequestError]) -> None:
