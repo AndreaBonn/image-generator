@@ -172,6 +172,125 @@ def test_symlinked_source_is_copied_not_moved(migration: ModuleType, tmp_path: P
     assert source.is_symlink() and real.read_bytes() == b"abc"
 
 
+def test_migrate_model_rejects_absolute_folder(migration: ModuleType, tmp_path: Path) -> None:
+    paths = migration.Paths(
+        fooocus_dir=tmp_path / "fooocus",
+        models_dir=tmp_path / "models",
+        styles_dir=tmp_path / "data" / "styles",
+    )
+    entry = {"folder": "/etc", "filename": "passwd", "size_bytes": 1, "sha256": "irrelevant"}
+    with pytest.raises(ValueError, match="non relativo"):
+        migration.migrate_model(entry=entry, paths=paths, apply=True)
+    assert not (tmp_path / "models").exists()
+
+
+def test_migrate_model_rejects_parent_traversal_in_filename(
+    migration: ModuleType, tmp_path: Path
+) -> None:
+    paths = migration.Paths(
+        fooocus_dir=tmp_path / "fooocus",
+        models_dir=tmp_path / "models",
+        styles_dir=tmp_path / "data" / "styles",
+    )
+    entry = {
+        "folder": "checkpoints",
+        "filename": "../../etc/passwd",
+        "size_bytes": 1,
+        "sha256": "irrelevant",
+    }
+    with pytest.raises(ValueError, match="non relativo"):
+        migration.migrate_model(entry=entry, paths=paths, apply=True)
+    assert not (tmp_path / "models").exists()
+
+
+def test_migrate_models_counts_path_traversal_as_error(
+    migration: ModuleType, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    registry_path = tmp_path / "models.yaml"
+    entries = [
+        {
+            "id": "bad-path",
+            "source": "local",
+            "folder": "checkpoints",
+            "filename": "../../etc/passwd",
+            "size_bytes": 1,
+            "sha256": "irrelevant",
+        }
+    ]
+    registry_path.write_text(yaml.safe_dump({"models": entries}), encoding="utf-8")
+    paths = migration.Paths(
+        fooocus_dir=tmp_path / "fooocus",
+        models_dir=tmp_path / "models",
+        styles_dir=tmp_path / "data" / "styles",
+    )
+    assert migration.migrate_models(paths=paths, apply=False) == 1
+    assert "percorso modello non relativo" in capsys.readouterr().out
+
+
+def test_migrate_models_skips_non_local_source(migration: ModuleType, tmp_path: Path) -> None:
+    registry_path = tmp_path / "models.yaml"
+    entries = [
+        {
+            "id": "remote-model",
+            "source": "remote",
+            "folder": "checkpoints",
+            "filename": "missing.bin",
+            "size_bytes": 1,
+            "sha256": "irrelevant",
+        }
+    ]
+    registry_path.write_text(yaml.safe_dump({"models": entries}), encoding="utf-8")
+    paths = migration.Paths(
+        fooocus_dir=tmp_path / "fooocus",
+        models_dir=tmp_path / "models",
+        styles_dir=tmp_path / "data" / "styles",
+    )
+    assert migration.migrate_models(paths=paths, apply=False) == 0
+
+
+def test_failed_rename_preserves_destination_replaced_by_another_process(
+    migration: ModuleType, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    source = tmp_path / "fooocus/models/checkpoints/demo.bin"
+    destination = tmp_path / "output.bin"
+
+    def fail_rename_after_replacement(*, src: Path, dst: Path) -> None:
+        # Simulates another process winning the race after the reservation
+        # was created: it replaces the reserved file with its own content
+        # before our os.rename fails.
+        dst.unlink()
+        dst.write_bytes(b"other-owner")
+        raise OSError("simulated rename failure, destination replaced")
+
+    monkeypatch.setattr(migration.os, "rename", fail_rename_after_replacement)
+    with pytest.raises(OSError, match="simulated"):
+        migration.publish_file(source=source, destination=destination)
+    assert destination.read_bytes() == b"other-owner"
+    assert source.read_bytes() == b"abc"
+
+
+def test_migrate_styles_missing_source_directory_reports_error(
+    migration: ModuleType, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    paths = migration.Paths(
+        fooocus_dir=tmp_path / "no-such-fooocus",
+        models_dir=tmp_path / "models",
+        styles_dir=tmp_path / "data" / "styles",
+    )
+    assert migration.migrate_styles(paths=paths, apply=False) == 1
+    assert "cartella stili sorgente mancante" in capsys.readouterr().out
+
+
+def test_main_reports_global_error_without_traceback(
+    migration: ModuleType, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    (tmp_path / "models.yaml").write_text("not: [valid", encoding="utf-8")
+    assert migration.main(argv=[]) == 1
+    captured = capsys.readouterr()
+    assert "Errore:" in captured.out
+    assert "Traceback" not in captured.out
+
+
 def test_orphan_temporary_files_from_an_interrupted_copy_are_removed(
     migration: ModuleType, tmp_path: Path
 ) -> None:
