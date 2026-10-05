@@ -1,8 +1,9 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { RecipeImport } from "@/components/create/RecipeImport";
+import { ApiError } from "@/api/errors";
 import * as queries from "@/api/queries";
 import { buildTask } from "../../fixtures/task";
 import type { RecipeImportPatch } from "@/lib/recipeImport";
@@ -40,9 +41,84 @@ async function uploadPng() {
   await userEvent.upload(screen.getByLabelText("Importa da immagine"), file);
 }
 
+function dropZone() {
+  // The prompt child sits directly inside the wrapper handling drag and drop.
+  return screen.getByText("prompt area").parentElement as HTMLElement;
+}
+
+function dataTransferWith(file: File) {
+  return { files: [file] } as unknown as DataTransfer;
+}
+
 describe("RecipeImport", () => {
   afterEach(() => {
     vi.restoreAllMocks();
+  });
+
+  it("shows the API error message in an alert when the upload fails", async () => {
+    vi.spyOn(queries, "uploadFile").mockRejectedValue(new ApiError({
+      code: "PAYLOAD_TOO_LARGE",
+      message: "Immagine troppo grande.",
+      status: 413,
+    }));
+    renderRecipeImport(vi.fn());
+
+    await uploadPng();
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(/^Immagine troppo grande\.$/);
+  });
+
+  it("shows the fallback alert when the upload fails with a generic error", async () => {
+    vi.spyOn(queries, "uploadFile").mockRejectedValue(new Error("network down"));
+    renderRecipeImport(vi.fn());
+
+    await uploadPng();
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(/^Impossibile leggere l'immagine\.$/);
+  });
+
+  it("disables the import button and shows progress while the upload is pending", async () => {
+    vi.spyOn(queries, "uploadFile").mockReturnValue(new Promise(() => {}));
+    renderRecipeImport(vi.fn());
+    expect(screen.getByRole("button", { name: "Importa da immagine" })).toBeEnabled();
+
+    await uploadPng();
+
+    const button = await screen.findByRole("button", { name: "Importazione..." });
+    expect(button).toBeDisabled();
+  });
+
+  it("imports settings from a valid PNG dropped on the prompt area", async () => {
+    vi.spyOn(queries, "uploadFile").mockResolvedValue({
+      upload_id: "upload-1", width: 1152, height: 896, recipe: buildRecipe(),
+    });
+    vi.spyOn(queries, "fetchStyles").mockResolvedValue([]);
+    const onApply = vi.fn();
+    renderRecipeImport(onApply);
+    const file = new File(["fake-png-bytes"], "recipe.png", { type: "image/png" });
+
+    fireEvent.drop(dropZone(), { dataTransfer: dataTransferWith(file) });
+
+    expect(await screen.findByText("Impostazioni importate dall'immagine.")).toBeInTheDocument();
+    expect(onApply).toHaveBeenCalledTimes(1);
+    expect(onApply).toHaveBeenCalledWith(expect.objectContaining({
+      taskId: "qualita", prompt: "portrait of an old fisherman, golden hour",
+      seed: 42, aspectRatio: "1152*896",
+    }));
+  });
+
+  it("highlights the prompt area on drag over and clears the highlight on drag leave", () => {
+    renderRecipeImport(vi.fn());
+    const zone = dropZone();
+
+    fireEvent.dragOver(zone);
+
+    expect(zone).toHaveClass("ring-2", "ring-accent");
+
+    fireEvent.dragLeave(zone);
+
+    expect(zone).not.toHaveClass("ring-2");
+    expect(zone).not.toHaveClass("ring-accent");
   });
 
   it("uploads the PNG with kind=image via POST /api/v1/uploads", async () => {

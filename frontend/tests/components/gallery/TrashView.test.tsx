@@ -25,6 +25,52 @@ describe("TrashView", () => {
     vi.restoreAllMocks();
   });
 
+  it("shows a fetch error and reloads the trash when retry is clicked", async () => {
+    const fetchSpy = vi.spyOn(queries, "fetchGenerations")
+      .mockRejectedValueOnce(new Error("network down"))
+      .mockResolvedValueOnce({
+        items: [buildGenerationSummary({ prompt: "Immagine recuperata" })],
+        meta: meta({ total: 1, total_pages: 1 }),
+      });
+    vi.spyOn(queries, "fetchTrashSummary").mockResolvedValue({ count: 1, bytes: 1024 });
+    renderTrashView();
+
+    expect(await screen.findByText("Impossibile caricare il cestino.")).toBeVisible();
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+    await userEvent.click(screen.getByRole("button", { name: "Riprova" }));
+
+    expect(await screen.findByAltText("Immagine recuperata")).toBeVisible();
+    expect(fetchSpy).toHaveBeenCalledTimes(2);
+    expect(fetchSpy).toHaveBeenLastCalledWith(expect.objectContaining({ page: 1, trashed: true }));
+    expect(screen.queryByText("Impossibile caricare il cestino.")).not.toBeInTheDocument();
+  });
+
+  it("loads the next page and keeps both pages visible when more images are requested", async () => {
+    const fetchSpy = vi.spyOn(queries, "fetchGenerations")
+      .mockResolvedValueOnce({
+        items: [buildGenerationSummary({ id: "gen-1", prompt: "Prima immagine" })],
+        meta: meta({ page: 1, total: 2, total_pages: 2 }),
+      })
+      .mockResolvedValueOnce({
+        items: [buildGenerationSummary({ id: "gen-2", prompt: "Seconda immagine" })],
+        meta: meta({ page: 2, total: 2, total_pages: 2 }),
+      });
+    vi.spyOn(queries, "fetchTrashSummary").mockResolvedValue({ count: 2, bytes: 2048 });
+    renderTrashView();
+
+    expect(await screen.findByAltText("Prima immagine")).toBeVisible();
+    const button = await screen.findByRole("button", { name: "Carica altre immagini" });
+    expect(button).toBeVisible();
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+    await userEvent.click(button);
+
+    expect(await screen.findByAltText("Seconda immagine")).toBeVisible();
+    expect(screen.getByAltText("Prima immagine")).toBeVisible();
+    expect(fetchSpy).toHaveBeenCalledTimes(2);
+    expect(fetchSpy).toHaveBeenLastCalledWith(expect.objectContaining({ page: 2, trashed: true }));
+    expect(screen.queryByRole("button", { name: "Carica altre immagini" })).not.toBeInTheDocument();
+  });
+
   it("lists trashed items by calling fetchGenerations with trashed=true", async () => {
     const fetchGenerationsSpy = vi.spyOn(queries, "fetchGenerations").mockResolvedValue({
       items: [buildGenerationSummary({ id: "gen-1", prompt: "portrait of an old fisherman" })],

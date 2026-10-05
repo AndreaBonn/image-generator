@@ -17,6 +17,47 @@ function renderCreatePage() {
   );
 }
 
+describe("CreatePage recipe import", () => {
+  beforeEach(() => {
+    installMockEventSource();
+    vi.spyOn(queries, "fetchTasks").mockResolvedValue([
+      buildTask({ id: "bozza", label: "Bozza veloce" }),
+      buildTask(),
+    ]);
+    vi.spyOn(queries, "fetchStyles").mockResolvedValue([]);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("applies the imported prompt, task and seed from an uploaded recipe", async () => {
+    const uploadFile = vi.spyOn(queries, "uploadFile").mockResolvedValue({
+      upload_id: "up-recipe",
+      width: 1024,
+      height: 1024,
+      recipe: {
+        task_id: "qualita",
+        prompt: "a lighthouse at dusk",
+        negative_prompt: "blur",
+        params: { aspect_ratio: "1024*1024", seed: 12345, style_ids: [], steps: 30, cfg: 4 },
+      },
+    });
+    renderCreatePage();
+
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: /^Bozza veloce/ })).toHaveAttribute("aria-pressed", "true"),
+    );
+    const file = new File(["png"], "recipe.png", { type: "image/png" });
+    await userEvent.upload(screen.getByLabelText("Importa da immagine"), file);
+
+    await waitFor(() => expect(screen.getByLabelText("Descrizione")).toHaveValue("a lighthouse at dusk"));
+    expect(uploadFile).toHaveBeenCalledWith(file, "image");
+    expect(screen.getByRole("button", { name: /^Immagine di qualità/ })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByLabelText("Seed")).toHaveValue(12345);
+  });
+});
+
 describe("CreatePage generation error", () => {
   beforeEach(() => {
     installMockEventSource();

@@ -5,6 +5,7 @@ import {
   clearEngineOutput,
   createJob,
   deleteGeneration,
+  emptyTrash,
   fetchGeneration,
   fetchGenerations,
   fetchHealth,
@@ -13,12 +14,13 @@ import {
   fetchTasks,
   imageUrl,
   rerunGeneration,
+  restoreGeneration,
   setFavorite,
   thumbnailUrl,
   uploadFile,
 } from "@/api/queries";
 import { ApiError } from "@/api/errors";
-import type { CreateJobBody } from "@/api/types";
+import type { CreateJobBody, Generation } from "@/api/types";
 
 /** Successful `{"data": ...}` envelope (SPEC.md § 7.2). */
 function okJson(data: unknown, meta?: unknown) {
@@ -289,6 +291,42 @@ describe("api/queries", () => {
     expect(lastCall().url).toBe("/api/v1/generations/gen-1");
     expect(lastCall().options.method).toBe("DELETE");
     expect(result).toBeUndefined();
+  });
+
+  it("restoreGeneration: POSTs /api/v1/generations/{id}/restore", async () => {
+    const generation: Generation = {
+      id: "gen-1",
+      job_id: "job-1",
+      task_id: "qualita",
+      model_ids: ["juggernaut-xl-v8"],
+      prompt: "portrait",
+      negative_prompt: "",
+      prompt_final: "portrait",
+      params: {},
+      seed: 42,
+      width: 1152,
+      height: 896,
+      parent_id: null,
+      duration_ms: 5000,
+      favorite: false,
+      created_at: "2026-10-01T10:00:00Z",
+      updated_at: "2026-10-01T10:00:00Z",
+    };
+    global.fetch = vi.fn().mockResolvedValue(okJson(generation));
+    const result = await restoreGeneration("gen-1");
+    expect(lastCall().url).toBe("/api/v1/generations/gen-1/restore");
+    expect(lastCall().options.method).toBe("POST");
+    expect(lastCall().options.body).toBeUndefined();
+    expect(result).toEqual(generation);
+  });
+
+  it("emptyTrash: POSTs /api/v1/generations/trash/empty", async () => {
+    global.fetch = vi.fn().mockResolvedValue(okJson({ purged: 3, freed_bytes: 102400 }));
+    const result = await emptyTrash();
+    expect(lastCall().url).toBe("/api/v1/generations/trash/empty");
+    expect(lastCall().options.method).toBe("POST");
+    expect(lastCall().options.body).toBeUndefined();
+    expect(result).toEqual({ purged: 3, freed_bytes: 102400 });
   });
 
   it("rerunGeneration: POSTs new_seed and an Idempotency-Key", async () => {

@@ -475,6 +475,22 @@ describe("ImprovePage - rimuovi lo sfondo e ingrandisci con rifinitura", () => {
     );
   });
 
+  it("blocks a refined upscale whose prompt is longer than 2000 characters", async () => {
+    vi.spyOn(queries, "fetchTasks").mockResolvedValue(allImproveTasks());
+    const createJob = vi.spyOn(queries, "createJob");
+    renderImprovePage();
+    await screen.findByRole("button", { name: "Ingrandisci con rifinitura" });
+    await uploadImage();
+
+    fireEvent.change(screen.getByLabelText("Descrizione per la rifinitura (facoltativa)"), {
+      target: { value: "a".repeat(2001) },
+    });
+    await userEvent.click(screen.getByRole("button", { name: "Ingrandisci con rifinitura" }));
+
+    expect(await screen.findByText("Il prompt supera i 2000 caratteri.")).toBeInTheDocument();
+    expect(createJob).not.toHaveBeenCalled();
+  });
+
   it("disables ingrandisci con rifinitura with the catalog reason when unavailable", async () => {
     const tasks = allImproveTasks().map((t) =>
       t.id === "ingrandisci_rifinito"
