@@ -29,3 +29,28 @@ def test_gpu_processes_returns_empty_on_boundary_failure(
 
     monkeypatch.setattr(subprocess, "run", run)
     assert gpu_processes() == []
+
+
+def test_gpu_processes_success_returns_parsed_external_processes(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def run(**kwargs: Any) -> subprocess.CompletedProcess[str]:
+        return subprocess.CompletedProcess(
+            args=kwargs["args"],
+            returncode=0,
+            stdout=(
+                "8123, /usr/bin/blender, 1536\n"
+                "8124, /opt/engine/ComfyUI/main.py, 4096\n"
+                "8125, /usr/bin/python3, 64\n"
+            ),
+            stderr="",
+        )
+
+    monkeypatch.setattr(target=subprocess, name="run", value=run)
+
+    result = gpu_processes()
+
+    assert result == [
+        {"name": "/usr/bin/blender", "used_mb": 1536},
+        {"name": "/usr/bin/python3", "used_mb": 64},
+    ]
