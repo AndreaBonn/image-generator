@@ -75,6 +75,36 @@ def test_cleanup_never_unlinks_external_symlink_target(tmp_path: Path) -> None:
     database.close()
 
 
+def test_cleanup_keeps_the_record_of_an_unsafe_expired_upload_and_logs_it(
+    tmp_path: Path, caplog: pytest.LogCaptureFixture
+) -> None:
+    # Unsafe paths are left untouched, record included, so the upload stays traceable and
+    # the warning repeats at every startup until someone looks at it.
+    data_dir = tmp_path / "data"
+    database = Database(data_dir=data_dir)
+    database.migrate()
+    repository = UploadRepository(database=database)
+    service = UploadService(repository=repository, data_dir=data_dir)
+    unsafe, safe = create_upload(service=service), create_upload(service=service)
+    with database.sessions.begin() as session:
+        for record in (unsafe, safe):
+            stored = session.get(entity=UploadRecord, ident=record.id)
+            assert stored is not None
+            stored.created_at = utc_now() - timedelta(days=8)
+        unsafe_row = session.get(entity=UploadRecord, ident=unsafe.id)
+        assert unsafe_row is not None
+        unsafe_row.path = "../outside.png"
+
+    with caplog.at_level(level="WARNING"):
+        service.cleanup()
+
+    with database.sessions() as session:
+        assert session.get(entity=UploadRecord, ident=unsafe.id) is not None
+        assert session.get(entity=UploadRecord, ident=safe.id) is None
+    assert f"Skipping unsafe expired upload path: id={unsafe.id}" in caplog.text
+    database.close()
+
+
 def test_upload_failed_transaction_removes_written_file(tmp_path: Path) -> None:
     database = Database(data_dir=tmp_path)
     service = UploadService(repository=UploadRepository(database=database), data_dir=tmp_path)
