@@ -27,28 +27,54 @@ Funziona senza internet una volta installata, e le immagini restano sul computer
 
 - Linux con scheda video NVIDIA da almeno 8 GB e driver recente (CUDA 13).
 - [uv](https://docs.astral.sh/uv/) per Python e Node.js 20 o successivo per l'interfaccia.
-- Circa 20 GB liberi su disco: 7 GB per il motore e 8-9 GB per i modelli nuovi.
-- I modelli SDXL (Juggernaut XL v8, LoRA offset, patch di inpaint) e gli stili, presi una volta sola da una copia di [Fooocus](https://github.com/lllyasviel/Fooocus) con lo script di migrazione (vedi Installazione). Dopo la migrazione l'app non dipende più da Fooocus.
+- Circa 31 GB liberi su disco per l'installazione completa (7 GB per il motore, 24 GB per i
+  modelli); con `--profile base` bastano circa 16 GB (solo SDXL e l'upscaler).
+- Nessuna installazione di Fooocus è richiesta: motore, modelli e stili si scaricano da soli
+  (vedi Installazione). Una copia di Fooocus già presente resta utile solo come scorciatoia
+  opzionale per evitare qualche download.
 
 ## Installazione
 
-Dalla cartella del progetto:
+Dalla cartella del progetto, un solo comando installa motore, dipendenze di backend e
+frontend, stili e tutti i modelli del profilo `completo`:
 
 ```bash
-./engine/install_engine.sh                                   # motore ComfyUI (circa 7 GB)
-uv run --script scripts/install_models.py --install-enabled  # modelli nuovi (circa 8,5 GB)
-cd frontend && npm ci && npm run build && cd ..              # interfaccia
+uv run --script scripts/install.py
 ```
 
-Modelli SDXL e stili da Fooocus, una volta sola. Prima senza `--apply` per vedere cosa succede, poi con:
+Salta da solo i passi già fatti: si può rilanciare in sicurezza in qualsiasi momento, anche
+dopo un'interruzione. Per installare solo i modelli essenziali (circa 16 GB invece di 31):
+
+```bash
+uv run --script scripts/install.py --profile base
+```
+
+Per vedere cosa farebbe, senza scaricare né installare nulla:
+
+```bash
+uv run --script scripts/install.py --dry-run
+```
+
+Per rieseguire un solo passo (`engine`, `backend_deps`, `frontend_build`, `styles` o
+`models`), se è ancora necessario: `uv run --script scripts/install.py --only <passo>`.
+
+Per vedere quali modelli sono presenti e quanto spazio occupano:
+`uv run --script scripts/install_models.py --list`. L'installazione si rifiuta di scaricare se
+dopo il download resterebbero meno di 5 GB liberi, e mostra il conto in italiano.
+
+### Hai già una copia di Fooocus sul disco?
+
+Non serve per installare: `install.py` scarica tutto da solo. Se però hai già
+[Fooocus](https://github.com/lllyasviel/Fooocus) installato, puoi evitare di riscaricare i
+modelli che condivide con questa app copiandoli invece:
 
 ```bash
 uv run --script scripts/migrate_from_fooocus.py --fooocus-dir ~/Fooocus --apply
 ```
 
-Se Fooocus sta sulla stessa partizione i modelli vengono spostati, istantaneamente e senza spazio in più; altrimenti vengono copiati e verificati, e l'originale resta. Gli stili vengono sempre copiati. Dopo, la cartella di Fooocus si può cancellare.
-
-Per vedere quali modelli sono presenti e quanto spazio serve: `uv run --script scripts/install_models.py --list`. L'installazione si rifiuta di scaricare se dopo il download resterebbero meno di 5 GB liberi.
+Prima senza `--apply` per vedere cosa farebbe. Se Fooocus è sulla stessa partizione i modelli
+vengono spostati, istantaneamente e senza spazio in più; altrimenti vengono copiati e
+verificati, e l'originale resta. Dopo, la cartella di Fooocus si può cancellare.
 
 ## Avvio
 
