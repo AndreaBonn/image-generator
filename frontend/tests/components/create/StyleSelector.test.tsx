@@ -7,7 +7,13 @@ import * as queries from "@/api/queries";
 import type { Style } from "@/api/types";
 
 function buildStyle(overrides: Partial<Style> = {}): Style {
-  return { id: "fooocus-enhance", name: "Fooocus Enhance", source_file: "sdxl_styles_fooocus.json", ...overrides };
+  return {
+    id: "fooocus-enhance",
+    name: "Fooocus Enhance",
+    source_file: "sdxl_styles_fooocus.json",
+    preview_url: null,
+    ...overrides,
+  };
 }
 
 function renderStyleSelector(selected: string[], onChange = vi.fn()) {
@@ -57,7 +63,7 @@ describe("StyleSelector", () => {
     expect(onChange).toHaveBeenCalledWith(["fooocus-sharp"]);
   });
 
-  it("fetches styles on mount with an empty query and lists only the Fooocus-prefixed ones (SPEC.md § 3.5)", async () => {
+  it("fetches styles on mount with an empty query and lists every unselected style, browsable without a query (SPEC.md § O9)", async () => {
     const fetchStyles = vi
       .spyOn(queries, "fetchStyles")
       .mockResolvedValue([
@@ -69,7 +75,7 @@ describe("StyleSelector", () => {
 
     await waitFor(() => expect(fetchStyles).toHaveBeenCalledWith("", expect.anything()));
     expect(await screen.findByRole("button", { name: "Fooocus Enhance" })).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "SAI Watercolor" })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "SAI Watercolor" })).toBeInTheDocument();
   });
 
   it("adds a style to the selection when an unselected style is clicked", async () => {
@@ -113,16 +119,53 @@ describe("StyleSelector", () => {
     expect(await screen.findByText(/Altri \d+ risultati: affina la ricerca\./)).toBeInTheDocument();
   });
 
-  it("shows the 'search by name' hint when the empty-query pool has more than the visible limit", async () => {
-    const manyFooocusStyles = Array.from({ length: 30 }, (_, i) =>
-      buildStyle({ id: `fooocus-${i}`, name: `Fooocus ${i}` }),
-    );
-    vi.spyOn(queries, "fetchStyles").mockResolvedValue(manyFooocusStyles);
+  it("shows a style count, not a hidden-count hint, when browsing without a query", async () => {
+    const manyStyles = Array.from({ length: 30 }, (_, i) => buildStyle({ id: `style-${i}`, name: `Style ${i}` }));
+    vi.spyOn(queries, "fetchStyles").mockResolvedValue(manyStyles);
     renderStyleSelector([]);
     await vi.advanceTimersByTimeAsync(300);
 
-    expect(
-      await screen.findByText(/Altri \d+ stili disponibili: cercali per nome\./),
-    ).toBeInTheDocument();
+    expect(await screen.findByText("30 stili")).toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: /^Style \d+$/ })).toHaveLength(30);
+    expect(screen.queryByText(/cercali per nome/)).not.toBeInTheDocument();
+  });
+
+  it("renders the preview thumbnail with explicit dimensions when the style has one", async () => {
+    vi.spyOn(queries, "fetchStyles").mockResolvedValue([
+      buildStyle({ id: "fooocus-enhance", name: "Fooocus Enhance", preview_url: "/api/v1/styles/previews/abc123" }),
+    ]);
+    renderStyleSelector([]);
+    await vi.advanceTimersByTimeAsync(300);
+
+    const button = await screen.findByRole("button", { name: "Fooocus Enhance" });
+    const img = button.querySelector("img");
+    expect(img).toHaveAttribute("src", "/api/v1/styles/previews/abc123");
+    expect(img).toHaveAttribute("width", "96");
+    expect(img).toHaveAttribute("height", "96");
+    expect(img).toHaveAttribute("loading", "lazy");
+    expect(img).toHaveAttribute("alt", "");
+  });
+
+  it("renders a neutral placeholder, no <img>, when the style has no preview", async () => {
+    vi.spyOn(queries, "fetchStyles").mockResolvedValue([
+      buildStyle({ id: "fooocus-enhance", name: "Fooocus Enhance", preview_url: null }),
+    ]);
+    renderStyleSelector([]);
+    await vi.advanceTimersByTimeAsync(300);
+
+    const button = await screen.findByRole("button", { name: "Fooocus Enhance" });
+    expect(button.querySelector("img")).not.toBeInTheDocument();
+    expect(button.textContent).toContain("F");
+  });
+
+  it("keeps selection behaviour unchanged regardless of preview availability", async () => {
+    vi.spyOn(queries, "fetchStyles").mockResolvedValue([
+      buildStyle({ id: "fooocus-enhance", name: "Fooocus Enhance", preview_url: "/api/v1/styles/previews/abc123" }),
+    ]);
+    const onChange = renderStyleSelector([]);
+    await vi.advanceTimersByTimeAsync(300);
+
+    await userEvent.click(await screen.findByRole("button", { name: "Fooocus Enhance" }));
+    expect(onChange).toHaveBeenCalledWith(["fooocus-enhance"]);
   });
 });
