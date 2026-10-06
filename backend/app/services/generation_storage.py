@@ -19,14 +19,24 @@ class GenerationBatch:
     deadline: float
 
 
+def parent_id_of(job: ResolvedJob) -> str | None:
+    """Gallery parent of a generation: the source image, or the first gallery reference."""
+    if job.image_input is not None:
+        return job.image_input.parent_id
+    references = job.reference_inputs or []
+    return next((ref.parent_id for ref in references if ref.parent_id is not None), None)
+
+
 def generation_metadata(batch: GenerationBatch, output: GenerationOutput) -> dict[str, Any]:
     job = batch.job
+    references = job.request.references
     params = {
         **job.params.model_dump(),
         **job.binding_values,
         "seed": output.seed,
         "batch_index": output.batch_index,
         "negative_prompt_final": job.negative_final,
+        "references": [ref.model_dump(mode="json") for ref in references] if references else None,
     }
     return {
         "job_id": batch.job_id,
@@ -38,7 +48,7 @@ def generation_metadata(batch: GenerationBatch, output: GenerationOutput) -> dic
         "params": params,
         "seed": output.seed,
         "duration_ms": batch.duration_ms,
-        "parent_id": job.image_input.parent_id if job.image_input else None,
+        "parent_id": parent_id_of(job=job),
     }
 
 

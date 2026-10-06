@@ -34,6 +34,7 @@ EXPECTED_INPUTS: dict[str, dict[str, dict[str, Scalar]]] = {
 def test_image_bindings_match_explicit_graph_and_preserve_template(task_id: str) -> None:
     settings = Settings()
     task = next(task for task in load_catalog(settings=settings).tasks if task.id == task_id)
+    assert task.workflow is not None
     template = json.loads(s=(settings.workflows_dir / task.workflow).read_text(encoding="utf-8"))
     original = deepcopy(template)
     expected = deepcopy(template)

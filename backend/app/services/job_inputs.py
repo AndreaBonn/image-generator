@@ -25,33 +25,49 @@ from app.services.job_resources import JobResources
 SOURCE_NOT_FOUND_MESSAGE = "Immagine di partenza non trovata."
 
 
-def upload_path(upload_id: UUID, kind: str, resources: JobResources) -> Path:
+def upload_path(
+    upload_id: UUID, kind: str, resources: JobResources, *, field: str | None = None
+) -> Path:
     repository = UploadRepository(database=resources.repository.database)
-    field = "input_upload_id" if kind == "image" else "mask_upload_id"
+    resolved_field = (
+        field if field is not None else ("input_upload_id" if kind == "image" else "mask_upload_id")
+    )
     try:
         record = repository.get(upload_id=str(upload_id))
     except NotFoundError as error:
-        raise field_error(field=field, message="Immagine caricata non trovata.") from error
+        raise field_error(field=resolved_field, message="Immagine caricata non trovata.") from error
     if record.kind != kind:
-        raise field_error(field=field, message="Il tipo di immagine caricata non è corretto.")
+        raise field_error(
+            field=resolved_field, message="Il tipo di immagine caricata non è corretto."
+        )
     return resolve_data_path(root=resources.settings.data_dir, relative=record.path)
+
+
+def generation_image_path(
+    generation_id: str, resources: JobResources, *, field: str, message: str
+) -> Path:
+    repository = GenerationRepository(database=resources.repository.database)
+    try:
+        record = repository.get(generation_id=generation_id)
+    except NotFoundError as error:
+        raise ValidationError(
+            message=message, details=[{"field": field, "message": message}]
+        ) from error
+    return resolve_data_path(root=resources.settings.data_dir, relative=record.image_path)
 
 
 def resolve_source(job: ResolvedJob, resources: JobResources) -> ImageInput:
     request = job.request
     parent_id = str(request.source_generation_id) if request.source_generation_id else None
     if parent_id is not None:
-        repository = GenerationRepository(database=resources.repository.database)
-        try:
-            record = repository.get(generation_id=parent_id)
-        except NotFoundError as error:
-            # No form field shows this id (it comes from the URL), so the UI needs the
-            # top-level message as well as the field detail.
-            raise ValidationError(
-                message=SOURCE_NOT_FOUND_MESSAGE,
-                details=[{"field": "source_generation_id", "message": SOURCE_NOT_FOUND_MESSAGE}],
-            ) from error
-        path = resolve_data_path(root=resources.settings.data_dir, relative=record.image_path)
+        # No form field shows this id (it comes from the URL), so the UI needs the
+        # top-level message as well as the field detail.
+        path = generation_image_path(
+            generation_id=parent_id,
+            resources=resources,
+            field="source_generation_id",
+            message=SOURCE_NOT_FOUND_MESSAGE,
+        )
     elif request.input_upload_id is not None:
         path = upload_path(upload_id=request.input_upload_id, kind="image", resources=resources)
     else:

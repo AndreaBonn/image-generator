@@ -74,6 +74,7 @@ async def prepare_request(task_id: str, path: Path, client: ComfyClient) -> Engi
     content, _ = prepare_images(job=job)
     values["input_image"] = await client.upload_image(image=content, name=f"contract-{uuid4()}.png")
     job = replace(job, binding_values=values)
+    assert job.task.workflow is not None
     template = json.loads(
         s=(settings.workflows_dir / job.task.workflow).read_text(encoding="utf-8")
     )

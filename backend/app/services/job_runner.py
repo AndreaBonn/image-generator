@@ -10,6 +10,7 @@ from app.services.job_events import JobEvent, JobEvents
 from app.services.job_execution import GenerationOutput, JobInterruptedError, execute_job
 from app.services.job_resources import JobResources
 from app.services.job_run import JobRun
+from app.services.task_catalog import template_name_for
 
 logger = logging.getLogger(__name__)
 MILLISECONDS_PER_SECOND = 1000
@@ -67,10 +68,14 @@ class JobRunner:
         try:
             async with asyncio.timeout(delay=self.resources.settings.job_timeout_s):
                 await self._switch_family(run=run)
+                reference_count = (
+                    len(run.job.reference_inputs) if run.job.reference_inputs is not None else None
+                )
+                filename = template_name_for(task=run.job.task, reference_count=reference_count)
                 outputs = await execute_job(
                     job=run.job,
                     engine=run.engine,
-                    template=self.resources.templates[run.job.task.workflow],
+                    template=self.resources.templates[filename],
                     on_event=lambda event: self._on_event(run=run, event=event),
                 )
                 await self._save(run=run, outputs=outputs, started=started)

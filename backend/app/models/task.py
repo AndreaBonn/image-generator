@@ -48,13 +48,20 @@ class ParameterSchema(ParameterLimit):
     default: Scalar = None
 
 
+def validate_workflow_filename(value: str) -> str:
+    if Path(value).name != value or Path(value).suffix != ".json":
+        raise ValueError("workflow must be a JSON filename without directories")
+    return value
+
+
 class TaskDefinition(CatalogModel):
     id: NonEmptyText
     label: NonEmptyText
     description: NonEmptyText
     group: Literal["crea", "modifica", "migliora"]
     family: Literal["sdxl", "flux2_klein", "zimage", "upscale", "background"]
-    workflow: NonEmptyText
+    workflow: NonEmptyText | None = None
+    workflow_by_reference_count: dict[int, NonEmptyText] | None = None
     model_ids: list[NonEmptyText] = Field(min_length=1)
     bindings: dict[str, list[BindingReference]]
     defaults: dict[str, Scalar]
@@ -70,9 +77,23 @@ class TaskDefinition(CatalogModel):
 
     @field_validator("workflow")
     @classmethod
-    def validate_workflow(cls, value: str) -> str:
-        if Path(value).name != value or Path(value).suffix != ".json":
-            raise ValueError("workflow must be a JSON filename without directories")
+    def validate_workflow(cls, value: str | None) -> str | None:
+        if value is None:
+            return value
+        return validate_workflow_filename(value)
+
+    @field_validator("workflow_by_reference_count")
+    @classmethod
+    def validate_workflow_by_reference_count(
+        cls, value: dict[int, str] | None
+    ) -> dict[int, str] | None:
+        if value is None:
+            return value
+        expected_keys = list(range(1, len(value) + 1))
+        if sorted(value.keys()) != expected_keys:
+            raise ValueError("workflow_by_reference_count keys must be contiguous starting at 1")
+        for filename in value.values():
+            validate_workflow_filename(filename)
         return value
 
     @field_validator("prompt_examples", "model_ids")
@@ -81,6 +102,14 @@ class TaskDefinition(CatalogModel):
         if len(value) != len(set(value)):
             raise ValueError("entries must be distinct")
         return value
+
+    @model_validator(mode="after")
+    def validate_workflow_source(self) -> Self:
+        has_single = self.workflow is not None
+        has_by_count = self.workflow_by_reference_count is not None
+        if has_single == has_by_count:
+            raise ValueError("exactly one of workflow or workflow_by_reference_count must be set")
+        return self
 
     @model_validator(mode="after")
     def validate_defaults(self) -> Self:

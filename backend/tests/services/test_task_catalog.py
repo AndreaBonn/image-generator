@@ -42,10 +42,18 @@ def rewrite_task(settings: Settings, field: str, value: Any) -> None:
     path.write_text(data=write_yaml(data), encoding="utf-8")
 
 
+def rewrite_task_by_id(settings: Settings, task_id: str, field: str, value: Any) -> None:
+    path = settings.config_dir / "tasks.yaml"
+    data = TASK_DATA.validate_python(read_yaml(path.read_text(encoding="utf-8")))
+    task = next(task for task in data["tasks"] if task["id"] == task_id)
+    task[field] = value
+    path.write_text(data=write_yaml(data), encoding="utf-8")
+
+
 def test_load_catalog_real_templates_and_missing_models(catalog_settings: Settings) -> None:
     catalog = load_catalog(settings=catalog_settings)
     tasks = {task.id: task for task in catalog.list_tasks()}
-    assert len(tasks) == 12
+    assert len(tasks) == 13
     assert tasks["bozza"].available is False
     assert tasks["bozza"].unavailable_reason is not None
     assert "modelli" in tasks["bozza"].unavailable_reason.lower()
@@ -137,7 +145,14 @@ def test_load_catalog_ratios_and_guidance(catalog_settings: Settings) -> None:
         assert len(set(task.prompt_examples)) == len(task.prompt_examples)
         assert task.prompt_tips
         # FLUX.2 klein and Z-Image handled Italian prompts in real runs; SDXL lost detail.
-        italian_ok = {"upscale", "testo", "foto", "modifica_libera", "rimuovi_sfondo"}
+        italian_ok = {
+            "upscale",
+            "testo",
+            "foto",
+            "modifica_libera",
+            "rimuovi_sfondo",
+            "crea_da_riferimenti",
+        }
         expected = "any" if task.id in italian_ok else "en"
         assert task.prompt_language.required == expected
         if task.id not in {"upscale", "rimuovi_sfondo"}:
@@ -217,6 +232,59 @@ def test_load_catalog_rejects_duplicate_task_ids(catalog_settings: Settings) -> 
     path.write_text(data=write_yaml(data), encoding="utf-8")
     with pytest.raises(ValidationError, match="tasks.id"):
         load_catalog(settings=catalog_settings)
+
+
+def test_load_catalog_lists_reference_task_without_crashing(
+    catalog_settings: Settings,
+) -> None:
+    """crea_da_riferimenti uses workflow_by_reference_count, not workflow; it must
+    still load, appear in /tasks, and only be unavailable for missing models.
+    """
+    catalog = load_catalog(settings=catalog_settings)
+    task = next(task for task in catalog.list_tasks() if task.id == "crea_da_riferimenti")
+    assert task.workflow is None
+    assert task.workflow_by_reference_count == {
+        1: "flux2_klein_refs_1.json",
+        2: "flux2_klein_refs_2.json",
+        3: "flux2_klein_refs_3.json",
+    }
+    assert task.available is False
+    assert task.unavailable_reason is not None
+    assert "Modelli non installati" in task.unavailable_reason
+
+
+def test_load_catalog_missing_reference_count_template_stops_loading(
+    catalog_settings: Settings,
+) -> None:
+    rewrite_task_by_id(
+        settings=catalog_settings,
+        task_id="crea_da_riferimenti",
+        field="workflow_by_reference_count",
+        value={1: "flux2_klein_refs_1.json", 2: "missing_refs_2.json"},
+    )
+    with pytest.raises(ValueError, match="missing_refs_2.json"):
+        load_catalog(settings=catalog_settings)
+
+
+def test_load_catalog_missing_reference_title_stops_loading(
+    catalog_settings: Settings, tmp_path: Path
+) -> None:
+    """A template present on disk but missing @input_image_2/@resize_2 for count=2
+    must stop startup and name both the file and the missing title.
+    """
+    workflows_dir = tmp_path / "workflows"
+    workflows_dir.mkdir()
+    for name in ("flux2_klein_refs_1.json", "flux2_klein_refs_2.json", "flux2_klein_refs_3.json"):
+        source = REPO_ROOT / "workflows" / name
+        (workflows_dir / name).write_text(source.read_text(encoding="utf-8"), encoding="utf-8")
+    broken = json.loads((workflows_dir / "flux2_klein_refs_2.json").read_text(encoding="utf-8"))
+    del broken["20"]  # @resize_2, see workflows/flux2_klein_refs_2.json
+    (workflows_dir / "flux2_klein_refs_2.json").write_text(
+        data=json.dumps(obj=broken), encoding="utf-8"
+    )
+    settings = catalog_settings.model_copy(update={"workflows_dir": workflows_dir})
+    with pytest.raises(ValueError, match=r"flux2_klein_refs_2\.json.*@resize_2"):
+        load_catalog(settings=settings)
 
 
 def test_unavailable_reason_suggests_install_command_per_missing_model(

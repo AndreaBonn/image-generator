@@ -14,7 +14,11 @@ from app.engine.types import (
 from app.engine.workflow_builder import Graph, build_workflow
 from app.errors import EngineExecutionError
 from app.models.job import ResolvedJob
-from app.services.image_preparation import restore_inpaint_output, upload_job_images
+from app.services.image_preparation import (
+    restore_inpaint_output,
+    upload_job_images,
+    upload_reference_images,
+)
 
 
 class JobInterruptedError(Exception):
@@ -28,10 +32,27 @@ class GenerationOutput:
     batch_index: int
 
 
+def reference_bindings(reference_count: int) -> dict[str, list[str]]:
+    """Per-reference bindings a `workflow_by_reference_count` template needs.
+
+    These aren't in `task.bindings` (config/tasks.yaml) because the set of keys
+    depends on how many references the request carries, not on the task alone.
+    """
+    bindings: dict[str, list[str]] = {}
+    for index in range(1, reference_count + 1):
+        bindings[f"input_image_{index}"] = [f"@input_image_{index}.image"]
+        bindings[f"resize_{index}_width"] = [f"@resize_{index}.width"]
+        bindings[f"resize_{index}_height"] = [f"@resize_{index}.height"]
+    return bindings
+
+
 def build_requests(job: ResolvedJob, template: Graph) -> list[EngineRequest]:
     is_native_batch = job.task.family == "sdxl"
     count = 1 if is_native_batch else job.params.batch
     batch = job.params.batch if is_native_batch else 1
+    bindings = job.task.bindings
+    if job.reference_inputs is not None:
+        bindings = {**bindings, **reference_bindings(reference_count=len(job.reference_inputs))}
     requests = []
     for offset in range(count):
         values = job.params.model_dump(exclude={"style_ids"})
@@ -42,7 +63,7 @@ def build_requests(job: ResolvedJob, template: Graph) -> list[EngineRequest]:
             batch=batch,
         )
         values.update(job.binding_values)
-        graph = build_workflow(template=template, bindings=job.task.bindings, values=values)
+        graph = build_workflow(template=template, bindings=bindings, values=values)
         requests.append(
             EngineRequest(
                 graph=graph,
@@ -63,6 +84,7 @@ async def execute_job(
     on_event: Callable[[EngineEvent], Awaitable[None]],
 ) -> list[GenerationOutput]:
     job = await upload_job_images(job=job, engine=engine)
+    job = await upload_reference_images(job=job, engine=engine)
     results: list[GenerationOutput] = []
     for request in build_requests(job=job, template=template):
         images: tuple[bytes, ...] = ()

@@ -2,6 +2,7 @@ from collections.abc import AsyncGenerator, AsyncIterator
 from dataclasses import replace
 from io import BytesIO
 from pathlib import Path
+from typing import Any
 from uuid import uuid4
 
 import pytest
@@ -15,9 +16,19 @@ from app.errors import EngineExecutionError, EngineRejectedError
 from app.main import create_app
 from app.models.image_input import ImageInput
 from app.models.job import JobParams, JobRequest, ResolvedJob
-from app.services.job_execution import GenerationOutput, JobInterruptedError, execute_job
+from app.models.records import UploadRecord
+from app.repositories.upload_repository import UploadRepository
+from app.services.image_geometry import FLUX_PIXEL_GRID, work_size
+from app.services.image_preparation import upload_reference_images
+from app.services.job_execution import (
+    GenerationOutput,
+    JobInterruptedError,
+    build_requests,
+    execute_job,
+)
 from app.services.job_resolution import resolve_job
 from app.services.job_service import JobService
+from app.services.task_catalog import template_name_for
 
 ORIGINAL_SIZE = (1280, 1280)
 
@@ -28,6 +39,11 @@ async def job_service(tmp_path: Path) -> AsyncIterator[JobService]:
     application: FastAPI = create_app(config=config)
     async with application.router.lifespan_context(application):
         yield application.state.job_service
+
+
+def single_template(job_service: JobService, job: ResolvedJob) -> dict[str, dict[str, Any]]:
+    assert job.task.workflow is not None, "these tasks use a single workflow template"
+    return job_service.resources.templates[job.task.workflow]
 
 
 async def ignore_event(event: EngineEvent) -> None:
@@ -58,6 +74,53 @@ def build_inpaint_job(job_service: JobService, tmp_path: Path) -> ResolvedJob:
     )
 
 
+def build_reference_upload(data_dir: Path, size: tuple[int, int]) -> UploadRecord:
+    upload_id = str(uuid4())
+    relative = f"uploads/{upload_id}.png"
+    path = data_dir / relative
+    path.parent.mkdir(parents=True, exist_ok=True)
+    Image.new(mode="RGB", size=size, color=(10, 20, 30)).save(fp=path)
+    return UploadRecord(id=upload_id, kind="image", path=relative, width=size[0], height=size[1])
+
+
+@pytest.mark.parametrize("reference_count", [2, 3])
+async def test_execute_job_reference_task_uploads_and_binds_each_reference(
+    job_service: JobService, tmp_path: Path, reference_count: int
+) -> None:
+    sizes = [(640, 480), (300, 900), (1024, 1024)][:reference_count]
+    repository = UploadRepository(database=job_service.resources.repository.database)
+    uploads = [build_reference_upload(data_dir=tmp_path, size=size) for size in sizes]
+    for record in uploads:
+        repository.add(record=record)
+
+    job = job_service._resolve(
+        request=JobRequest(
+            task_id="crea_da_riferimenti",
+            prompt="cat",
+            references=[{"upload_id": upload.id} for upload in uploads],
+        )
+    )
+    assert job.reference_inputs is not None
+    assert len(job.reference_inputs) == reference_count
+
+    filename = template_name_for(task=job.task, reference_count=reference_count)
+    assert filename == f"flux2_klein_refs_{reference_count}.json"
+
+    engine = FakeEngine(step_delay_s=0)
+    uploaded_job = await upload_reference_images(job=job, engine=engine)
+    assert len(engine.uploaded_images) == reference_count
+
+    template = job_service.resources.templates[filename]
+    [request] = build_requests(job=uploaded_job, template=template)
+    titles = {node["_meta"]["title"]: node for node in request.graph.values() if "_meta" in node}
+    uploaded_names = list(engine.uploaded_images.keys())
+    for index, size in enumerate(sizes, start=1):
+        assert titles[f"@input_image_{index}"]["inputs"]["image"] == uploaded_names[index - 1]
+        expected = work_size(size=size, pixel_grid=FLUX_PIXEL_GRID)
+        resize_inputs = titles[f"@resize_{index}"]["inputs"]
+        assert (resize_inputs["width"], resize_inputs["height"]) == expected
+
+
 async def test_execute_job_native_batch_returns_pngs_with_seed_and_indices(
     job_service: JobService,
 ) -> None:
@@ -68,7 +131,7 @@ async def test_execute_job_native_batch_returns_pngs_with_seed_and_indices(
     outputs = await execute_job(
         job=job,
         engine=FakeEngine(step_delay_s=0),
-        template=job_service.resources.templates[job.task.workflow],
+        template=single_template(job_service=job_service, job=job),
         on_event=ignore_event,
     )
 
@@ -97,7 +160,7 @@ async def test_execute_job_inpaint_restores_original_resolution(
     outputs = await execute_job(
         job=job,
         engine=FakeEngine(step_delay_s=0),
-        template=job_service.resources.templates[job.task.workflow],
+        template=single_template(job_service=job_service, job=job),
         on_event=record_generated_size,
     )
 
@@ -125,7 +188,7 @@ async def test_execute_job_failed_propagates_original_error(job_service: JobServ
         await execute_job(
             job=job,
             engine=FailingEngine(step_delay_s=0),
-            template=job_service.resources.templates[job.task.workflow],
+            template=single_template(job_service=job_service, job=job),
             on_event=ignore_event,
         )
 
@@ -145,7 +208,7 @@ async def test_execute_job_interrupted_raises_job_interrupted_error(
         await execute_job(
             job=job,
             engine=InterruptedEngine(step_delay_s=0),
-            template=job_service.resources.templates[job.task.workflow],
+            template=single_template(job_service=job_service, job=job),
             on_event=ignore_event,
         )
 
@@ -169,7 +232,7 @@ async def test_execute_job_short_batch_raises_exact_execution_error(
         await execute_job(
             job=job,
             engine=ShortBatchEngine(step_delay_s=0),
-            template=job_service.resources.templates[job.task.workflow],
+            template=single_template(job_service=job_service, job=job),
             on_event=ignore_event,
         )
 

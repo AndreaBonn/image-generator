@@ -25,7 +25,7 @@ from app.services.job_resources import JobResources
 from app.services.job_service import JobService
 from app.services.model_downloads import ModelDownloads
 from app.services.style_service import StyleService
-from app.services.task_catalog import load_catalog
+from app.services.task_catalog import load_catalog, task_workflow_files
 from app.services.upload_service import UploadService
 
 ENGINE_HTTP_TIMEOUT_S = 30
@@ -60,11 +60,11 @@ def initialize_resources(config: Settings) -> JobResources:
         repository=UploadRepository(database=database), data_dir=config.data_dir
     ).cleanup()
     templates = {
-        task.workflow: json.loads(
-            (config.workflows_dir / task.workflow).read_text(encoding="utf-8")
-        )
+        filename: json.loads((config.workflows_dir / filename).read_text(encoding="utf-8"))
         for task in catalog.tasks
-        if task.id in SUPPORTED_TASKS and (config.workflows_dir / task.workflow).is_file()
+        if task.id in SUPPORTED_TASKS
+        for filename in task_workflow_files(task=task)
+        if (config.workflows_dir / filename).is_file()
     }
     return JobResources(
         settings=config,

@@ -4,7 +4,7 @@ from app.errors import ModelNotInstalledError, ValidationError
 from app.models.job import MAX_SEED, JobRequest, ResolvedJob, ResolvedParams
 from app.models.task import Scalar, TaskDefinition
 from app.services.style_service import StyleService
-from app.services.task_catalog import TaskCatalog
+from app.services.task_catalog import TaskCatalog, reference_workflow_files, template_name_for
 
 GENERATION_TASKS = frozenset({"bozza", "qualita", "testo", "foto"})
 IMAGE_TASKS = frozenset(
@@ -19,7 +19,8 @@ IMAGE_TASKS = frozenset(
         "ingrandisci_rifinito",
     }
 )
-SUPPORTED_TASKS = GENERATION_TASKS | IMAGE_TASKS
+REFERENCE_TASKS = frozenset({"crea_da_riferimenti"})
+SUPPORTED_TASKS = GENERATION_TASKS | IMAGE_TASKS | REFERENCE_TASKS
 
 
 def field_error(field: str, message: str) -> ValidationError:
@@ -30,17 +31,34 @@ def resolve_task(request: JobRequest, catalog: TaskCatalog, is_fake: bool) -> Ta
     task = next((task for task in catalog.tasks if task.id == request.task_id), None)
     if task is None:
         raise ModelNotInstalledError(message="Il compito richiesto non è disponibile.")
+    if task.workflow_by_reference_count is not None:
+        validate_references(request=request, task=task)
     if task.id not in SUPPORTED_TASKS:
         raise ValidationError(message="Questo compito non è ancora supportato.")
     reason = catalog.unavailable_reason(task=task)
-    has_workflow = catalog.repository.has_workflow(filename=task.workflow)
+    reference_count = len(request.references) if request.references is not None else None
+    filename = template_name_for(task=task, reference_count=reference_count)
+    has_workflow = catalog.repository.has_workflow(filename=filename)
     if reason is not None and (not is_fake or not has_workflow):
         raise ModelNotInstalledError(message=reason)
-    if task.id in GENERATION_TASKS | {"inpaint", "modifica_libera"} and not request.prompt.strip():
+    if (
+        task.id in GENERATION_TASKS | REFERENCE_TASKS | {"inpaint", "modifica_libera"}
+        and not request.prompt.strip()
+    ):
         raise field_error(field="prompt", message="Descrivi l'immagine da generare.")
     if task.id in IMAGE_TASKS:
         validate_image_request(request=request)
     return task
+
+
+def validate_references(request: JobRequest, task: TaskDefinition) -> None:
+    max_references = len(reference_workflow_files(task=task))
+    references = request.references or []
+    if not references or len(references) > max_references:
+        raise field_error(
+            field="references",
+            message=f"Scegli da 1 a {max_references} immagini di riferimento.",
+        )
 
 
 def validate_image_request(request: JobRequest) -> None:

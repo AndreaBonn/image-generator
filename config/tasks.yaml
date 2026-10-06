@@ -163,6 +163,41 @@ tasks:
         candid portrait of a gardener in a greenhouse, soil on hands, backlit leaves,
         shallow depth of field, documentary photography
 
+  - <<: *flux
+    id: crea_da_riferimenti
+    label: Crea dai riferimenti
+    description: "Mantieni lo stesso soggetto o personaggio in una scena nuova, da 1 a 3 immagini di riferimento."
+    workflow: null
+    workflow_by_reference_count:
+      1: flux2_klein_refs_1.json
+      2: flux2_klein_refs_2.json
+      3: flux2_klein_refs_3.json
+    bindings:
+      prompt: ['@prompt_pos.text']
+      seed: ['@noise.noise_seed']
+      steps: ['@scheduler.steps']
+      cfg: ['@guider.cfg']
+      width: ['@latent.width', '@scheduler.width']
+      height: ['@latent.height', '@scheduler.height']
+      batch: ['@latent.batch_size']
+    defaults: {prompt: '', steps: 4, cfg: 1.0, seed: null, batch: 1, aspect_ratio: '1152*896'}
+    limits:
+      <<: *sdxl_limits
+      steps: {min: 4, max: 8}
+      cfg: {min: 1, max: 1.5}
+    supports_styles: false
+    supports_negative: false
+    prompt_language:
+      required: any
+      label: Italiano o inglese
+      reason: Questo modello capisce bene sia l'italiano sia l'inglese.
+    prompt_tips:
+      - "Descrivi la scena nuova: dove si trova il soggetto, cosa fa, la luce."
+      - "I riferimenti portano già il soggetto o il personaggio: non serve ripeterne l'aspetto nel prompt."
+    prompt_examples:
+      - La persona delle foto seduta in un caffè di Parigi, luce del mattino.
+      - Il personaggio delle immagini in piedi su una scogliera al tramonto, vento tra i capelli.
+
   - <<: *sdxl
     id: inpaint
     label: Modifica una parte

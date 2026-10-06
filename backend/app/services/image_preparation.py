@@ -60,6 +60,24 @@ async def upload_job_images(job: ResolvedJob, engine: EngineClient) -> ResolvedJ
     return replace(job, binding_values=values)
 
 
+async def upload_reference_images(job: ResolvedJob, engine: EngineClient) -> ResolvedJob:
+    """Upload each reference at its original resolution; the template's own
+    `@resize_N` node (ImageScale) brings it to the ~1 MP target we compute here, so no
+    PIL resize is needed before upload (unlike `upload_job_images`)."""
+    if job.reference_inputs is None:
+        return job
+    values = dict(job.binding_values)
+    for index, reference in enumerate(job.reference_inputs, start=1):
+        content = await asyncio.to_thread(reference.path.read_bytes)
+        values[f"input_image_{index}"] = await engine.upload_image(
+            image=content, name=f"{uuid4()}.png"
+        )
+        width, height = work_size(size=reference.size, pixel_grid=FLUX_PIXEL_GRID)
+        values[f"resize_{index}_width"] = width
+        values[f"resize_{index}_height"] = height
+    return replace(job, binding_values=values)
+
+
 def composite_at_original(
     original: Image.Image, result: Image.Image, mask: Image.Image
 ) -> Image.Image:

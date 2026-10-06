@@ -27,7 +27,7 @@ def test_list_tasks_returns_groups_guidance_parameters_and_availability(tmp_path
         {"id": "modifica", "label": "Modifica"},
         {"id": "migliora", "label": "Migliora"},
     ]
-    assert len(data["data"]) == 12
+    assert len(data["data"]) == 13
     draft = data["data"][0]
     assert draft["available"] is False
     assert "Modelli non installati" in draft["unavailable_reason"]

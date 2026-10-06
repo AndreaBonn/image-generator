@@ -12,6 +12,7 @@ from app.services.task_catalog import load_catalog
 @pytest.mark.parametrize("task_id", ["bozza", "qualita", "testo"])
 def test_build_workflow_matches_explicit_graph_without_mutating_template(task_id: str) -> None:
     task = next(task for task in load_catalog(settings=Settings()).tasks if task.id == task_id)
+    assert task.workflow is not None
     template = json.loads((REPO_ROOT / "workflows" / task.workflow).read_text())
     original = deepcopy(template)
     expected = deepcopy(template)

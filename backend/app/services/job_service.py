@@ -8,6 +8,7 @@ from app.models.job import JobRequest, ResolvedJob
 from app.repositories.job_repository import TERMINAL_STATUSES
 from app.services.job_events import JobEvents
 from app.services.job_inputs import resolve_image_job
+from app.services.job_references import resolve_reference_job
 from app.services.job_resolution import resolve_job
 from app.services.job_resources import JobResources
 from app.services.job_run import JobRun
@@ -64,7 +65,8 @@ class JobService:
             styles=self.resources.styles,
             is_fake=self.resources.settings.engine_mode == "fake",
         )
-        return resolve_image_job(job=job, resources=self.resources)
+        job = resolve_image_job(job=job, resources=self.resources)
+        return resolve_reference_job(job=job, resources=self.resources)
 
     async def _run(self, run: JobRun) -> None:
         try:

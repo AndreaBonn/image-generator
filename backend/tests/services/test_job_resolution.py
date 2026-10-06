@@ -122,6 +122,28 @@ def test_validate_limits_checks_non_numeric_value_only_against_options() -> None
     assert error.value.details[0]["field"] == "params.theme"
 
 
+def test_resolve_task_rejects_missing_references() -> None:
+    catalog = load_catalog(settings=Settings(engine_mode="fake"))
+    with pytest.raises(ValidationError) as error:
+        resolve_task(
+            request=JobRequest(task_id="crea_da_riferimenti"), catalog=catalog, is_fake=True
+        )
+    assert error.value.details[0]["field"] == "references"
+    assert "1 a 3" in error.value.details[0]["message"]
+
+
+def test_resolve_task_rejects_too_many_references() -> None:
+    catalog = load_catalog(settings=Settings(engine_mode="fake"))
+    references = [{"upload_id": str(uuid4())} for _ in range(4)]
+    with pytest.raises(ValidationError) as error:
+        resolve_task(
+            request=JobRequest(task_id="crea_da_riferimenti", references=references),
+            catalog=catalog,
+            is_fake=True,
+        )
+    assert error.value.details[0]["field"] == "references"
+
+
 def test_resolve_task_rejects_a_catalog_task_without_an_implementation() -> None:
     catalog = load_catalog(settings=Settings(engine_mode="fake"))
     bozza = next(task for task in catalog.tasks if task.id == "bozza")

@@ -1,8 +1,8 @@
 from dataclasses import dataclass, field
-from typing import Literal
+from typing import Literal, Self
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from app.models.image_input import ImageInput
 from app.models.task import Scalar, TaskDefinition
@@ -23,6 +23,18 @@ class JobParams(BaseModel):
     denoise: float | None = Field(default=None, ge=0, le=1)
 
 
+class ReferenceInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    upload_id: UUID | None = None
+    generation_id: UUID | None = None
+
+    @model_validator(mode="after")
+    def validate_exactly_one_source(self) -> Self:
+        if (self.upload_id is None) == (self.generation_id is None):
+            raise ValueError("exactly one of upload_id or generation_id must be set")
+        return self
+
+
 class JobRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
     task_id: str
@@ -36,6 +48,7 @@ class JobRequest(BaseModel):
         default_factory=list
     )
     upscale_factor: Literal[2, 4] | None = None
+    references: list[ReferenceInput] | None = None
 
 
 class ResolvedParams(BaseModel):
@@ -58,4 +71,5 @@ class ResolvedJob:
     prompt_final: str
     negative_final: str
     image_input: ImageInput | None = None
+    reference_inputs: list[ImageInput] | None = None
     binding_values: dict[str, Scalar] = field(default_factory=dict)
