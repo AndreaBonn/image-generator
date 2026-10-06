@@ -8,7 +8,13 @@ from app.errors import ValidationError
 from app.models.job import JobRequest, ResolvedJob
 from app.models.style import Style
 from app.models.task import ParameterLimit
-from app.services.job_resolution import resolve_job, resolve_task, validate_limits
+from app.services.job_resolution import (
+    apply_prompt_prefix,
+    resolve_job,
+    resolve_task,
+    validate_limits,
+    validate_references,
+)
 from app.services.style_service import StyleService
 from app.services.task_catalog import load_catalog
 
@@ -142,6 +148,75 @@ def test_resolve_task_rejects_too_many_references() -> None:
             is_fake=True,
         )
     assert error.value.details[0]["field"] == "references"
+
+
+def test_resolve_task_rejects_in_posa_with_a_single_reference() -> None:
+    catalog = load_catalog(settings=Settings(engine_mode="fake"))
+    references = [{"upload_id": str(uuid4())}]
+    with pytest.raises(ValidationError) as error:
+        resolve_task(
+            request=JobRequest(task_id="in_posa", prompt="cat", references=references),
+            catalog=catalog,
+            is_fake=True,
+        )
+    assert error.value.details[0]["field"] == "references"
+    assert "esattamente 2" in error.value.details[0]["message"]
+
+
+def test_resolve_task_accepts_in_posa_with_exactly_two_references() -> None:
+    catalog = load_catalog(settings=Settings(engine_mode="fake"))
+    references = [{"upload_id": str(uuid4())}, {"upload_id": str(uuid4())}]
+    task = resolve_task(
+        request=JobRequest(task_id="in_posa", prompt="cat", references=references),
+        catalog=catalog,
+        is_fake=True,
+    )
+    assert task.id == "in_posa"
+
+
+def test_resolve_task_accepts_da_schizzo_with_one_or_two_references() -> None:
+    catalog = load_catalog(settings=Settings(engine_mode="fake"))
+    task = resolve_task(
+        request=JobRequest(
+            task_id="da_schizzo", prompt="cat", references=[{"upload_id": str(uuid4())}]
+        ),
+        catalog=catalog,
+        is_fake=True,
+    )
+    assert task.id == "da_schizzo"
+
+
+def test_resolve_job_applies_prompt_prefix_for_da_schizzo() -> None:
+    result = resolve(
+        {"task_id": "da_schizzo", "prompt": "a cat", "references": [{"upload_id": str(uuid4())}]}
+    )
+    assert result.prompt_final.startswith("Turn the first reference sketch")
+    assert result.prompt_final.endswith(". a cat")
+
+
+def test_resolve_job_leaves_prompt_untouched_without_a_prefix() -> None:
+    result = resolve({"task_id": "bozza", "prompt": "a cat"})
+    assert result.prompt_final == "a cat"
+
+
+def test_apply_prompt_prefix_is_identity_when_task_has_no_prefix() -> None:
+    bozza = next(
+        task
+        for task in load_catalog(settings=Settings(engine_mode="fake")).tasks
+        if task.id == "bozza"
+    )
+    assert apply_prompt_prefix(prompt="a cat", task=bozza) == "a cat"
+
+
+def test_validate_references_reports_exact_count_when_min_equals_max() -> None:
+    in_posa = next(
+        task
+        for task in load_catalog(settings=Settings(engine_mode="fake")).tasks
+        if task.id == "in_posa"
+    )
+    with pytest.raises(ValidationError) as error:
+        validate_references(request=JobRequest(task_id="in_posa"), task=in_posa)
+    assert error.value.details[0]["message"] == "Scegli esattamente 2 immagini di riferimento."
 
 
 def test_resolve_task_rejects_a_catalog_task_without_an_implementation() -> None:

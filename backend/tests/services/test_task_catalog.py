@@ -53,7 +53,7 @@ def rewrite_task_by_id(settings: Settings, task_id: str, field: str, value: Any)
 def test_load_catalog_real_templates_and_missing_models(catalog_settings: Settings) -> None:
     catalog = load_catalog(settings=catalog_settings)
     tasks = {task.id: task for task in catalog.list_tasks()}
-    assert len(tasks) == 13
+    assert len(tasks) == 15
     assert tasks["bozza"].available is False
     assert tasks["bozza"].unavailable_reason is not None
     assert "modelli" in tasks["bozza"].unavailable_reason.lower()
@@ -152,6 +152,8 @@ def test_load_catalog_ratios_and_guidance(catalog_settings: Settings) -> None:
             "modifica_libera",
             "rimuovi_sfondo",
             "crea_da_riferimenti",
+            "da_schizzo",
+            "in_posa",
         }
         expected = "any" if task.id in italian_ok else "en"
         assert task.prompt_language.required == expected

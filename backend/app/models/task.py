@@ -62,6 +62,9 @@ class TaskDefinition(CatalogModel):
     family: Literal["sdxl", "flux2_klein", "zimage", "upscale", "background"]
     workflow: NonEmptyText | None = None
     workflow_by_reference_count: dict[int, NonEmptyText] | None = None
+    min_references: int | None = Field(default=None, ge=1)
+    reference_labels: list[NonEmptyText] | None = None
+    prompt_prefix: NonEmptyText | None = None
     model_ids: list[NonEmptyText] = Field(min_length=1)
     bindings: dict[str, list[BindingReference]]
     defaults: dict[str, Scalar]
@@ -109,6 +112,21 @@ class TaskDefinition(CatalogModel):
         has_by_count = self.workflow_by_reference_count is not None
         if has_single == has_by_count:
             raise ValueError("exactly one of workflow or workflow_by_reference_count must be set")
+        return self
+
+    @model_validator(mode="after")
+    def validate_reference_count_bounds(self) -> Self:
+        if self.min_references is None and self.reference_labels is None:
+            return self
+        if self.workflow_by_reference_count is None:
+            raise ValueError(
+                "min_references and reference_labels require workflow_by_reference_count"
+            )
+        max_references = len(self.workflow_by_reference_count)
+        if self.min_references is not None and self.min_references > max_references:
+            raise ValueError("min_references must not exceed workflow_by_reference_count's max")
+        if self.reference_labels is not None and len(self.reference_labels) != max_references:
+            raise ValueError("reference_labels must have one entry per reference count")
         return self
 
     @model_validator(mode="after")

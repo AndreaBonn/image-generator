@@ -34,6 +34,9 @@ class TaskOut(BaseModel):
     supports_styles: bool
     supports_negative: bool
     default_styles: list[str]
+    reference_labels: list[str] | None
+    min_references: int
+    max_references: int
     defaults: dict[str, Scalar]
     limits: dict[str, ParameterLimit]
     parameters: dict[str, ParameterSchema]
@@ -46,12 +49,23 @@ class TaskResponse(BaseModel):
     meta: dict[str, list[dict[str, str]]]
 
 
+def reference_bounds(task: TaskView) -> tuple[int, int]:
+    """How many reference images the task takes: (0, 0) for tasks without references."""
+    templates = task.workflow_by_reference_count
+    if not templates:
+        return 0, 0
+    return task.min_references or 1, max(templates)
+
+
 def to_task_out(task: TaskView) -> TaskOut:
     default_ratio = task.defaults.get("aspect_ratio")
     return TaskOut(
         **task.model_dump(
-            include=set(TaskOut.model_fields) - {"aspect_ratios", "default_aspect_ratio"}
+            include=set(TaskOut.model_fields)
+            - {"aspect_ratios", "default_aspect_ratio", "min_references", "max_references"}
         ),
+        min_references=reference_bounds(task=task)[0],
+        max_references=reference_bounds(task=task)[1],
         aspect_ratios=[
             AspectRatioOut(
                 value=ratio.id,

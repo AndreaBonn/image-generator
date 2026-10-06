@@ -79,3 +79,52 @@ def test_task_definition_rejects_directory_in_reference_count_filename() -> None
                 "workflow_by_reference_count": {1: "../outside.json"},
             }
         )
+
+
+def test_task_definition_accepts_min_references_within_bounds() -> None:
+    task = TaskDefinition.model_validate(
+        {
+            **BASE_TASK,
+            "workflow_by_reference_count": {1: "refs_1.json", 2: "refs_2.json"},
+            "min_references": 2,
+        }
+    )
+    assert task.min_references == 2
+
+
+def test_task_definition_rejects_min_references_above_max() -> None:
+    with pytest.raises(ValidationError, match="must not exceed"):
+        TaskDefinition.model_validate(
+            {
+                **BASE_TASK,
+                "workflow_by_reference_count": {1: "refs_1.json", 2: "refs_2.json"},
+                "min_references": 3,
+            }
+        )
+
+
+def test_task_definition_rejects_min_references_without_reference_count() -> None:
+    with pytest.raises(ValidationError, match="require workflow_by_reference_count"):
+        TaskDefinition.model_validate({**BASE_TASK, "workflow": "single.json", "min_references": 1})
+
+
+def test_task_definition_rejects_reference_labels_with_wrong_length() -> None:
+    with pytest.raises(ValidationError, match="one entry per reference count"):
+        TaskDefinition.model_validate(
+            {
+                **BASE_TASK,
+                "workflow_by_reference_count": {1: "refs_1.json", 2: "refs_2.json"},
+                "reference_labels": ["Posa"],
+            }
+        )
+
+
+def test_task_definition_accepts_matching_reference_labels() -> None:
+    task = TaskDefinition.model_validate(
+        {
+            **BASE_TASK,
+            "workflow_by_reference_count": {1: "refs_1.json", 2: "refs_2.json"},
+            "reference_labels": ["Posa", "Personaggio"],
+        }
+    )
+    assert task.reference_labels == ["Posa", "Personaggio"]

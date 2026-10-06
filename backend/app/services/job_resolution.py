@@ -19,8 +19,16 @@ IMAGE_TASKS = frozenset(
         "ingrandisci_rifinito",
     }
 )
-REFERENCE_TASKS = frozenset({"crea_da_riferimenti"})
-SUPPORTED_TASKS = GENERATION_TASKS | IMAGE_TASKS | REFERENCE_TASKS
+
+
+def is_reference_task(task: TaskDefinition) -> bool:
+    """Whether a task picks its template from the reference count, not a single workflow.
+
+    Derived from the task's own field instead of a hand-maintained id list: every task
+    with `workflow_by_reference_count` set (crea_da_riferimenti, da_schizzo, in_posa) is
+    implemented through the same reference-resolution path.
+    """
+    return task.workflow_by_reference_count is not None
 
 
 def field_error(field: str, message: str) -> ValidationError:
@@ -31,9 +39,9 @@ def resolve_task(request: JobRequest, catalog: TaskCatalog, is_fake: bool) -> Ta
     task = next((task for task in catalog.tasks if task.id == request.task_id), None)
     if task is None:
         raise ModelNotInstalledError(message="Il compito richiesto non è disponibile.")
-    if task.workflow_by_reference_count is not None:
+    if is_reference_task(task=task):
         validate_references(request=request, task=task)
-    if task.id not in SUPPORTED_TASKS:
+    elif task.id not in GENERATION_TASKS | IMAGE_TASKS:
         raise ValidationError(message="Questo compito non è ancora supportato.")
     reason = catalog.unavailable_reason(task=task)
     reference_count = len(request.references) if request.references is not None else None
@@ -41,10 +49,11 @@ def resolve_task(request: JobRequest, catalog: TaskCatalog, is_fake: bool) -> Ta
     has_workflow = catalog.repository.has_workflow(filename=filename)
     if reason is not None and (not is_fake or not has_workflow):
         raise ModelNotInstalledError(message=reason)
-    if (
-        task.id in GENERATION_TASKS | REFERENCE_TASKS | {"inpaint", "modifica_libera"}
-        and not request.prompt.strip()
-    ):
+    requires_prompt = is_reference_task(task=task) or task.id in GENERATION_TASKS | {
+        "inpaint",
+        "modifica_libera",
+    }
+    if requires_prompt and not request.prompt.strip():
         raise field_error(field="prompt", message="Descrivi l'immagine da generare.")
     if task.id in IMAGE_TASKS:
         validate_image_request(request=request)
@@ -53,12 +62,15 @@ def resolve_task(request: JobRequest, catalog: TaskCatalog, is_fake: bool) -> Ta
 
 def validate_references(request: JobRequest, task: TaskDefinition) -> None:
     max_references = len(reference_workflow_files(task=task))
+    min_references = task.min_references or 1
     references = request.references or []
-    if not references or len(references) > max_references:
-        raise field_error(
-            field="references",
-            message=f"Scegli da 1 a {max_references} immagini di riferimento.",
-        )
+    if min_references <= len(references) <= max_references:
+        return
+    if min_references == max_references:
+        message = f"Scegli esattamente {min_references} immagini di riferimento."
+    else:
+        message = f"Scegli da {min_references} a {max_references} immagini di riferimento."
+    raise field_error(field="references", message=message)
 
 
 def validate_image_request(request: JobRequest) -> None:
@@ -129,12 +141,19 @@ def resolve_upscale_params(request: JobRequest) -> ResolvedParams:
     )
 
 
+def apply_prompt_prefix(prompt: str, task: TaskDefinition) -> str:
+    if task.prompt_prefix is None:
+        return prompt
+    return f"{task.prompt_prefix.rstrip()} {prompt}"
+
+
 def resolve_job(
     request: JobRequest, catalog: TaskCatalog, styles: StyleService, is_fake: bool
 ) -> ResolvedJob:
     task = resolve_task(request=request, catalog=catalog, is_fake=is_fake)
     params = resolve_params(request=request, task=task)
-    prompt, negative = request.prompt, request.negative_prompt if task.supports_negative else ""
+    prompt = apply_prompt_prefix(prompt=request.prompt, task=task)
+    negative = request.negative_prompt if task.supports_negative else ""
     if task.supports_styles:
         prompt, negative = styles.apply_styles(
             prompt=prompt, negative=negative, style_ids=params.style_ids

@@ -20,7 +20,7 @@ from app.repositories.model_files import STAGING_DIRNAME, ModelFilesRepository
 from app.repositories.style_repository import load_styles
 from app.repositories.upload_repository import UploadRepository
 from app.services.generation_service import GenerationService
-from app.services.job_resolution import SUPPORTED_TASKS
+from app.services.job_resolution import GENERATION_TASKS, IMAGE_TASKS, is_reference_task
 from app.services.job_resources import JobResources
 from app.services.job_service import JobService
 from app.services.model_downloads import ModelDownloads
@@ -62,7 +62,7 @@ def initialize_resources(config: Settings) -> JobResources:
     templates = {
         filename: json.loads((config.workflows_dir / filename).read_text(encoding="utf-8"))
         for task in catalog.tasks
-        if task.id in SUPPORTED_TASKS
+        if task.id in GENERATION_TASKS | IMAGE_TASKS or is_reference_task(task=task)
         for filename in task_workflow_files(task=task)
         if (config.workflows_dir / filename).is_file()
     }
