@@ -28,6 +28,8 @@ export const HELP_TEXTS = {
   cfg: "Quanto l'immagine deve seguire fedelmente il testo scritto. Valori alti seguono di più il testo ma possono saturare i colori; valori bassi lasciano più libertà al motore.",
   negativePrompt:
     "Elenca, separati da virgola, gli elementi che non vuoi vedere nel risultato, ad esempio sfocato, testo, watermark.",
+  references:
+    "Da 1 a 3 foto dello stesso soggetto o personaggio: verranno mantenuti nella scena nuova che descrivi nel testo.",
 
   // Modifica
   maskTools:

@@ -116,6 +116,9 @@ export interface JobParams {
 
 export type OutpaintDirection = "top" | "bottom" | "left" | "right";
 
+/** One reference image for crea_da_riferimenti: exactly one of the two fields (SPEC.md § 7.3). */
+export type ReferenceInput = { upload_id: string } | { generation_id: string };
+
 export interface CreateJobBody {
   task_id: string;
   prompt: string;
@@ -126,7 +129,17 @@ export interface CreateJobBody {
   source_generation_id?: string | null;
   outpaint_directions?: OutpaintDirection[];
   upscale_factor?: number | null;
+  references?: ReferenceInput[] | null;
 }
+
+/** Only task that needs 1-3 reference images today (SPEC.md § 3.1, § 7.3).
+ * GET /tasks has no requires-references flag, so the id is matched directly
+ * instead of adding plumbing for a single case. */
+export const REFERENCE_TASK_ID = "crea_da_riferimenti";
+
+/** workflow_by_reference_count tops out at 3 (SPEC.md § 7.3); /tasks doesn't
+ * expose the max, so it is hardcoded here instead of derived from the task. */
+export const MAX_REFERENCES = 3;
 
 export type UploadKind = "image" | "mask";
 

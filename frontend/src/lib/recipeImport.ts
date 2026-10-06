@@ -1,4 +1,4 @@
-import type { Style, Task, UploadRecipe } from "@/api/types";
+import { REFERENCE_TASK_ID, type Style, type Task, type UploadRecipe } from "@/api/types";
 
 export interface RecipeImportPatch {
   taskId?: string;
@@ -48,6 +48,12 @@ export function resolveRecipeImport(
   }
 
   patch.taskId = task.id;
+
+  // UploadRecipeParams has no references field (SPEC.md § 7.3): a recipe for
+  // crea_da_riferimenti can never carry its reference images back.
+  if (task.id === REFERENCE_TASK_ID) {
+    skipped.push("riferimenti");
+  }
 
   // A skipped field takes the task's default: the form may still hold a value from
   // the previously selected task that is invalid for this one.

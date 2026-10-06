@@ -173,4 +173,23 @@ describe("resolveRecipeImport", () => {
     expect(result.patch.cfg).toBe(1);
     expect(result.skipped).toEqual([]);
   });
+
+  it("reports references as skipped for crea_da_riferimenti (SPEC.md § 7.3: recipes never carry them)", () => {
+    const tasks = [
+      buildTask({
+        id: "crea_da_riferimenti",
+        supports_styles: false,
+        supports_negative: false,
+      }),
+    ];
+
+    const result = resolveRecipeImport(
+      buildRecipe({ task_id: "crea_da_riferimenti", negative_prompt: "", params: { ...buildRecipe().params, style_ids: [] } }),
+      tasks,
+      [],
+    );
+
+    expect(result.patch.taskId).toBe("crea_da_riferimenti");
+    expect(result.skipped).toContain("riferimenti");
+  });
 });

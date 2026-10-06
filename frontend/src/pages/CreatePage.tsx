@@ -11,11 +11,12 @@ import { StyleSelector } from "@/components/create/StyleSelector";
 import { AdvancedOptions } from "@/components/create/AdvancedOptions";
 import { ResultArea } from "@/components/create/ResultArea";
 import { RecipeImport } from "@/components/create/RecipeImport";
+import { ReferencePicker, type ReferenceItem } from "@/components/create/ReferencePicker";
 import { GpuWarning } from "@/components/layout/GpuWarning";
 import { InfoTip } from "@/components/ui/InfoTip";
 import { HELP_TEXTS } from "@/lib/helpTexts";
 import type { RecipeImportPatch } from "@/lib/recipeImport";
-import type { Task } from "@/api/types";
+import { REFERENCE_TASK_ID, type Task } from "@/api/types";
 
 const MAX_PROMPT_LENGTH = 2000;
 const MIN_BATCH = 1;
@@ -42,8 +43,12 @@ export function CreatePage() {
   const [jobId, setJobId] = useState<string | null>(null);
   const [generationIds, setGenerationIds] = useState<string[]>([]);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [references, setReferences] = useState<ReferenceItem[]>([]);
+  const [referencesNotice, setReferencesNotice] = useState<string | null>(null);
 
   const selectedTask: Task | undefined = creationTasks.find((t) => t.id === taskId);
+  const requiresReferences = selectedTask?.id === REFERENCE_TASK_ID;
+  const missingReferences = requiresReferences && references.length === 0;
 
   useEffect(() => {
     if (!taskId && creationTasks.length > 0) {
@@ -97,6 +102,14 @@ export function CreatePage() {
     if (patch.styleIds) setStyleIds(patch.styleIds);
     if (patch.steps !== undefined) setSteps(patch.steps);
     if (patch.cfg !== undefined) setCfg(patch.cfg);
+    // A recipe never carries references (UploadRecipeParams has no such field),
+    // so crea_da_riferimenti can't restore them and the user picks again.
+    if (patch.taskId === REFERENCE_TASK_ID) {
+      setReferences([]);
+      setReferencesNotice("Scegli di nuovo le immagini di riferimento.");
+    } else {
+      setReferencesNotice(null);
+    }
   }
 
   function handleSelectTask(id: string) {
@@ -106,6 +119,8 @@ export function CreatePage() {
       setAspectRatio(task.default_aspect_ratio);
       setStyleIds(task.default_styles);
     }
+    setReferences([]);
+    setReferencesNotice(null);
   }
 
   function validate(): boolean {
@@ -124,6 +139,7 @@ export function CreatePage() {
   function handleSubmit() {
     if (!selectedTask) return;
     if (!validate()) return;
+    if (missingReferences) return;
     jobMutation.mutate({
       task_id: selectedTask.id,
       prompt,
@@ -136,6 +152,7 @@ export function CreatePage() {
         steps,
         cfg,
       },
+      ...(requiresReferences ? { references: references.map((item) => item.input) } : {}),
     });
   }
 
@@ -174,6 +191,18 @@ export function CreatePage() {
               prompt={prompt}
               onUseExample={setPrompt}
             />
+
+            {requiresReferences ? (
+              <div className="flex flex-col gap-1">
+                <ReferencePicker items={references} onChange={setReferences} />
+                {referencesNotice ? (
+                  <p role="status" className="text-sm text-ink-muted">
+                    {referencesNotice}
+                  </p>
+                ) : null}
+              </div>
+            ) : null}
+
             <RecipeImport tasks={creationTasks} onApply={handleApplyRecipe}>
               <div className="flex flex-col gap-1">
                 <label htmlFor="prompt-input" className="text-sm font-semibold text-ink">
@@ -235,14 +264,22 @@ export function CreatePage() {
 
             <GpuWarning />
 
-            <button
-              type="button"
-              onClick={handleSubmit}
-              disabled={jobMutation.isPending || jobId !== null}
-              className="min-h-11 w-fit rounded-md bg-accent px-4 py-2 text-sm font-semibold text-accent-ink disabled:cursor-not-allowed disabled:bg-paper-3 disabled:text-ink-muted"
-            >
-              {jobMutation.isPending || (jobId !== null && !isDone) ? "Generazione in corso..." : "Genera"}
-            </button>
+            <div className="flex flex-col gap-1">
+              <button
+                type="button"
+                onClick={handleSubmit}
+                disabled={jobMutation.isPending || jobId !== null || missingReferences}
+                aria-describedby={missingReferences ? "references-missing-reason" : undefined}
+                className="min-h-11 w-fit rounded-md bg-accent px-4 py-2 text-sm font-semibold text-accent-ink disabled:cursor-not-allowed disabled:bg-paper-3 disabled:text-ink-muted"
+              >
+                {jobMutation.isPending || (jobId !== null && !isDone) ? "Generazione in corso..." : "Genera"}
+              </button>
+              {missingReferences ? (
+                <p id="references-missing-reason" className="text-sm text-ink-muted">
+                  Aggiungi almeno un&apos;immagine di riferimento per generare.
+                </p>
+              ) : null}
+            </div>
           </>
         ) : null}
       </div>
