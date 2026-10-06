@@ -12,6 +12,7 @@ from app.config import Settings
 from app.engine.comfy_client import ComfyClient
 from app.engine.comfy_engine import ComfyEngine
 from app.engine.fake_engine import FakeEngine
+from app.repositories.asset_repository import AssetRepository
 from app.repositories.database import Database
 from app.repositories.generation_repository import GenerationRepository
 from app.repositories.image_repository import ImageRepository
@@ -83,6 +84,7 @@ async def lifespan(application: FastAPI) -> AsyncIterator[None]:
     application.state.database = resources.repository.database
     application.state.task_catalog = resources.catalog
     application.state.style_service = resources.styles
+    application.state.asset_repository = AssetRepository(data_dir=config.data_dir)
     initialize_image_services(application=application, resources=resources)
     service = JobService(resources=resources)
     application.state.job_service = service

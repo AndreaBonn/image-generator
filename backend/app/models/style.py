@@ -14,6 +14,7 @@ class StyleSummary(BaseModel):
     id: str
     name: str
     source_file: str
+    preview_url: str | None = None
 
 
 class StylesResponse(BaseModel):
