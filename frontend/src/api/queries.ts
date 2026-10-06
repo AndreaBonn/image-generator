@@ -4,6 +4,7 @@ import type {
   CreateJobBody,
   CreateJobResponse,
   EmptyTrashResult,
+  ExamplesResponse,
   Generation,
   GenerationSummary,
   HealthStatus,
@@ -38,6 +39,11 @@ export function fetchTasks(signal?: AbortSignal): Promise<Task[]> {
 export function fetchStyles(query: string, signal?: AbortSignal): Promise<Style[]> {
   const search = query.trim() ? `?q=${encodeURIComponent(query.trim())}` : "";
   return apiClient.get<Style[]>(`/styles${search}`, signal);
+}
+
+/** First-use examples for Crea, "prova questo" (SPEC.md § 11.3, T083). */
+export function fetchExamples(signal?: AbortSignal): Promise<ExamplesResponse> {
+  return apiClient.get<ExamplesResponse>("/examples", signal);
 }
 
 export function checkPromptLanguage(text: string): Promise<LanguageCheckResult> {

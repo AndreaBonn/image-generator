@@ -5,6 +5,7 @@ import { GpuCard } from "@/components/settings/GpuCard";
 import { DiskCard } from "@/components/settings/DiskCard";
 import { LoadedModelCard } from "@/components/settings/LoadedModelCard";
 import { ModelsTable } from "@/components/settings/ModelsTable";
+import { ExamplesCard } from "@/components/settings/ExamplesCard";
 import { ClearOutputCard } from "@/components/settings/ClearOutputCard";
 import { ThemeCard } from "@/components/settings/ThemeCard";
 
@@ -59,6 +60,7 @@ export function SettingsPage() {
       <DiskCard disk={system.disk} trashSummary={trashSummaryQuery.data} />
       <LoadedModelCard family={system.loaded_family} />
       <ModelsTable models={system.models} installCommand={system.install_command} disk={system.disk} />
+      <ExamplesCard />
       <ClearOutputCard />
       <ThemeCard />
     </div>

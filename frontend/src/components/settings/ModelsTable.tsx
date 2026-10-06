@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import type { DiskInfo, ModelInfo } from "@/api/types";
 import { modelStatusLabel } from "@/lib/modelStatus";
@@ -7,6 +7,7 @@ import { InfoTip } from "@/components/ui/InfoTip";
 import { HELP_TEXTS } from "@/lib/helpTexts";
 import { useModelDownload, type UseModelDownloadResult } from "@/hooks/useModelDownload";
 import { ModelDownloadButton } from "@/components/settings/ModelDownloadButton";
+import { CopyableCommand } from "@/components/ui/CopyableCommand";
 
 interface ModelsTableProps {
   models: ModelInfo[];
@@ -109,40 +110,12 @@ function ModelRow({
               <ModelDownloadButton model={model} disk={disk} download={download} />
               <details className="text-sm text-ink-muted">
                 <summary className="min-h-11 cursor-pointer content-center">Da terminale</summary>
-                <InstallCommand command={model.install_command ?? `${installCommand} ${model.id}`} />
+                <CopyableCommand command={model.install_command ?? `${installCommand} ${model.id}`} />
               </details>
             </div>
           </td>
         </tr>
       ) : null}
     </>
-  );
-}
-
-function InstallCommand({ command }: { command: string }) {
-  const [copied, setCopied] = useState(false);
-
-  async function handleCopy() {
-    try {
-      await navigator.clipboard.writeText(command);
-      setCopied(true);
-    } catch {
-      setCopied(false);
-    }
-  }
-
-  return (
-    <div className="flex flex-wrap items-center gap-2">
-      <code className="rounded bg-paper-3 px-2 py-1 text-xs text-ink">
-        {command}
-      </code>
-      <button
-        type="button"
-        onClick={handleCopy}
-        className="min-h-11 rounded-md border border-border px-3 py-2 text-xs text-ink"
-      >
-        {copied ? "Copiato" : "Copia"}
-      </button>
-    </div>
   );
 }

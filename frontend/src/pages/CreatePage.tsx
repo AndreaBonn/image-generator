@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { fetchTasks, createJob, cancelJob } from "@/api/queries";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { fetchTasks, fetchExamples, createJob, cancelJob } from "@/api/queries";
 import { useJobEvents } from "@/api/useJobEvents";
 import { ApiError } from "@/api/errors";
 import { TaskSelector } from "@/components/create/TaskSelector";
@@ -13,6 +13,7 @@ import { ResultArea } from "@/components/create/ResultArea";
 import { RecipeImport } from "@/components/create/RecipeImport";
 import { ReferencePicker, type ReferenceItem } from "@/components/create/ReferencePicker";
 import { SketchPad } from "@/components/create/SketchPad";
+import { ExamplesPanel, type TryExamplePatch } from "@/components/create/ExamplesPanel";
 import { GpuWarning } from "@/components/layout/GpuWarning";
 import { InfoTip } from "@/components/ui/InfoTip";
 import { HELP_TEXTS } from "@/lib/helpTexts";
@@ -32,6 +33,11 @@ export function CreatePage() {
     () => (tasksQuery.data ?? []).filter((t) => t.group === "crea"),
     [tasksQuery.data],
   );
+  // First-use "prova questo" (SPEC.md § 11.3): hidden the moment the user has
+  // generated anything, so a failed fetch just means no panel, not a page error.
+  const examplesQuery = useQuery({ queryKey: ["examples"], queryFn: ({ signal }) => fetchExamples(signal) });
+  const showExamples = examplesQuery.data?.first_use === true;
+  const generateButtonRef = useRef<HTMLButtonElement | null>(null);
 
   const [taskId, setTaskId] = useState<string | null>(null);
   const [prompt, setPrompt] = useState("");
@@ -71,19 +77,22 @@ export function CreatePage() {
   }, [creationTasks, taskId]);
 
   const { latest, latestPreviewUrl, isDone } = useJobEvents(jobId);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     if (!latest) return;
     if (latest.type === "completed") {
       setGenerationIds(latest.generation_ids);
       setJobId(null);
+      // The first generation ends "first use": refetch so the examples panel goes away now.
+      void queryClient.invalidateQueries({ queryKey: ["examples"] });
     } else if (latest.type === "failed") {
       setErrorMessage(latest.message);
       setJobId(null);
     } else if (latest.type === "cancelled") {
       setJobId(null);
     }
-  }, [latest]);
+  }, [latest, queryClient]);
 
   const jobMutation = useMutation({
     mutationFn: createJob,
@@ -120,6 +129,23 @@ export function CreatePage() {
     } else {
       setReferencesNotice(null);
     }
+  }
+
+  /** "Prova questo" (SPEC.md § 11.3): fills compito, prompt, seed and format, never
+   * sends a job, then moves focus to Genera so the user only has to press it. */
+  function handleTryExample(patch: TryExamplePatch) {
+    const task = creationTasks.find((t) => t.id === patch.taskId);
+    setTaskId(patch.taskId);
+    setAspectRatio(patch.aspectRatio ?? task?.default_aspect_ratio ?? "");
+    setStyleIds(task?.default_styles ?? []);
+    setPrompt(patch.prompt);
+    if (patch.seed !== undefined) {
+      setSeed(patch.seed);
+      setSeedLocked(true);
+    }
+    setReferences([]);
+    setReferencesNotice(null);
+    generateButtonRef.current?.focus();
   }
 
   function handleSelectTask(id: string) {
@@ -297,6 +323,7 @@ export function CreatePage() {
 
             <div className="flex flex-col gap-1">
               <button
+                ref={generateButtonRef}
                 type="button"
                 onClick={handleSubmit}
                 disabled={jobMutation.isPending || jobId !== null || missingReferences}
@@ -317,15 +344,27 @@ export function CreatePage() {
         ) : null}
       </div>
 
-      <ResultArea
-        latestEvent={latest}
-        previewUrl={latestPreviewUrl}
-        generationIds={generationIds}
-        errorMessage={errorMessage}
-        isRunning={jobId !== null}
-        onRetry={handleSubmit}
-        onCancel={() => jobId && cancelMutation.mutate(jobId)}
-      />
+      {/* order-first puts the examples (and the result area under them) above the
+          form on mobile; lg:order-none restores the normal two-column layout. */}
+      <div className={showExamples ? "order-first flex flex-col gap-4 lg:order-none" : "flex flex-col gap-4"}>
+        {showExamples ? (
+          <ExamplesPanel
+            examples={examplesQuery.data?.examples ?? []}
+            tasks={creationTasks}
+            onTryExample={handleTryExample}
+          />
+        ) : null}
+        <ResultArea
+          latestEvent={latest}
+          previewUrl={latestPreviewUrl}
+          generationIds={generationIds}
+          errorMessage={errorMessage}
+          isRunning={jobId !== null}
+          onRetry={handleSubmit}
+          onCancel={() => jobId && cancelMutation.mutate(jobId)}
+          hasExternalResults={showExamples}
+        />
+      </div>
     </div>
   );
 }
