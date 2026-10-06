@@ -93,6 +93,7 @@ Gli stili vengono copiati nella cartella dati locale, senza essere versionati ne
 | Accesso da LAN, autenticazione, multi-utente | Uso solo locale; ComfyUI non ha autenticazione reale (§ 9) |
 | Gestione LoRA da UI, training, video | Non richiesti |
 | Replica identica dell'output Fooocus | Fooocus applica correzioni di sampling proprie (sharpness, adaptive CFG) che ComfyUI non ha: le immagini SDXL saranno simili, non identiche |
+| ControlNet union per schizzo e posa (`da_schizzo`, `in_posa`) | ADR-1 = B: FLUX.2 klein con i riferimenti già usati da `crea_da_riferimenti` basta, nessun modello nuovo. Resta un'uscita condizionata (Fase 4-alt, nodi core `ControlNetLoader` + `SetUnionControlNetType`, senza pacchetti aggiuntivi) se il gate di qualità con l'utente non supera la soglia (4/5 schizzi, 2/3 pose giudicati) |
 
 ---
 
@@ -130,8 +131,12 @@ Note:
 | `modifica_libera` (v1.1) | Modifica con le parole | FLUX.2 klein 4B con `ReferenceLatent` sul positivo e sul negativo azzerato (grafo del template ufficiale image edit distilled) | 4 passi, CFG 1.0; input a circa 1 MP, lati multipli di 16 | Italiano o inglese, obbligatorio |
 | `rimuovi_sfondo` (v1.1) | Rimuovi lo sfondo | Nodi core `LoadBackgroundRemovalModel` + `RemoveBackground` (BiRefNet), `InvertMask`, `JoinImageWithAlpha`; famiglia `background` | dimensione originale, PNG RGBA, miniatura WEBP con alfa | Nessun prompt |
 | `ingrandisci_rifinito` (v1.1) | Ingrandisci con rifinitura | 4x-UltraSharp, ridimensionamento a 2× la dimensione di lavoro (circa 1 MP), poi img2img SDXL su tasselli da 1024 px (sovrapposizione 128) uniti con sfumatura (`SplitImageToTileList`, `ImageMergeTileList`) | 12 passi, CFG 4.0, denoise 0.3 (0.1-0.5); misurato 94-109 s e 7,7 GB di picco per 1152×896 → 2304×1792 | Inglese, facoltativo |
+| `da_schizzo` (v1.2) | Dallo schizzo | FLUX.2 [klein] 4B distilled fp8 con `ReferenceLatent` (stesso grafo di `crea_da_riferimenti`, template `workflows/flux2_klein_refs_{1,2}.json`): 1 riferimento obbligatorio (lo schizzo), un secondo opzionale (stile o soggetto) | 4 step, CFG 1.0; prefisso di prompt fisso che chiede di seguire esattamente la composizione e i contorni dello schizzo | Italiano o inglese, obbligatorio |
+| `in_posa` (v1.2) | In posa | FLUX.2 [klein] 4B distilled fp8 con `ReferenceLatent` (stesso grafo, template `workflows/flux2_klein_refs_2.json`): esattamente 2 riferimenti, posa e personaggio | 4 step, CFG 1.0; prefisso di prompt fisso che chiede di applicare la posa del primo riferimento al personaggio del secondo | Italiano o inglese, obbligatorio |
 
 Le variazioni si applicano a qualsiasi immagine (anche non generata da SDXL), ma passano sempre dal checkpoint SDXL. Il bordo dell'immagine di input si adatta alle proporzioni SDXL più vicine (§ 3.4).
+
+`da_schizzo` e `in_posa` riusano i template di `crea_da_riferimenti` (§ 3.1): nessun modello nuovo, nessun nodo ControlNet (ADR-1 = B, § 2.2). Il prefisso di prompt (`prompt_prefix` in `tasks.yaml`) si applica davanti al prompt dell'utente prima degli stili, come per i compiti con stili attivi; entrambi i compiti hanno `supports_styles: false`. Il gate di qualità con l'utente (soglia 4/5 schizzi, 2/3 pose) decide se bastano o se serve la Fase 4-alt con ControlNet.
 
 Per inpaint e outpaint il backend porta l'immagine di input a circa 1 megapixel (lati multipli di 8, proporzioni mantenute) prima di caricarla nel motore: SDXL lavora bene a quella scala. Il risultato viene ricomposto sull'originale con la maschera sfumata, quindi i pixel fuori dalla zona restano identici a quelli di partenza (alla risoluzione di lavoro).
 
