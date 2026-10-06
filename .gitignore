@@ -18,6 +18,7 @@ dist/
 # Engine installation (ComfyUI clone, venv, downloaded models)
 engine/ComfyUI/
 engine/models/
+engine/run/
 
 # Runtime data and benchmark outputs
 data/
