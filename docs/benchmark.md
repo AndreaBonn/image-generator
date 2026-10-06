@@ -118,3 +118,20 @@ dello schizzo restano visibili sopra la foto, e nel n. 7 l'omino compare come og
 scena invece di dare la posa al personaggio. Gli altri seguono composizione o posa.
 
 **Verdetto del gate (soglia 4/5 schizzi, 2/3 pose): in attesa del giudizio dell'utente.**
+
+## Anteprime degli stili (O9)
+
+Misura del 7 ottobre 2026, RTX 4060 Laptop. Il piano (AS-P9) prevedeva le anteprime col compito
+`bozza` (SDXL-Lightning, 4 passi, CFG 1) per contenere il tempo a circa 20 minuti. Prova con lo
+stesso prompt ("a woman sitting by a window with a cup of tea") e seed 1 su due stili molto
+riconoscibili:
+
+| Stile | `bozza` | `qualita` (30 passi) | `qualita` (12 passi) |
+|---|---|---|---|
+| Action Figure | foto realistica, stile assente | figura d'azione | figura d'azione |
+| Adorable 3D Character | foto realistica, stile assente | personaggio 3D | personaggio 3D |
+
+Con `bozza` lo stile non si vede, quindi le anteprime non servivano allo scopo: generate con
+`qualita` a 12 passi, circa 13,5 s ciascuna (27 s misurati per due), circa 62 minuti per tutti
+gli stili. Effetto collaterale da sapere: anche quando l'utente sceglie degli stili sul compito
+`bozza`, l'effetto è debole.
