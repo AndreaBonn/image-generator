@@ -1,31 +1,34 @@
-import os
-import subprocess
+"""Regression test against the real template (not a synthetic one), so a change
+to config/comfy/extra_model_paths.yaml.template that breaks the generated file
+is caught here, not just by the synthetic-template unit test in
+test_install_engine.py.
+"""
+
+import importlib.util
+import sys
 from pathlib import Path
 
 import yaml
 
 ROOT = Path(__file__).resolve().parents[2]
 
+_spec = importlib.util.spec_from_file_location(
+    "install_engine", ROOT / "engine" / "install_engine.py"
+)
+install_engine = importlib.util.module_from_spec(_spec)
+sys.modules["install_engine"] = install_engine
+_spec.loader.exec_module(install_engine)
+
 
 def test_engine_generates_only_owned_model_paths(tmp_path: Path) -> None:
     template = ROOT / "config/comfy/extra_model_paths.yaml.template"
-    config = tmp_path / "config/comfy"
-    config.mkdir(parents=True)
-    (config / template.name).write_text(template.read_text(), encoding="utf-8")
-    engine = tmp_path / "engine"
-    engine.mkdir()
-    script = (ROOT / "engine/install_engine.sh").read_text()
-    function = script.split("write_model_paths() {", maxsplit=1)[1].split("\n}\n", maxsplit=1)[0]
-    command = "set -eu\nlog() { :; }\nwrite_model_paths() {" + function + "\n}\nwrite_model_paths"
-    env = dict(
-        os.environ,
-        REPO_ROOT=str(tmp_path),
-        ENGINE_DIR=str(engine),
-        MODELS_DIR=str(tmp_path / "models"),
-    )
-    env.pop("FOOOCUS_DIR", None)
-    subprocess.run(args=["bash", "-c", command], env=env, check=True, capture_output=True)
-    result = yaml.safe_load((engine / "extra_model_paths.yaml").read_text())
+    engine_dir = tmp_path / "engine"
+    engine_dir.mkdir()
+    models_dir = tmp_path / "models"
+
+    install_engine.execute_write_model_paths(engine_dir, models_dir, template)
+
+    result = yaml.safe_load((engine_dir / "extra_model_paths.yaml").read_text())
     assert list(result) == ["studio"]
-    assert result["studio"]["base_path"] == str(tmp_path / "models")
-    assert (tmp_path / "models/inpaint").is_dir()
+    assert result["studio"]["base_path"] == str(models_dir)
+    assert (models_dir / "inpaint").is_dir()

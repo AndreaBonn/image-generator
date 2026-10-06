@@ -18,8 +18,12 @@ def run_command(args: Sequence[str], *, cwd: Path | None = None) -> None:
 
 
 def run_engine_step(repo_root: Path) -> None:
-    """Install (or repair) the ComfyUI engine via the pinned Linux script."""
-    run_command(["bash", str(repo_root / "engine" / "install_engine.sh")])
+    """Install (or repair) the ComfyUI engine via the cross-platform Python port.
+
+    `uv run --script` on every OS: unlike the `.sh` wrapper, this has no bash
+    dependency, so install.py stays usable on Windows/macOS too.
+    """
+    run_command(["uv", "run", "--script", str(repo_root / "engine" / "install_engine.py")])
 
 
 def run_backend_deps_step(repo_root: Path) -> None:

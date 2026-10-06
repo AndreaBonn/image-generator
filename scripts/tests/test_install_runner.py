@@ -18,13 +18,15 @@ def test_run_command_executes_argument_list_never_through_shell(monkeypatch):
     assert "shell" not in kwargs
 
 
-def test_run_engine_step_invokes_install_engine_sh_via_bash(monkeypatch):
+def test_run_engine_step_invokes_install_engine_py_via_uv_run_script(monkeypatch):
+    """engine/install_engine.py (not the .sh), via `uv run --script`, on every OS:
+    install.py has no bash dependency, so it must not shell out to bash itself."""
     calls = []
     monkeypatch.setattr(install_runner, "run_command", lambda args, **kw: calls.append(args))
 
     install_runner.run_engine_step(Path("/repo"))
 
-    assert calls == [["bash", "/repo/engine/install_engine.sh"]]
+    assert calls == [["uv", "run", "--script", "/repo/engine/install_engine.py"]]
 
 
 def test_run_backend_deps_step_runs_uv_sync_in_backend_dir(monkeypatch):
