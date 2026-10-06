@@ -180,6 +180,8 @@ describe("resolveRecipeImport", () => {
         id: "crea_da_riferimenti",
         supports_styles: false,
         supports_negative: false,
+        min_references: 1,
+        max_references: 3,
       }),
     ];
 

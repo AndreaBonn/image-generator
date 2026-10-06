@@ -3,7 +3,7 @@ import { useMutation } from "@tanstack/react-query";
 import { thumbnailUrl, uploadFile } from "@/api/queries";
 import { InfoTip } from "@/components/ui/InfoTip";
 import { HELP_TEXTS } from "@/lib/helpTexts";
-import { MAX_REFERENCES, type ReferenceInput } from "@/api/types";
+import type { ReferenceInput } from "@/api/types";
 import { GalleryReferenceDialog } from "@/components/create/GalleryReferenceDialog";
 
 const ACCEPTED_TYPES = ["image/png", "image/jpeg", "image/webp"];
@@ -18,7 +18,33 @@ export interface ReferenceItem {
 interface ReferencePickerProps {
   items: ReferenceItem[];
   onChange: (items: ReferenceItem[]) => void;
+  minReferences: number;
+  maxReferences: number;
+  /** One label per slot, in order (e.g. ["Posa", "Personaggio"]); null when slots
+   * are interchangeable (SPEC.md § 7.3's Task.reference_labels). */
+  labels?: string[] | null;
   disabled?: boolean;
+}
+
+/** Lowercases just the first letter, so a label fits mid-sentence ("Posa" -> "posa"). */
+function lowerFirst(label: string): string {
+  return label.length === 0 ? label : label.charAt(0).toLowerCase() + label.slice(1);
+}
+
+function pickerHint(minReferences: number, maxReferences: number, labels?: string[] | null): string {
+  if (labels && labels.length > 0) {
+    const required = labels.slice(0, minReferences);
+    const optional = labels.slice(minReferences).map(lowerFirst);
+    const head =
+      required.length === 1
+        ? `Aggiungi l'immagine richiesta: ${required[0]}.`
+        : `Aggiungi le immagini richieste: ${required.join(", ")}.`;
+    return optional.length > 0 ? `${head} Facoltativa: ${optional.join(", ")}.` : head;
+  }
+  if (minReferences === maxReferences) {
+    return `Aggiungi ${minReferences} foto dello stesso soggetto.`;
+  }
+  return `Aggiungi da ${minReferences} a ${maxReferences} foto dello stesso soggetto.`;
 }
 
 /**
@@ -48,10 +74,18 @@ function usePreviewRevocation(items: ReferenceItem[]) {
   );
 }
 
-export function ReferencePicker({ items, onChange, disabled = false }: ReferencePickerProps) {
+export function ReferencePicker({
+  items,
+  onChange,
+  minReferences,
+  maxReferences,
+  labels = null,
+  disabled = false,
+}: ReferencePickerProps) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [galleryOpen, setGalleryOpen] = useState(false);
-  const atMax = items.length >= MAX_REFERENCES;
+  const atMax = items.length >= maxReferences;
+  const missingLabel = labels?.[items.length];
   usePreviewRevocation(items);
 
   const uploadMutation = useMutation({
@@ -100,37 +134,39 @@ export function ReferencePicker({ items, onChange, disabled = false }: Reference
       </span>
 
       {items.length === 0 ? (
-        <p className="text-sm text-ink-muted">Aggiungi da 1 a 3 foto dello stesso soggetto.</p>
+        <p className="text-sm text-ink-muted">{pickerHint(minReferences, maxReferences, labels)}</p>
       ) : (
         <ul className="flex flex-wrap gap-2">
           {items.map((item, index) => (
-            <li
-              key={item.key}
-              className="relative h-24 w-24 overflow-hidden rounded-md border border-border"
-            >
-              <img src={item.previewUrl} alt="" className="h-full w-full object-cover" />
-              <button
-                type="button"
-                onClick={() => handleRemove(item.key)}
-                disabled={disabled}
-                aria-label={`Rimuovi riferimento ${index + 1}`}
-                className="absolute right-0 top-0 flex h-11 w-11 items-start justify-end p-1 disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {/* 44px hit target for touch, 24px visual badge so the thumbnail stays visible. */}
-                <span
-                  aria-hidden="true"
-                  className="flex h-6 w-6 items-center justify-center rounded-full bg-paper/90 text-xs font-semibold text-ink"
+            <li key={item.key} className="flex flex-col items-center gap-1">
+              <div className="relative h-24 w-24 overflow-hidden rounded-md border border-border">
+                <img src={item.previewUrl} alt="" className="h-full w-full object-cover" />
+                <button
+                  type="button"
+                  onClick={() => handleRemove(item.key)}
+                  disabled={disabled}
+                  aria-label={`Rimuovi riferimento ${index + 1}`}
+                  className="absolute right-0 top-0 flex h-11 w-11 items-start justify-end p-1 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  ×
-                </span>
-              </button>
+                  {/* 44px hit target for touch, 24px visual badge so the thumbnail stays visible. */}
+                  <span
+                    aria-hidden="true"
+                    className="flex h-6 w-6 items-center justify-center rounded-full bg-paper/90 text-xs font-semibold text-ink"
+                  >
+                    ×
+                  </span>
+                </button>
+              </div>
+              {labels?.[index] ? (
+                <span className="text-xs text-ink-muted">{labels[index]}</span>
+              ) : null}
             </li>
           ))}
         </ul>
       )}
 
       <p aria-live="polite" className="text-sm text-ink-muted">
-        {items.length} di {MAX_REFERENCES}
+        {items.length} di {maxReferences}
       </p>
 
       <div className="flex flex-wrap items-center gap-2">
@@ -140,7 +176,11 @@ export function ReferencePicker({ items, onChange, disabled = false }: Reference
           disabled={disabled || atMax || uploadMutation.isPending}
           className="min-h-11 rounded-md border border-border bg-paper-2 px-3 py-2 text-sm font-medium text-ink disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {uploadMutation.isPending ? "Caricamento..." : "Aggiungi da file"}
+          {uploadMutation.isPending
+            ? "Caricamento..."
+            : missingLabel
+              ? `Aggiungi ${lowerFirst(missingLabel)} da file`
+              : "Aggiungi da file"}
         </button>
         <button
           type="button"
@@ -148,7 +188,7 @@ export function ReferencePicker({ items, onChange, disabled = false }: Reference
           disabled={disabled || atMax || uploadMutation.isPending}
           className="min-h-11 rounded-md border border-border bg-paper-2 px-3 py-2 text-sm font-medium text-ink disabled:cursor-not-allowed disabled:opacity-60"
         >
-          Aggiungi dalla galleria
+          {missingLabel ? `Aggiungi ${lowerFirst(missingLabel)} dalla galleria` : "Aggiungi dalla galleria"}
         </button>
       </div>
       <input

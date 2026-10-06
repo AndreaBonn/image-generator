@@ -19,6 +19,9 @@ export function buildTask(overrides: Partial<Task> = {}): Task {
     supports_styles: true,
     supports_negative: true,
     default_styles: [],
+    reference_labels: null,
+    min_references: 0,
+    max_references: 0,
     defaults: { steps: 30, cfg: 4 },
     limits: { steps: { min: 10, max: 60 }, cfg: { min: 1, max: 12 } },
     aspect_ratios: [

@@ -1,19 +1,6 @@
-import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
-import {
-  canRedoMaskHistory,
-  canUndoMaskHistory,
-  createEmptyMask,
-  createMaskHistory,
-  currentMask,
-  invertMask,
-  maskToOverlayRgba,
-  paintStroke,
-  pushMaskHistory,
-  redoMaskHistory,
-  undoMaskHistory,
-  type MaskHistory,
-  type MaskPoint,
-} from "@/lib/mask";
+import { useEffect, useRef, useState } from "react";
+import { maskToOverlayRgba, type MaskValue } from "@/lib/mask";
+import { useStrokeCanvas } from "@/hooks/useStrokeCanvas";
 import { InfoTip } from "@/components/ui/InfoTip";
 import { HELP_TEXTS } from "@/lib/helpTexts";
 
@@ -40,16 +27,9 @@ interface MaskEditorProps {
  */
 export function MaskEditor({ imageUrl, width, height, onMaskChange }: MaskEditorProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const strokePoints = useRef<MaskPoint[]>([]);
-  const isDrawing = useRef(false);
-  const [history, setHistory] = useState<MaskHistory>(() =>
-    createMaskHistory(createEmptyMask(width, height)),
-  );
   const [tool, setTool] = useState<Tool>("brush");
   const [brushSize, setBrushSize] = useState(DEFAULT_BRUSH);
   const [zoom, setZoom] = useState<Zoom>("fit");
-
-  const mask = currentMask(history);
 
   function redraw(next: Uint8Array) {
     const ctx = canvasRef.current?.getContext("2d");
@@ -57,6 +37,9 @@ export function MaskEditor({ imageUrl, width, height, onMaskChange }: MaskEditor
     const rgba = maskToOverlayRgba(next, OVERLAY_COLOR, OVERLAY_ALPHA);
     ctx.putImageData(new ImageData(rgba, width, height), 0, 0);
   }
+
+  const stroke = useStrokeCanvas({ width, height, onLivePaint: redraw });
+  const { mask } = stroke;
 
   useEffect(() => {
     const ctx = canvasRef.current?.getContext("2d");
@@ -67,43 +50,19 @@ export function MaskEditor({ imageUrl, width, height, onMaskChange }: MaskEditor
     onMaskChange(mask);
   }, [mask, width, height, onMaskChange]);
 
-  function pointFromEvent(event: ReactPointerEvent<HTMLCanvasElement>): MaskPoint {
-    const rect = event.currentTarget.getBoundingClientRect();
-    const scaleX = width / rect.width;
-    const scaleY = height / rect.height;
-    return {
-      x: (event.clientX - rect.left) * scaleX,
-      y: (event.clientY - rect.top) * scaleY,
-    };
+  const value: MaskValue = tool === "brush" ? 255 : 0;
+  const radius = brushSize / 2;
+
+  function handlePointerDown(event: Parameters<typeof stroke.handlePointerDown>[0]) {
+    stroke.handlePointerDown(event, radius, value);
   }
 
-  function liveStroke(point: MaskPoint): Uint8Array {
-    strokePoints.current.push(point);
-    const value = tool === "brush" ? 255 : 0;
-    const next = paintStroke(mask, width, height, strokePoints.current, brushSize / 2, value);
-    redraw(next);
-    return next;
-  }
-
-  function handlePointerDown(event: ReactPointerEvent<HTMLCanvasElement>) {
-    event.currentTarget.setPointerCapture(event.pointerId);
-    isDrawing.current = true;
-    strokePoints.current = [];
-    liveStroke(pointFromEvent(event));
-  }
-
-  function handlePointerMove(event: ReactPointerEvent<HTMLCanvasElement>) {
-    if (!isDrawing.current) return;
-    liveStroke(pointFromEvent(event));
+  function handlePointerMove(event: Parameters<typeof stroke.handlePointerMove>[0]) {
+    stroke.handlePointerMove(event, radius, value);
   }
 
   function commitStroke() {
-    if (!isDrawing.current) return;
-    isDrawing.current = false;
-    const value = tool === "brush" ? 255 : 0;
-    const next = paintStroke(mask, width, height, strokePoints.current, brushSize / 2, value);
-    strokePoints.current = [];
-    setHistory((h) => pushMaskHistory(h, next));
+    stroke.commitStroke(radius, value);
   }
 
   return (
@@ -145,12 +104,12 @@ export function MaskEditor({ imageUrl, width, height, onMaskChange }: MaskEditor
         onBrushSizeChange={setBrushSize}
         zoom={zoom}
         onZoomChange={setZoom}
-        canUndo={canUndoMaskHistory(history)}
-        canRedo={canRedoMaskHistory(history)}
-        onUndo={() => setHistory((h) => undoMaskHistory(h))}
-        onRedo={() => setHistory((h) => redoMaskHistory(h))}
-        onInvert={() => setHistory((h) => pushMaskHistory(h, invertMask(currentMask(h))))}
-        onClear={() => setHistory((h) => pushMaskHistory(h, createEmptyMask(width, height)))}
+        canUndo={stroke.canUndo}
+        canRedo={stroke.canRedo}
+        onUndo={stroke.undo}
+        onRedo={stroke.redo}
+        onInvert={stroke.invert}
+        onClear={stroke.clear}
       />
     </div>
   );

@@ -12,15 +12,19 @@ import { AdvancedOptions } from "@/components/create/AdvancedOptions";
 import { ResultArea } from "@/components/create/ResultArea";
 import { RecipeImport } from "@/components/create/RecipeImport";
 import { ReferencePicker, type ReferenceItem } from "@/components/create/ReferencePicker";
+import { SketchPad } from "@/components/create/SketchPad";
 import { GpuWarning } from "@/components/layout/GpuWarning";
 import { InfoTip } from "@/components/ui/InfoTip";
 import { HELP_TEXTS } from "@/lib/helpTexts";
 import type { RecipeImportPatch } from "@/lib/recipeImport";
-import { REFERENCE_TASK_ID, type Task } from "@/api/types";
+import type { Task } from "@/api/types";
 
 const MAX_PROMPT_LENGTH = 2000;
 const MIN_BATCH = 1;
 const MAX_BATCH = 4;
+/** Only task whose first reference slot can be drawn instead of picked (SPEC.md
+ * § 3.2): /tasks has no "can sketch" flag, so the id is matched directly. */
+const SKETCH_TASK_ID = "da_schizzo";
 
 export function CreatePage() {
   const tasksQuery = useQuery({ queryKey: ["tasks"], queryFn: ({ signal }) => fetchTasks(signal) });
@@ -45,10 +49,15 @@ export function CreatePage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [references, setReferences] = useState<ReferenceItem[]>([]);
   const [referencesNotice, setReferencesNotice] = useState<string | null>(null);
+  const [sketchDirty, setSketchDirty] = useState(false);
 
   const selectedTask: Task | undefined = creationTasks.find((t) => t.id === taskId);
-  const requiresReferences = selectedTask?.id === REFERENCE_TASK_ID;
-  const missingReferences = requiresReferences && references.length === 0;
+  const requiresReferences = (selectedTask?.max_references ?? 0) > 0;
+  const minReferences = selectedTask?.min_references ?? 1;
+  const missingReferences = requiresReferences && references.length < minReferences;
+  const canSketch = selectedTask?.id === SKETCH_TASK_ID && references.length === 0;
+  // Adding a reference would unmount the pad and drop a drawing not yet used as the sketch.
+  const sketchInProgress = canSketch && sketchDirty;
 
   useEffect(() => {
     if (!taskId && creationTasks.length > 0) {
@@ -103,8 +112,9 @@ export function CreatePage() {
     if (patch.steps !== undefined) setSteps(patch.steps);
     if (patch.cfg !== undefined) setCfg(patch.cfg);
     // A recipe never carries references (UploadRecipeParams has no such field),
-    // so crea_da_riferimenti can't restore them and the user picks again.
-    if (patch.taskId === REFERENCE_TASK_ID) {
+    // so a task that takes them can't restore them and the user picks again.
+    const patchedTask = creationTasks.find((t) => t.id === patch.taskId);
+    if (patchedTask && patchedTask.max_references > 0) {
       setReferences([]);
       setReferencesNotice("Scegli di nuovo le immagini di riferimento.");
     } else {
@@ -194,7 +204,28 @@ export function CreatePage() {
 
             {requiresReferences ? (
               <div className="flex flex-col gap-1">
-                <ReferencePicker items={references} onChange={setReferences} />
+                <ReferencePicker
+                  items={references}
+                  onChange={setReferences}
+                  minReferences={minReferences}
+                  maxReferences={selectedTask?.max_references ?? minReferences}
+                  labels={selectedTask?.reference_labels}
+                  disabled={sketchInProgress}
+                />
+                {canSketch ? (
+                  <div className="flex flex-col gap-1">
+                    <span className="text-sm font-semibold text-ink">Disegna lo schizzo</span>
+                    <SketchPad
+                      onReferenceCreated={(item) => setReferences([...references, item])}
+                      onDirtyChange={setSketchDirty}
+                    />
+                  </div>
+                ) : null}
+                {sketchInProgress ? (
+                  <p className="text-sm text-ink-muted">
+                    Usa lo schizzo o cancellalo prima di aggiungere altre immagini.
+                  </p>
+                ) : null}
                 {referencesNotice ? (
                   <p role="status" className="text-sm text-ink-muted">
                     {referencesNotice}
@@ -276,7 +307,9 @@ export function CreatePage() {
               </button>
               {missingReferences ? (
                 <p id="references-missing-reason" className="text-sm text-ink-muted">
-                  Aggiungi almeno un&apos;immagine di riferimento per generare.
+                  {minReferences > 1
+                    ? `Aggiungi almeno ${minReferences} immagini di riferimento per generare.`
+                    : "Aggiungi almeno un'immagine di riferimento per generare."}
                 </p>
               ) : null}
             </div>

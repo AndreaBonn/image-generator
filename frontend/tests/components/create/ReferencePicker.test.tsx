@@ -6,11 +6,21 @@ import { ReferencePicker, type ReferenceItem } from "@/components/create/Referen
 import * as queries from "@/api/queries";
 import { buildGenerationSummary } from "../../fixtures/generation";
 
-function renderPicker(items: ReferenceItem[], onChange = vi.fn()) {
+function renderPicker(
+  items: ReferenceItem[],
+  onChange = vi.fn(),
+  overrides: { minReferences?: number; maxReferences?: number; labels?: string[] | null } = {},
+) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   render(
     <QueryClientProvider client={client}>
-      <ReferencePicker items={items} onChange={onChange} />
+      <ReferencePicker
+        items={items}
+        onChange={onChange}
+        minReferences={overrides.minReferences ?? 1}
+        maxReferences={overrides.maxReferences ?? 3}
+        labels={overrides.labels}
+      />
     </QueryClientProvider>,
   );
   return onChange;
@@ -128,18 +138,46 @@ describe("ReferencePicker previews", () => {
     const client = new QueryClient();
     const { rerender } = render(
       <QueryClientProvider client={client}>
-        <ReferencePicker items={[kept, removed]} onChange={vi.fn()} />
+        <ReferencePicker items={[kept, removed]} onChange={vi.fn()} minReferences={1} maxReferences={3} />
       </QueryClientProvider>,
     );
 
     rerender(
       <QueryClientProvider client={client}>
-        <ReferencePicker items={[kept]} onChange={vi.fn()} />
+        <ReferencePicker items={[kept]} onChange={vi.fn()} minReferences={1} maxReferences={3} />
       </QueryClientProvider>,
     );
 
     expect(revoke).toHaveBeenCalledWith("blob:b");
     expect(revoke).not.toHaveBeenCalledWith("blob:a");
     vi.unstubAllGlobals();
+  });
+});
+
+describe("ReferencePicker with labelled slots (da_schizzo, in_posa)", () => {
+  it("marks slots beyond the minimum as optional in the hint", () => {
+    renderPicker([], vi.fn(), { minReferences: 1, maxReferences: 2, labels: ["Schizzo", "Stile o soggetto"] });
+
+    expect(
+      screen.getByText("Aggiungi l'immagine richiesta: Schizzo. Facoltativa: stile o soggetto."),
+    ).toBeInTheDocument();
+  });
+
+  it("names the missing slot in the empty-state hint and the add buttons", () => {
+    renderPicker([], vi.fn(), { minReferences: 2, maxReferences: 2, labels: ["Posa", "Personaggio"] });
+
+    expect(screen.getByText("Aggiungi le immagini richieste: Posa, Personaggio.")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Aggiungi posa da file" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Aggiungi posa dalla galleria" })).toBeInTheDocument();
+  });
+
+  it("shows each slot's label under its thumbnail and moves to the next slot's wording", () => {
+    const items: ReferenceItem[] = [
+      { key: "upload:a", input: { upload_id: "a" }, previewUrl: "blob:a" },
+    ];
+    renderPicker(items, vi.fn(), { minReferences: 2, maxReferences: 2, labels: ["Posa", "Personaggio"] });
+
+    expect(screen.getByText("Posa")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Aggiungi personaggio da file" })).toBeInTheDocument();
   });
 });

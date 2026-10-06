@@ -62,7 +62,12 @@ describe("CreatePage crea_da_riferimenti", () => {
   beforeEach(() => {
     installMockEventSource();
     vi.spyOn(queries, "fetchTasks").mockResolvedValue([
-      buildTask({ id: "crea_da_riferimenti", label: "Crea dai riferimenti" }),
+      buildTask({
+        id: "crea_da_riferimenti",
+        label: "Crea dai riferimenti",
+        min_references: 1,
+        max_references: 3,
+      }),
     ]);
     vi.spyOn(queries, "fetchStyles").mockResolvedValue([]);
   });
@@ -114,7 +119,12 @@ describe("CreatePage recipe import resets references", () => {
     installMockEventSource();
     vi.spyOn(queries, "fetchTasks").mockResolvedValue([
       buildTask({ id: "bozza", label: "Bozza veloce" }),
-      buildTask({ id: "crea_da_riferimenti", label: "Crea dai riferimenti" }),
+      buildTask({
+        id: "crea_da_riferimenti",
+        label: "Crea dai riferimenti",
+        min_references: 1,
+        max_references: 3,
+      }),
     ]);
     vi.spyOn(queries, "fetchStyles").mockResolvedValue([]);
   });

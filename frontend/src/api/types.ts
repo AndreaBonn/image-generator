@@ -56,6 +56,12 @@ export interface Task {
   supports_styles: boolean;
   supports_negative: boolean;
   default_styles: string[];
+  /** One label per reference slot, in order (e.g. ["Posa", "Personaggio"]); null for
+   * tasks whose references are interchangeable or that take none at all. */
+  reference_labels: string[] | null;
+  /** How many reference images this task takes; both 0 when it takes none (SPEC.md § 7.3). */
+  min_references: number;
+  max_references: number;
   defaults: TaskDefaults;
   limits: TaskLimits;
   aspect_ratios: AspectRatio[];
@@ -131,15 +137,6 @@ export interface CreateJobBody {
   upscale_factor?: number | null;
   references?: ReferenceInput[] | null;
 }
-
-/** Only task that needs 1-3 reference images today (SPEC.md § 3.1, § 7.3).
- * GET /tasks has no requires-references flag, so the id is matched directly
- * instead of adding plumbing for a single case. */
-export const REFERENCE_TASK_ID = "crea_da_riferimenti";
-
-/** workflow_by_reference_count tops out at 3 (SPEC.md § 7.3); /tasks doesn't
- * expose the max, so it is hardcoded here instead of derived from the task. */
-export const MAX_REFERENCES = 3;
 
 export type UploadKind = "image" | "mask";
 
