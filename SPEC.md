@@ -76,6 +76,13 @@ Gli stili vengono copiati nella cartella dati locale, senza essere versionati ne
 | FN12 | (v1.1) Cestino con ripristino e svuotamento che libera il disco |
 | FN13 | (v1.1) Importazione della ricetta da un PNG creato dall'app |
 | FN14 | (v1.1) Anteprima live durante la generazione; aiuto contestuale su ogni impostazione |
+| FN15 | (v1.2) Installer unico senza clone Fooocus |
+| FN16 | (v1.2) Download dei modelli dalle Impostazioni |
+| FN17 | (v1.2) Creazione da più immagini di riferimento (coerenza del personaggio) |
+| FN18 | (v1.2) Schizzo → immagine e controllo della posa |
+| FN19 | (v1.2) Anteprime visive degli stili SDXL |
+| FN20 | (v1.2) Esempi al primo avvio e "prova questo" |
+| FN21 | (v1.2) Windows e macOS negli script di avvio e installazione (non verificati) |
 
 ### 2.2 Fuori dalla v1 (decisioni prese, non dimenticanze)
 
@@ -339,9 +346,9 @@ Conseguenza sul catalogo: il compito del candidato scartato resta in `tasks.yaml
 
 | Modello | File | Cartella ComfyUI | GB | Licenza | Stato in v1 |
 |---|---|---|---|---|---|
-| Juggernaut XL v8 | locale, migrato da Fooocus | `checkpoints` | 7,11 | da Fooocus/RunDiffusion, **DA VERIFICARE** | attivo |
-| Offset LoRA | locale, migrato da Fooocus | `loras` | 0,05 | Stability, OpenRAIL++ | attivo |
-| Fooocus inpaint head + patch | locali, migrati da Fooocus | `inpaint` | 1,32 | **DA VERIFICARE** | attivo |
+| Juggernaut XL v8 | sorgente Hugging Face (RunDiffusion/Juggernaut-XL-v8), già presente sul disco | `checkpoints` | 7,11 | da Fooocus/RunDiffusion, **DA VERIFICARE** | attivo |
+| Offset LoRA | sorgente Hugging Face (stabilityai/stable-diffusion-xl-base-1.0), già presente sul disco | `loras` | 0,05 | Stability, OpenRAIL++ | attivo |
+| Fooocus inpaint head + patch | sorgente Hugging Face (lllyasviel/fooocus_inpaint), già presenti sul disco | `inpaint` | 1,32 | **DA VERIFICARE** | attivo |
 | SDXL-Lightning 4-step LoRA | `sdxl_lightning_4step_lora.safetensors` ([ByteDance/SDXL-Lightning](https://huggingface.co/ByteDance/SDXL-Lightning)) | `loras` | 0,39 | OpenRAIL++ | attivo |
 | 4x-UltraSharp | `4x-UltraSharp.safetensors` ([Kim2091/UltraSharp](https://huggingface.co/Kim2091/UltraSharp)) | `upscale_models` | 0,07 | CC BY-NC-SA 4.0 (solo uso non commerciale) | attivo |
 | FLUX.2 [klein] 4B distilled fp8 | `flux-2-klein-4b-fp8.safetensors` ([black-forest-labs/FLUX.2-klein-4b-fp8](https://huggingface.co/black-forest-labs/FLUX.2-klein-4b-fp8)) | `diffusion_models` | 4,07 | Apache 2.0 (da fonte secondaria, rileggere la model card) | candidato A |
@@ -384,13 +391,17 @@ Il percorso uv non è quello documentato da Comfy-Org (che usa pip), ma installa
 ### 6.3 Installer dei modelli (`scripts/install_models.py`)
 
 - Legge `config/models.yaml`: per ogni modello id, famiglia, file, repo HF, cartella di destinazione, dimensione attesa, licenza, `enabled`.
-- `uv run --script scripts/install_models.py --list` mostra lo stato (`installed` / `missing`) e lo spazio necessario. I modelli `source: local` mancanti richiedono la migrazione.
+- `uv run --script scripts/install_models.py --list` mostra lo stato (`installed` / `missing`) e lo spazio necessario. Per i modelli `fooocus_migratable` mancanti suggerisce anche la migrazione da Fooocus, come alternativa al download.
 - `--install <id>`: prima di scaricare verifica `spazio_libero - dimensione >= MIN_FREE_DISK_GB`, altrimenti rifiuta con il conto esplicito. Scarica con `huggingface_hub` (`hf_hub_download`, `local_dir` nella cartella giusta, niente copia in cache). Dopo il download verifica lo sha256 contro quello dichiarato in `config/models.yaml`: se non coincide elimina il file scaricato e fallisce, altrimenti lo sposta nella destinazione in modo atomico.
 - **Se l'installer rifiuta per spazio**, Claude Code non libera spazio da solo e non cancella nulla, né modelli né cache. Si ferma e riporta all'utente il conto (spazio libero, dimensione richiesta, margine), chiedendogli come procedere.
-- `--install <id>` e `--remove <id>` rifiutano i modelli `source: local`; questi file non vengono mai scaricati o cancellati dall'installer. La rimozione dei modelli Hugging Face richiede conferma.
+- `--install <id>` e `--remove <id>` valgono per tutti i modelli del registro, compresi quelli SDXL un tempo presi da Fooocus (ora `source: huggingface`). Le voci `source: local`, se ce ne fossero, verrebbero rifiutate. La rimozione richiede sempre conferma.
 - Non scarica mai nulla senza un `--install` esplicito.
+- `scripts/install.py` (v1.2) orchestra l'installazione completa con due profili: `completo`
+  (default, tutti i modelli `enabled` in `config/models.yaml`) e `base` (solo SDXL,
+  Lightning e UltraSharp). Il profilo non cambia la logica di `install_models.py`, solo
+  l'elenco di id passati a `--install`.
 
-### 6.4 Migrazione da Fooocus (O1)
+### 6.4 Migrazione da Fooocus (scorciatoia opzionale)
 
 `uv run --script scripts/migrate_from_fooocus.py` stampa il piano senza modificare file. L'utente esegue lo stesso comando con `--apply` per applicarlo. `--fooocus-dir` prevale su `FOOOCUS_DIR`, usato solo dalla migrazione, con default `~/Fooocus`.
 
@@ -676,7 +687,8 @@ Ogni fase lascia il sistema usabile anche se la successiva non arriva. Ogni pass
 
 - AS1. L'app gira solo in locale per un utente: niente autenticazione.
 - AS2. Il clone Fooocus serve solo come sorgente iniziale della migrazione O1; dopo la verifica dei file e la rigenerazione dei percorsi ComfyUI può essere eliminato dall'utente.
-- AS3. L'utente installa i modelli da terminale con lo script; la UI informa, non scarica.
+- AS3. (v1.2) La UI scarica i modelli mancanti dalle Impostazioni (O2); la rimozione resta
+  possibile solo da terminale con lo script, e solo con conferma esplicita.
 - AS4. Juggernaut XL v8 resta il checkpoint SDXL unico della v1; sostituirlo è una modifica di `models.yaml`.
 - AS5. Le immagini generate sono per uso personale; le licenze vanno ricontrollate prima di ogni uso commerciale (Juggernaut e patch Fooocus non verificate).
 
