@@ -58,7 +58,7 @@ export function SettingsPage() {
       {system.gpu ? <GpuCard gpu={system.gpu} /> : null}
       <DiskCard disk={system.disk} trashSummary={trashSummaryQuery.data} />
       <LoadedModelCard family={system.loaded_family} />
-      <ModelsTable models={system.models} installCommand={system.install_command} />
+      <ModelsTable models={system.models} installCommand={system.install_command} disk={system.disk} />
       <ClearOutputCard />
       <ThemeCard />
     </div>

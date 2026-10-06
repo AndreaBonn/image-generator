@@ -1,10 +1,11 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { SettingsPage } from "@/pages/SettingsPage";
 import * as queries from "@/api/queries";
 import { buildModelInfo, buildSystemInfo } from "../fixtures/system";
+import { installMockEventSource } from "../mocks/mockEventSource";
 
 function renderSettingsPage() {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
@@ -16,6 +17,12 @@ function renderSettingsPage() {
 }
 
 describe("SettingsPage", () => {
+  // ModelsTable now mounts useModelDownload (T030), which opens an SSE
+  // connection jsdom doesn't implement; these tests don't exercise it.
+  beforeEach(() => {
+    installMockEventSource();
+  });
+
   it("shows the disk space in red when it is below the configured minimum", async () => {
     vi.spyOn(queries, "fetchSystem").mockResolvedValue(
       buildSystemInfo({ disk: { free_gb: 3, min_free_gb: 10 } }),

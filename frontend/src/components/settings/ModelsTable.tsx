@@ -1,17 +1,35 @@
-import { useState } from "react";
-import type { ModelInfo } from "@/api/types";
+import { useEffect, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import type { DiskInfo, ModelInfo } from "@/api/types";
 import { modelStatusLabel } from "@/lib/modelStatus";
 import { formatSizeGb } from "@/lib/format";
 import { InfoTip } from "@/components/ui/InfoTip";
 import { HELP_TEXTS } from "@/lib/helpTexts";
+import { useModelDownload, type UseModelDownloadResult } from "@/hooks/useModelDownload";
+import { ModelDownloadButton } from "@/components/settings/ModelDownloadButton";
 
 interface ModelsTableProps {
   models: ModelInfo[];
   installCommand: string;
+  disk: DiskInfo;
 }
 
-/** Model inventory with install command for missing-but-enabled models (SPEC.md § 11.2). */
-export function ModelsTable({ models, installCommand }: ModelsTableProps) {
+/** Model inventory: download button (app-wide, T026-T031) plus the install
+ * command as a secondary alternative, for missing-but-enabled models
+ * (SPEC.md § 11.2). */
+export function ModelsTable({ models, installCommand, disk }: ModelsTableProps) {
+  const download = useModelDownload();
+  const queryClient = useQueryClient();
+  const completed = download.state.phase === "completed";
+
+  // Refresh once per completion, here rather than per row: a download started from
+  // another tab or from the CLI completes with no row attributed to it.
+  useEffect(() => {
+    if (!completed) return;
+    queryClient.invalidateQueries({ queryKey: ["system"] });
+    queryClient.invalidateQueries({ queryKey: ["tasks"] });
+  }, [completed, queryClient]);
+
   return (
     <section className="flex flex-col gap-2 rounded-md border border-border bg-paper-2 p-3">
       <h2 className="flex items-center gap-1 text-sm font-semibold text-ink">
@@ -50,6 +68,8 @@ export function ModelsTable({ models, installCommand }: ModelsTableProps) {
                 key={model.id}
                 model={model}
                 installCommand={installCommand}
+                disk={disk}
+                download={download}
               />
             ))}
           </tbody>
@@ -62,9 +82,13 @@ export function ModelsTable({ models, installCommand }: ModelsTableProps) {
 function ModelRow({
   model,
   installCommand,
+  disk,
+  download,
 }: {
   model: ModelInfo;
   installCommand: string;
+  disk: DiskInfo;
+  download: UseModelDownloadResult;
 }) {
   const needsInstall = model.status === "missing" && model.enabled;
 
@@ -81,7 +105,13 @@ function ModelRow({
       {needsInstall ? (
         <tr className="border-b border-border/50">
           <td colSpan={4} className="py-1">
-            <InstallCommand command={model.install_command ?? `${installCommand} ${model.id}`} />
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+              <ModelDownloadButton model={model} disk={disk} download={download} />
+              <details className="text-sm text-ink-muted">
+                <summary className="min-h-11 cursor-pointer content-center">Da terminale</summary>
+                <InstallCommand command={model.install_command ?? `${installCommand} ${model.id}`} />
+              </details>
+            </div>
           </td>
         </tr>
       ) : null}

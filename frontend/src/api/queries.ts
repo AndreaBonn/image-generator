@@ -126,6 +126,16 @@ export function rerunGeneration(
   );
 }
 
+/** Starts the single, app-wide model download (202; backend runs it in the
+ * background and reports progress over GET /models/downloads/events). */
+export function startModelDownload(modelId: string): Promise<void> {
+  return apiClient.post<void>(`/models/${modelId}/install`);
+}
+
+export function cancelModelDownload(modelId: string): Promise<void> {
+  return apiClient.post<void>(`/models/${modelId}/install/cancel`);
+}
+
 export function imageUrl(generationId: string): string {
   return `/api/v1/generations/${generationId}/image`;
 }

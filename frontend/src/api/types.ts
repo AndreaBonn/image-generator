@@ -184,6 +184,17 @@ export type JobEvent =
   | { type: "failed"; code: string; message: string }
   | { type: "cancelled" };
 
+/** SSE events from GET /api/v1/models/downloads/events (SPEC.md § 7.2, T026-T028).
+ * Single, app-wide stream: at most one model downloads at a time, and no event
+ * carries a model id (useModelDownload attributes progress to whichever model
+ * id its own `start()` call targeted). */
+export type ModelDownloadEvent =
+  | { type: "progress"; bytes: number; total: number }
+  | { type: "verifying" }
+  | { type: "completed" }
+  | { type: "failed"; code: string; message: string }
+  | { type: "cancelled" };
+
 export interface HealthStatus {
   backend: "ok";
   engine: "ok" | "unreachable";

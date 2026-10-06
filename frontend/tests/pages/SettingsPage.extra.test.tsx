@@ -1,10 +1,11 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { SettingsPage } from "@/pages/SettingsPage";
 import * as queries from "@/api/queries";
 import { buildSystemInfo } from "../fixtures/system";
+import { installMockEventSource } from "../mocks/mockEventSource";
 
 function renderSettingsPage() {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
@@ -21,6 +22,11 @@ function renderSettingsPage() {
  * state (SPEC.md § 11.2, "Riprova").
  */
 describe("SettingsPage error retry", () => {
+  // ModelsTable now mounts useModelDownload (T030), which opens an SSE
+  // connection jsdom doesn't implement; these tests don't exercise it.
+  beforeEach(() => {
+    installMockEventSource();
+  });
   afterEach(() => {
     vi.restoreAllMocks();
   });
