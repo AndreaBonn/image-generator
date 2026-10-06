@@ -93,3 +93,28 @@ riferimenti", 2 foto della galleria dello stesso soggetto (un pescatore anziano)
 1152×896. Generazione completata in 36,0 s, soggetto riconoscibile nella scena nuova.
 "Rigenera" con lo stesso seed (`POST /generations/{id}/rerun`, `new_seed: false`) ha prodotto
 un'immagine identica pixel per pixel all'originale.
+
+## Schizzo e posa (O6)
+
+Campioni del gate di qualità (T065), 6 ottobre 2026, RTX 4060 Laptop, ComfyUI v0.38.2, FLUX.2
+klein 4B, 1024×1024, seed 20261006, prefisso del compito separato dal prompt da uno spazio. Gli schizzi e gli omini delle pose sono disegnati a tratto
+nero su bianco da `docs/benchmark/o6/draw_inputs.py`; il personaggio delle pose è la foto del
+pescatore usata anche in O5. Griglia (ingresso a sinistra, risultato a destra):
+`docs/benchmark/o6/gate_sheet.jpg`.
+
+| # | Compito | Ingresso | Descrizione | Tempo |
+|---|---|---|---|---|
+| 1 | `da_schizzo` | casa | Una casetta di campagna in pietra con giardino, fotografia realistica al tramonto | 15,1 s |
+| 2 | `da_schizzo` | gatto | Un gatto rosso seduto, illustrazione ad acquerello | 15,1 s |
+| 3 | `da_schizzo` | montagne e lago | Lago alpino con una barca e montagne innevate, fotografia di paesaggio | 15,2 s |
+| 4 | `da_schizzo` | tazza | Una tazza di caffè fumante su un tavolo di legno accanto a un biscotto, foto di prodotto | 15,1 s |
+| 5 | `da_schizzo` | auto | Un'auto d'epoca rossa su una strada di campagna, fotografia realistica | 15,2 s |
+| 6 | `in_posa` | braccia alzate | Il personaggio in piedi su una spiaggia con le braccia alzate al cielo | 24,8 s |
+| 7 | `in_posa` | seduto | Il personaggio seduto su una panchina in un parco | 25,2 s |
+| 8 | `in_posa` | corsa | Il personaggio che corre su un sentiero di campagna | 25,2 s |
+
+Osservazioni di chi ha generato i campioni, da non confondere col verdetto: nel n. 3 le linee
+dello schizzo restano visibili sopra la foto, e nel n. 7 l'omino compare come oggetto nella
+scena invece di dare la posa al personaggio. Gli altri seguono composizione o posa.
+
+**Verdetto del gate (soglia 4/5 schizzi, 2/3 pose): in attesa del giudizio dell'utente.**
