@@ -1,0 +1,23 @@
+---
+# Pinned source for the SDXL style presets, replacing the Fooocus clone.
+# Each file is downloaded from the lllyasviel/Fooocus repository at the fixed
+# commit below and verified against sha256 before being written to
+# DATA_DIR/styles. The files aggregate presets from several authors (twri,
+# sai, mre, diva, marc_k3nt3l) plus Fooocus' own; the repository as a whole is
+# GPL-3.0 (https://github.com/lllyasviel/Fooocus/blob/main/LICENSE).
+repo: lllyasviel/Fooocus
+commit: f2a21900c64c0bd4ed925420ea84e643f85d292b
+license: GPL-3.0
+files:
+  - filename: sdxl_styles_fooocus.json
+    sha256: 1251fd16ac0862e99a6ecb1969e10cef13af43b9a1ddd715013cd6d7c856e0f9
+  - filename: sdxl_styles_sai.json
+    sha256: a70cfade8c71bc697a188a5f7f9eed531c2ac7446fcb6044114dbabaef5103fb
+  - filename: sdxl_styles_twri.json
+    sha256: 3296a6a0b0572924e792dd330b374e12900f18deae05bf9158b9295ec2a96761
+  - filename: sdxl_styles_mre.json
+    sha256: 150db608f01912ea68a8f6f2c1f946dd1f123c68eb7ece61965dda978385210e
+  - filename: sdxl_styles_diva.json
+    sha256: 6a0d06f876628c85f7aec07e1aeb841dd2b34e4aff0e6eda61ec74e96fab5150
+  - filename: sdxl_styles_marc_k3nt3l.json
+    sha256: 8381c538d3ed15b99d4bfab5229c73466cab92cd5a458264f91098fe2f72fcdd
