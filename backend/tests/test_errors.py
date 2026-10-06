@@ -17,6 +17,9 @@ ERROR_CASES = [
     (errors.JobTimeoutError, 504, "JOB_TIMEOUT"),
     (errors.EngineRestartedError, 500, "ENGINE_RESTARTED"),
     (errors.DiskFullError, 507, "DISK_FULL"),
+    (errors.DownloadInProgressError, 409, "DOWNLOAD_IN_PROGRESS"),
+    (errors.DownloadFailedError, 502, "DOWNLOAD_FAILED"),
+    (errors.ChecksumMismatchError, 502, "CHECKSUM_MISMATCH"),
 ]
 
 

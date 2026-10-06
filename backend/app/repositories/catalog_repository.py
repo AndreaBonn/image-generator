@@ -23,6 +23,9 @@ class ModelEntry(BaseModel):
     enabled: bool = True
     license: str = ""
     fooocus_migratable: bool = False
+    repo: str | None = None
+    repo_path: str | None = None
+    sha256: str | None = None
 
     @model_validator(mode="after")
     def validate_relative_paths(self) -> Self:

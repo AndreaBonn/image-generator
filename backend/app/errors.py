@@ -85,6 +85,31 @@ class DiskFullError(AppError):
     )
 
 
+class DownloadInProgressError(AppError):
+    code = "DOWNLOAD_IN_PROGRESS"
+    http_status = 409
+    default_message = (
+        "È già in corso un altro download di un modello. Attendi che finisca o annullalo."
+    )
+
+
+class DownloadFailedError(AppError):
+    code = "DOWNLOAD_FAILED"
+    http_status = 502
+    default_message = (
+        "Download del modello non riuscito: rete assente o il server ha risposto con un errore."
+    )
+
+
+class ChecksumMismatchError(AppError):
+    code = "CHECKSUM_MISMATCH"
+    http_status = 502
+    default_message = (
+        "Il file scaricato non corrisponde al checksum atteso: il download è stato annullato "
+        "automaticamente."
+    )
+
+
 VALIDATION_MESSAGES = {
     "missing": "Campo obbligatorio.",
     "int_parsing": "Inserisci un numero intero valido.",

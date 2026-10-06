@@ -40,3 +40,25 @@ def test_model_document_accepts_distinct_model_ids() -> None:
     other = {**BASE_ENTRY, "id": "other"}
     document = ModelDocument.model_validate({"models": [BASE_ENTRY, other]})
     assert [model.id for model in document.models] == ["model", "other"]
+
+
+def test_model_entry_exposes_huggingface_fields_for_download() -> None:
+    entry = ModelEntry.model_validate(
+        {
+            **BASE_ENTRY,
+            "source": "huggingface",
+            "repo": "Kim2091/UltraSharp",
+            "repo_path": "4x-UltraSharp.safetensors",
+            "sha256": "36a340b5509b699d2c06cb445ddc1d3d39199ac734d889ed6d7915f60e05bcbc",
+        }
+    )
+    assert entry.repo == "Kim2091/UltraSharp"
+    assert entry.repo_path == "4x-UltraSharp.safetensors"
+    assert entry.sha256 == "36a340b5509b699d2c06cb445ddc1d3d39199ac734d889ed6d7915f60e05bcbc"
+
+
+def test_model_entry_huggingface_fields_default_to_none() -> None:
+    entry = ModelEntry.model_validate(BASE_ENTRY)
+    assert entry.repo is None
+    assert entry.repo_path is None
+    assert entry.sha256 is None

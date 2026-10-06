@@ -109,6 +109,47 @@ def test_download_removes_staged_file_and_raises_on_sha256_mismatch(
     assert not install_models.target_path(entry, paths).is_file()
 
 
+def test_download_holds_the_shared_lock_while_downloading_and_releases_it(
+    tmp_path, monkeypatch
+):
+    paths = install_models.Paths(models_dir=tmp_path / "models")
+    paths.models_dir.mkdir(parents=True)
+    entry = make_entry()
+    lock = install_models.lock_path(entry, paths)
+    seen_lock: list[bool] = []
+
+    def fake_download(**_kwargs):
+        seen_lock.append(lock.is_file())
+        raise RuntimeError("network down")
+
+    monkeypatch.setattr(huggingface_hub, "hf_hub_download", fake_download)
+
+    with pytest.raises(RuntimeError):
+        install_models.download(entry=entry, paths=paths, min_free_gb=0)
+
+    assert seen_lock == [True]
+    assert not lock.exists()
+
+
+def test_download_refuses_when_app_lock_file_is_present(tmp_path, monkeypatch):
+    paths = install_models.Paths(models_dir=tmp_path / "models")
+    paths.models_dir.mkdir(parents=True)
+    entry = make_entry()
+    lock = install_models.lock_path(entry, paths)
+    lock.parent.mkdir(parents=True)
+    lock.write_bytes(b"")
+
+    def refuse_to_download(**_kwargs):
+        raise AssertionError("hf_hub_download must not be called while the app holds the lock")
+
+    monkeypatch.setattr(huggingface_hub, "hf_hub_download", refuse_to_download)
+
+    with pytest.raises(SystemExit, match="già in corso un download dall'app"):
+        install_models.download(entry=entry, paths=paths, min_free_gb=5)
+
+    assert not install_models.target_path(entry, paths).is_file()
+
+
 def test_remove_reports_not_installed_when_file_is_missing(tmp_path, capsys):
     paths = install_models.Paths(models_dir=tmp_path)
     entry = make_entry()

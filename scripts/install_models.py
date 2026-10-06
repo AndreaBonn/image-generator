@@ -68,6 +68,11 @@ def target_path(entry: ModelEntry, paths: Paths) -> Path:
     return paths.models_dir / entry.folder / entry.filename
 
 
+def lock_path(entry: ModelEntry, paths: Paths) -> Path:
+    """Lock file shared with the backend's model_downloads service for this model id."""
+    return paths.models_dir / DOWNLOAD_STAGING / f"{entry.id}.lock"
+
+
 def model_status(entry: ModelEntry, paths: Paths) -> str:
     """Return installed or missing for either model source."""
     exists = target_path(entry, paths).is_file()
@@ -115,8 +120,6 @@ def download(entry: ModelEntry, paths: Paths, min_free_gb: float) -> None:
     """Download one huggingface entry, verify sha256, then move it into place atomically."""
     if entry.source == "local":
         raise SystemExit(f"{entry.id}: modello locale, usa la migrazione: {MIGRATE_COMMAND}")
-    from huggingface_hub import hf_hub_download
-
     destination = target_path(entry, paths)
     if destination.is_file():
         print(f"{entry.id}: already installed at {destination}")
@@ -127,6 +130,32 @@ def download(entry: ModelEntry, paths: Paths, min_free_gb: float) -> None:
             f"{entry.id}: not enough space. Free {free / GB:.1f} GB, needed "
             f"{entry.size_bytes / GB:.2f} GB + {min_free_gb:.0f} GB margin. Nothing was downloaded."
         )
+    lock = acquire_lock(entry, paths)
+    try:
+        fetch_and_install(entry, paths)
+    finally:
+        lock.unlink(missing_ok=True)
+
+
+def acquire_lock(entry: ModelEntry, paths: Paths) -> Path:
+    """Create the per-model lock shared with the backend, refusing if either side holds it."""
+    lock = lock_path(entry, paths)
+    lock.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        os.close(os.open(lock, os.O_CREAT | os.O_EXCL | os.O_WRONLY))
+    except FileExistsError as error:
+        raise SystemExit(
+            f"{entry.id}: è già in corso un download dall'app. Attendi che finisca o "
+            "annullalo dalle Impostazioni."
+        ) from error
+    return lock
+
+
+def fetch_and_install(entry: ModelEntry, paths: Paths) -> None:
+    """Download into staging, verify sha256, then move the file into place atomically."""
+    from huggingface_hub import hf_hub_download
+
+    destination = target_path(entry, paths)
     staging = paths.models_dir / DOWNLOAD_STAGING
     staging.mkdir(parents=True, exist_ok=True)
     print(f"{entry.id}: downloading {entry.size_bytes / GB:.2f} GB from {entry.repo}")
