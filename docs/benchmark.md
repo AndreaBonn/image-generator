@@ -57,3 +57,39 @@ Decisioni conseguenti, applicate in `config/tasks.yaml`:
 ## Scelta del modello nuovo
 
 **FLUX.2 [klein] 4B** (candidato A), scelto senza fermata perché l'utente ha chiesto di implementare tutto il piano. È più veloce di SDXL qualità (9 s contro 30 s), segue molto meglio i prompt complessi e capisce l'italiano. Z-Image Turbo resta registrato e disattivato: si attiva con `uv run --script scripts/install_models.py --install zimage_turbo zimage_vae` e un template `workflows/zimage_txt2img.json` (non ancora scritto).
+
+## Riferimenti multipli (O5)
+
+Misure del 6 ottobre 2026 su RTX 4060 Laptop (8 GB), ComfyUI v0.38.2. Template provati:
+`workflows/flux2_klein_refs_{1,2,3}.json` (catena di `VAEEncode` → `ReferenceLatent` sul
+positivo e sul negativo azzerato, uno per riferimento). Condizioni: 1024×1024, latente vuoto
+alle stesse proporzioni, seed fisso per riferimento, nessun altro processo sulla GPU
+(`nvidia-smi --query-compute-apps` mostrava solo il processo di ComfyUI). `/free` eseguito
+prima di ogni esecuzione per svuotare la cache dei nodi e forzare una rigenerazione reale, non
+una risposta cache-hit in 0,04 s (stesso comportamento osservato in Fase 0).
+
+| Riferimenti | Esecuzione | Tempo | Picco VRAM | Immagine identica all'altra esecuzione |
+|---|---|---|---|---|
+| 1 | 1/2 | 17,6 s | 7,8 GB | sì (0 differenza, max diff pixel 0) |
+| 1 | 2/2 | 17,1 s | 7,6 GB | sì |
+| 2 | 1/2 | 30,9 s | 7,4 GB | sì |
+| 2 | 2/2 | 34,6 s | 7,5 GB | sì |
+| 3 | 1/2 | 52,2 s | 7,2 GB | sì |
+| 3 | 2/2 | 52,1 s | 7,4 GB | sì |
+
+Nessun out-of-memory a 3 riferimenti a 1 MP: il picco resta entro 7,8 GB su 8 GB disponibili,
+quindi non è stata necessaria la prova di ripiego a 0,5 MP. Determinismo verificato a confronto
+pixel per pixel (`numpy`, `array_equal`) fra le due esecuzioni di ciascun conteggio: identiche
+byte per byte in tutti e tre i casi.
+
+**Massimo riferimenti: 3** (AS-P8). La misura permetterebbe margine anche oltre (7,2-7,8 GB di
+picco contro 8 GB totali), ma il tetto resta 3 come fissato nel piano (AS-P8), non dalla
+capacità osservata. I tempi includono il caricamento del modello, perché `/free` precede ogni
+esecuzione: con il modello già in memoria il tempo scende.
+
+Verifica reale dall'interfaccia (T053, 6 ottobre 2026): pagina Crea, compito "Crea dai
+riferimenti", 2 foto della galleria dello stesso soggetto (un pescatore anziano), descrizione
+"L'uomo delle foto seduto in un caffè di Parigi, luce del mattino, fotografia realistica",
+1152×896. Generazione completata in 36,0 s, soggetto riconoscibile nella scena nuova.
+"Rigenera" con lo stesso seed (`POST /generations/{id}/rerun`, `new_seed: false`) ha prodotto
+un'immagine identica pixel per pixel all'originale.
