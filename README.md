@@ -12,20 +12,27 @@ Funziona senza internet una volta installata, e le immagini restano sul computer
 | Crea | Immagine di qualità | SDXL Juggernaut | 30 s |
 | Crea | Testo nell'immagine e scene complesse | FLUX.2 klein 4B | 9 s |
 | Crea | Foto realistica, anche di persone | Z-Image Turbo | 17 s |
+| Crea | Stesso soggetto o personaggio in una scena nuova, da 1 a 3 foto di riferimento | FLUX.2 klein 4B | 17-52 s |
+| Crea | Dallo schizzo: disegni a mano libera nell'app, o carichi un disegno | FLUX.2 klein 4B | 15 s |
+| Crea | In posa: la posa di una figura applicata al personaggio di un'altra foto | FLUX.2 klein 4B | 25 s |
 | Modifica | Rigenerare la zona disegnata con il pennello | SDXL + inpaint di Fooocus | 30 s |
 | Modifica | Allargare l'immagine verso uno o più lati | SDXL + inpaint di Fooocus | 30 s |
 | Migliora | Variazione leggera o forte di un'immagine | SDXL | 15-30 s |
 | Migliora | Ingrandire ×2 o ×4 | 4x-UltraSharp | pochi secondi |
 | Galleria | Rivedere, cercare, rigenerare, eliminare | | |
-| Impostazioni | Stato del motore, memoria della scheda video, disco, modelli | | |
+| Impostazioni | Stato del motore, memoria della scheda video, disco; installare i modelli mancanti con un clic | | |
 
 \* Misurati su una RTX 4060 Laptop con 8 GB. Il primo lavoro dopo l'avvio, o dopo un cambio di modello, richiede qualche secondo in più. Dettagli in [docs/benchmark.md](docs/benchmark.md).
+
+**Stili con anteprima.** Per i lavori SDXL si sceglie lo stile guardando una miniatura dello stesso soggetto in ciascuno dei 277 stili. Le miniature si generano una volta sola, sul proprio computer, con `cd backend && uv run python -m app.cli.assets styles` (circa un'ora di scheda video).
+
+**Esempi al primo avvio.** Finché la galleria è vuota, la pagina Crea mostra esempi già pronti con "Prova questo", che compila compito, descrizione e seed senza avviare nulla. Anche gli esempi si generano in locale: `cd backend && uv run python -m app.cli.assets examples` (pochi minuti).
 
 **Lingua della descrizione.** Ogni lavoro indica sopra la casella come scrivere. I modelli SDXL sono stati addestrati in inglese: in italiano capiscono il soggetto ma perdono dettagli, e l'app avvisa se la descrizione sembra italiana. FLUX.2 klein capisce bene anche l'italiano.
 
 ## Requisiti
 
-- Linux con scheda video NVIDIA da almeno 8 GB e driver recente (CUDA 13).
+- Linux con scheda video NVIDIA da almeno 8 GB e driver recente (CUDA 13). Windows e macOS: vedi la sezione più sotto.
 - [uv](https://docs.astral.sh/uv/) per Python e Node.js 20 o successivo per l'interfaccia.
 - Circa 31 GB liberi su disco per l'installazione completa (7 GB per il motore, 24 GB per i
   modelli); con `--profile base` bastano circa 16 GB (solo SDXL e l'upscaler).
@@ -92,9 +99,18 @@ Dal terminale:
 ./scripts/start.sh
 ```
 
-Quando compare `Pronto: apri http://127.0.0.1:8000`, apri quell'indirizzo nel browser. Con Ctrl+C si fermano l'app e il motore.
+Quando compare `Pronto: apri http://127.0.0.1:8000`, apri quell'indirizzo nel browser. Con Ctrl+C si fermano l'app e il motore. Da un altro terminale, `./scripts/stop.sh` ferma solo i processi avviati da `start.sh`.
 
 L'app ascolta solo su questo computer (`127.0.0.1`): non è raggiungibile da altri dispositivi della rete.
+
+## Windows e macOS: non provato
+
+Gli script di installazione, avvio e arresto sono scritti in Python e scelgono da soli percorsi e comandi per il sistema operativo. Su Windows si usano `scripts\install.cmd`, `scripts\start.cmd` e `scripts\stop.cmd`; su macOS gli stessi comandi del terminale di Linux. Sono stati provati solo su Linux.
+
+Limiti già noti:
+
+- Windows: serve una scheda NVIDIA; PyTorch viene installato per CUDA 13 come su Linux. Il menu delle applicazioni (`install_launcher.sh`) esiste solo per Linux.
+- macOS: niente CUDA, la scheda grafica dei Mac con chip Apple si usa tramite MPS. Non è garantito che FLUX.2 klein in formato fp8 e i nodi di inpaint funzionino, e i tempi saranno diversi da quelli della tabella.
 
 ## Se qualcosa non va
 
