@@ -427,6 +427,9 @@ Base `/api/v1`. Formato di successo `{"data": ..., "meta": {...}}`, di errore `{
 | GET | `/system` | VRAM totale/libera, disco libero, famiglia di modello caricata, modelli installati |
 | GET | `/tasks` | Catalogo compiti con disponibilità, guida al prompt, schema parametri (default, min, max, opzioni) |
 | GET | `/styles` | Stili SDXL `{id, name, source_file}` con ricerca `?q=` |
+| POST | `/models/{id}/install` | (v1.2) Avvia il download di un modello mancante dalle Impostazioni → `202` con `{status: "started"}`; `409 DOWNLOAD_IN_PROGRESS` se un altro download è già attivo, `507 DISK_FULL` se lo spazio è insufficiente. Destinazione, repo e sha256 vengono solo dal registro (`config/models.yaml`), mai dal corpo della richiesta |
+| POST | `/models/{id}/install/cancel` | (v1.2) Annulla il download in corso per quel modello: evento `cancelled`, file parziale rimosso dalla cartella di staging dell'app |
+| GET | `/models/downloads/events` | (v1.2) SSE del download attivo, uno alla volta nell'intera app (niente id nel path): `progress{bytes, total}`, `verifying`, `completed`, `failed{code, message}`, `cancelled`. Un client che si collega a metà riceve subito l'ultimo stato noto. **Nessuna ripresa dopo un riavvio del backend**: i file parziali in `MODELS_DIR/.downloads` si scartano all'avvio (§ 6.3), per scelta, non per limite tecnico |
 | POST | `/uploads` | Multipart `file`, `kind=image\|mask` → `{upload_id, width, height, recipe}`. Solo PNG/JPEG/WebP, massimo 20 MB, massimo 4096 px per lato. `recipe` (v1.1) è la ricetta letta dal chunk `studio_immagini` di un PNG creato dall'app (`task_id`, prompt, negativo, `params` con proporzioni, seed, stili, passi, cfg) oppure `null`; massimo 64 KB, un campo non valido scarta tutta la ricetta |
 | POST | `/jobs` | Crea un job (corpo in § 7.3) → `202` con `{job_id}` |
 | GET | `/jobs/{id}` | Stato del job |
@@ -495,7 +498,10 @@ Gerarchia `AppError(code, message, http_status)` in `errors.py`, catturata solo 
 | `OUT_OF_MEMORY` | 507 | "Memoria della GPU esaurita. Prova un formato più piccolo o 1 immagine alla volta." Riconosciuto dal testo di `execution_error` (pattern **DA VERIFICARE** con un OOM provocato in Fase 0) |
 | `JOB_TIMEOUT` | 504 | "La generazione ha superato i 10 minuti ed è stata interrotta." |
 | `ENGINE_RESTARTED` | 500 | "Il motore si è riavviato durante la generazione." |
-| `DISK_FULL` | 507 | "Spazio su disco esaurito: libera spazio o svuota la cartella output del motore." Controllato prima di salvare |
+| `DISK_FULL` | 507 | "Spazio su disco esaurito: libera spazio o svuota la cartella output del motore." Controllato prima di salvare; riusato (v1.2) dal download dei modelli con lo stesso codice |
+| `DOWNLOAD_IN_PROGRESS` | 409 | (v1.2) "È già in corso un altro download di un modello. Attendi che finisca o annullalo." |
+| `DOWNLOAD_FAILED` | 502 | (v1.2) "Download del modello non riuscito: rete assente o il server ha risposto con un errore." |
+| `CHECKSUM_MISMATCH` | 502 | (v1.2) "Il file scaricato non corrisponde al checksum atteso: il download è stato annullato automaticamente." |
 
 ### 7.6 Logging
 
@@ -607,7 +613,7 @@ DIAL: strumento creativo personale per un utente non tecnico, linguaggio da tool
 
 **Galleria**: griglia di miniature, filtri per compito e preferiti, ricerca nel prompt, paginazione a scorrimento. Il dettaglio mostra l'immagine grande, prompt originale e finale, parametri, seed, modello, durata, catena padre → figli, azioni.
 
-**Impostazioni**: stato del motore, VRAM, disco libero (in rosso sotto `MIN_FREE_DISK_GB`), modello in memoria, elenco modelli con stato installato/mancante e spazio richiesto (la pagina mostra il comando di migrazione o download appropriato), "Svuota cartella output del motore", tema.
+**Impostazioni**: stato del motore, VRAM, disco libero (in rosso sotto `MIN_FREE_DISK_GB`), modello in memoria, elenco modelli con stato installato/mancante e spazio richiesto, "Svuota cartella output del motore", tema. Per ogni modello mancante c'è il bottone "Installa · <dimensione>" (FN16): chiede conferma mostrando dimensione e spazio che resterà, poi mostra la barra di avanzamento con "Annulla", la verifica e l'esito ("Installato", oppure l'errore con "Riprova"). Un solo download alla volta: durante un download gli altri bottoni sono disattivati. Se dopo il download resterebbe meno di `MIN_FREE_DISK_GB`, al posto del bottone compare il conto ("Servono X più Y di margine, liberi Z"). Il comando da terminale resta disponibile sotto "Da terminale".
 
 ### 11.3 Stati obbligatori
 
