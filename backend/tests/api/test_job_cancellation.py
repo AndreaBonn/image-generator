@@ -165,8 +165,10 @@ class FailingInterruptEngine(FakeEngine):
         yield Queued(prompt_id="p")
         yield Started()
         self.entered.set()
-        async for event in super().run(request=request):
-            yield event
+        # Stay running until cancelled: with step_delay_s=0 the fake finished on its own under
+        # CPU load before the cancel request arrived, so interrupt() was never called.
+        await asyncio.Event().wait()
+        yield Queued(prompt_id="unreachable")
 
     async def interrupt(self) -> None:
         raise EngineUnavailableError()
