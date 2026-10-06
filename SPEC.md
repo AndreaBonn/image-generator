@@ -40,6 +40,17 @@ Un'applicazione web locale, **Image Generator**, con interfaccia in italiano, ch
 
 I due vincoli che guidano l'architettura sono **8 GB di VRAM** (un modello grande caricato alla volta) e **23 GB di disco** (set minimo di modelli, vedi § 6).
 
+- **Windows e macOS (v1.2): supportati dagli script, non provati.** `scripts/platform_support.py`
+  isola la logica specifica per sistema operativo (percorso del Python nel venv, indice PyTorch,
+  modo di fermare un processo, formato del launcher rapido) dietro funzioni pure testate con casi
+  parametrizzati `linux`/`windows`/`darwin`; `scripts/start.py`, `scripts/stop.py` e
+  `engine/install_engine.py` la usano per girare sui tre sistemi. Nessuna macchina Windows o macOS è
+  disponibile per l'esecuzione reale: il comportamento effettivo resta **non provato** finché
+  qualcuno non lo esegue lì. Su Windows con GPU NVIDIA l'installazione usa l'indice PyTorch
+  `cu130`, lo stesso di Linux. Su macOS PyTorch usa il backend MPS (nessuna CUDA): i modelli fp8
+  (FLUX.2 klein) e il custom node `comfyui-inpaint-nodes` non hanno alcuna garanzia di funzionare
+  su MPS, non essendo stati verificati su quell'hardware.
+
 ### 1.4 Risorse esistenti da migrare una volta
 
 Il clone di Fooocus fornisce i file iniziali. Dopo la migrazione O1, i modelli vivono in `MODELS_DIR` e gli stili in `DATA_DIR/styles`; l'app non dipende più dal clone.
@@ -395,6 +406,18 @@ Idempotente, rieseguibile, si ferma al primo errore (`set -euo pipefail`):
 8. Avvia ComfyUI per 60 s al massimo, aspetta che `GET /system_stats` risponda (attesa su condizione, non sleep fisso), stampa device e VRAM, lo ferma.
 
 Il percorso uv non è quello documentato da Comfy-Org (che usa pip), ma installa gli stessi pacchetti. Se fallisce, il fallback è `comfy-cli` (`uv tool install comfy-cli`), da dichiarare nel report.
+
+**Windows e macOS (v1.2): non provati.** `engine/install_engine.py` (v1.2) porta questi stessi passi
+in Python, con `shutil.disk_usage` al posto di `df`, `string.Template` al posto di `envsubst` per
+`extra_model_paths.yaml`, e liste di argomenti al posto di `shell=True`; `engine/install_engine.sh`
+resta come wrapper di una riga (`exec uv run --script ...`) così l'uso su Linux non cambia. La
+scelta dell'indice PyTorch (passo 4) e il percorso del Python del venv (passo 3) seguono
+`scripts/platform_support.py` (§ 1.3): su Windows con GPU NVIDIA è ancora `cu130`, su macOS è
+l'indice di default (PyTorch con backend MPS, nessuna CUDA). Solo l'esecuzione su Linux è
+verificata: su Windows e macOS la logica è testata nella sua forma pura, ma nessuno l'ha ancora
+eseguita su quelle macchine. Due limiti noti e non verificabili qui: i modelli fp8 di FLUX.2 klein
+non hanno garanzia di funzionare su MPS, e il custom node `comfyui-inpaint-nodes` (passo 6) non è
+mai stato provato fuori da Linux/CUDA.
 
 ### 6.3 Installer dei modelli (`scripts/install_models.py`)
 
