@@ -122,7 +122,7 @@ def migrate_models(paths: Paths, apply: bool) -> int:
     registry = yaml.safe_load(REGISTRY_PATH.read_text(encoding="utf-8"))
     errors = 0
     for entry in registry["models"]:
-        if entry["source"] != "local":
+        if not entry.get("fooocus_migratable", False):
             continue
         try:
             migrate_model(entry=entry, paths=paths, apply=apply)

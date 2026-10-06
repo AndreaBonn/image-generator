@@ -51,7 +51,8 @@ def test_lifespan_reads_own_styles(tmp_path: Path) -> None:
 def test_local_models_use_own_path_and_migration_hint(tmp_path: Path) -> None:
     catalog = load_catalog(settings=Settings(_env_file=None, models_dir=tmp_path))
     model = catalog.models["juggernaut_xl_v8"]
-    assert model.source == "local"
+    assert model.source == "huggingface"
+    assert model.fooocus_migratable is True
     result = model_status(model=model, catalog=catalog)
     assert result["status"] == "missing"
     assert result["install_command"] == MIGRATE
@@ -62,3 +63,15 @@ def test_local_models_use_own_path_and_migration_hint(tmp_path: Path) -> None:
     path.write_bytes(b"test")
     assert catalog.repository.has_model(model=model)
     assert model_status(model=model, catalog=catalog)["status"] == "installed"
+
+
+def test_missing_non_migratable_model_suggests_its_own_install_command(tmp_path: Path) -> None:
+    catalog = load_catalog(settings=Settings(_env_file=None, models_dir=tmp_path))
+    model = catalog.models["sdxl_lightning_lora"]
+    assert model.fooocus_migratable is False
+    result = model_status(model=model, catalog=catalog)
+    assert result["status"] == "missing"
+    assert (
+        result["install_command"]
+        == "uv run --script scripts/install_models.py --install sdxl_lightning_lora"
+    )

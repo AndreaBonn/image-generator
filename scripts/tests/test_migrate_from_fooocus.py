@@ -21,6 +21,7 @@ def migration(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> ModuleType:
     entry = {
         "id": "demo",
         "source": "local",
+        "fooocus_migratable": True,
         "folder": "checkpoints",
         "filename": "demo.bin",
         "size_bytes": 3,
@@ -211,6 +212,7 @@ def test_migrate_models_counts_path_traversal_as_error(
         {
             "id": "bad-path",
             "source": "local",
+            "fooocus_migratable": True,
             "folder": "checkpoints",
             "filename": "../../etc/passwd",
             "size_bytes": 1,
@@ -246,6 +248,57 @@ def test_migrate_models_skips_non_local_source(migration: ModuleType, tmp_path: 
         styles_dir=tmp_path / "data" / "styles",
     )
     assert migration.migrate_models(paths=paths, apply=False) == 0
+
+
+def test_migrate_models_selects_by_fooocus_migratable_not_source(
+    migration: ModuleType, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Four huggingface-sourced entries marked fooocus_migratable: true must still
+    be planned by the migration shortcut, mirroring the post-T002 registry where no
+    entry has source: local anymore."""
+    registry_path = tmp_path / "models.yaml"
+    migratable_ids = ["model-a", "model-b", "model-c", "model-d"]
+    entries = [
+        {
+            "id": model_id,
+            "source": "huggingface",
+            "fooocus_migratable": True,
+            "folder": "checkpoints",
+            "filename": f"{model_id}.bin",
+            "size_bytes": 1,
+            "sha256": "irrelevant",
+        }
+        for model_id in migratable_ids
+    ] + [
+        {
+            "id": "not-migratable",
+            "source": "huggingface",
+            "fooocus_migratable": False,
+            "folder": "checkpoints",
+            "filename": "not-migratable.bin",
+            "size_bytes": 1,
+            "sha256": "irrelevant",
+        }
+    ]
+    registry_path.write_text(yaml.safe_dump({"models": entries}), encoding="utf-8")
+    paths = migration.Paths(
+        fooocus_dir=tmp_path / "fooocus",
+        models_dir=tmp_path / "models",
+        styles_dir=tmp_path / "data" / "styles",
+    )
+    planned: list[str] = []
+    monkeypatch.setattr(
+        migration,
+        "migrate_model",
+        lambda entry, paths, apply: planned.append(entry["id"]),
+    )
+    monkeypatch.setattr(migration, "REGISTRY_PATH", registry_path)
+
+    errors = migration.migrate_models(paths=paths, apply=False)
+
+    assert errors == 0
+    assert sorted(planned) == sorted(migratable_ids)
+    assert "not-migratable" not in planned
 
 
 def test_failed_rename_preserves_destination_replaced_by_another_process(

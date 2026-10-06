@@ -6,6 +6,18 @@ from app.repositories.catalog_repository import CatalogRepository, ModelEntry, W
 
 logger = logging.getLogger(__name__)
 MIGRATE_COMMAND = "uv run --script scripts/migrate_from_fooocus.py --apply"
+INSTALL_COMMAND = "uv run --script scripts/install_models.py --install"
+
+
+def model_install_hint(model: ModelEntry) -> str:
+    """Return the CLI command that installs a single missing model.
+
+    MIGRATE_COMMAND is only offered for Fooocus-migratable entries; every other
+    model is installed with the generic install_models.py --install <id>.
+    """
+    if model.fooocus_migratable:
+        return MIGRATE_COMMAND
+    return f"{INSTALL_COMMAND} {model.id}"
 
 
 def index_titles(workflow: dict[str, WorkflowNode]) -> dict[str, WorkflowNode]:
@@ -71,12 +83,11 @@ class TaskCatalog:
         ]
         if missing:
             labels = ", ".join(model.label for model in missing)
-            hint = (
-                f"Esegui {MIGRATE_COMMAND}. Vedi Impostazioni."
-                if any(model.source == "local" for model in missing)
-                else "Vedi Impostazioni."
+            commands = dict.fromkeys(model_install_hint(model=model) for model in missing)
+            return (
+                f"Modelli non installati: {labels}. "
+                f"Esegui {'; '.join(commands)}. Vedi Impostazioni."
             )
-            return f"Modelli non installati: {labels}. {hint}"
         return None
 
     def list_tasks(self) -> list[TaskView]:

@@ -41,6 +41,7 @@ class ModelEntry:
     size_bytes: int = 0
     sha256: str | None = None
     enabled: bool = True
+    fooocus_migratable: bool = False
 
 
 @dataclass(frozen=True)

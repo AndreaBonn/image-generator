@@ -163,3 +163,28 @@ def test_remove_prompts_and_deletes_when_answer_is_yes(tmp_path, monkeypatch, ca
     assert f"{entry.id}: removed" in capsys.readouterr().out
 
 
+def test_remove_juggernaut_on_real_registry_keeps_file_without_y_and_removes_with_y(
+    tmp_path, monkeypatch, capsys
+):
+    """Regression guard for T002: juggernaut_xl_v8 moved from source: local (removal
+    always refused) to source: huggingface (removal needs the generic 'y' prompt,
+    same as every other Hugging Face model)."""
+    entries = install_models.load_registry()
+    entry = install_models.find_entry(entries, "juggernaut_xl_v8")
+    assert entry.source == "huggingface"
+    paths = install_models.Paths(models_dir=tmp_path)
+    destination = install_models.target_path(entry, paths)
+    destination.parent.mkdir(parents=True)
+    destination.write_bytes(b"fake-juggernaut-weights")
+
+    monkeypatch.setattr("builtins.input", lambda prompt: "n")
+    install_models.remove(entry=entry, paths=paths, assume_yes=False)
+    assert destination.is_file()
+    assert "Aborted" in capsys.readouterr().out
+
+    monkeypatch.setattr("builtins.input", lambda prompt: "y")
+    install_models.remove(entry=entry, paths=paths, assume_yes=False)
+    assert not destination.is_file()
+    assert f"{entry.id}: removed" in capsys.readouterr().out
+
+

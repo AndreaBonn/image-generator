@@ -217,3 +217,35 @@ def test_load_catalog_rejects_duplicate_task_ids(catalog_settings: Settings) -> 
     path.write_text(data=write_yaml(data), encoding="utf-8")
     with pytest.raises(ValidationError, match="tasks.id"):
         load_catalog(settings=catalog_settings)
+
+
+def test_unavailable_reason_suggests_install_command_per_missing_model(
+    catalog_settings: Settings,
+) -> None:
+    """bozza needs juggernaut_xl_v8 (migratable) and sdxl_lightning_lora (not): both
+    are missing, so the hint carries the migrate shortcut and the generic install
+    command with the specific model id, not a generic "Vedi Impostazioni" only.
+    """
+    catalog = load_catalog(settings=catalog_settings)
+    task = next(task for task in catalog.tasks if task.id == "bozza")
+    reason = catalog.unavailable_reason(task=task)
+    assert reason is not None
+    assert "uv run --script scripts/migrate_from_fooocus.py --apply" in reason
+    assert "uv run --script scripts/install_models.py --install sdxl_lightning_lora" in reason
+
+
+def test_unavailable_reason_omits_migrate_command_when_model_not_migratable(
+    catalog_settings: Settings,
+) -> None:
+    """Once the migratable model (juggernaut) is installed, the remaining missing
+    model (sdxl_lightning_lora, not fooocus_migratable) must not suggest migration.
+    """
+    checkpoint = catalog_settings.models_dir / "checkpoints/juggernautXL_v8Rundiffusion.safetensors"
+    checkpoint.parent.mkdir(parents=True)
+    checkpoint.touch()
+    catalog = load_catalog(settings=catalog_settings)
+    task = next(task for task in catalog.tasks if task.id == "bozza")
+    reason = catalog.unavailable_reason(task=task)
+    assert reason is not None
+    assert "migrate_from_fooocus" not in reason
+    assert "uv run --script scripts/install_models.py --install sdxl_lightning_lora" in reason

@@ -7,11 +7,10 @@ from app.engine.types import EngineClient
 from app.errors import EngineUnavailableError
 from app.repositories.catalog_repository import ModelEntry
 from app.repositories.system_repository import gpu_processes
-from app.services.task_catalog import MIGRATE_COMMAND, TaskCatalog
+from app.services.task_catalog import INSTALL_COMMAND, TaskCatalog, model_install_hint
 
 BYTES_PER_MB = 1024**2
 BYTES_PER_GB = 1024**3
-INSTALL_COMMAND = "uv run --script scripts/install_models.py --install"
 
 
 def model_status(model: ModelEntry, catalog: TaskCatalog) -> dict[str, Any]:
@@ -28,9 +27,7 @@ def model_status(model: ModelEntry, catalog: TaskCatalog) -> dict[str, Any]:
         "size_gb": size / BYTES_PER_GB,
         "enabled": model.enabled,
         "license": model.license,
-        "install_command": MIGRATE_COMMAND
-        if model.source == "local"
-        else f"{INSTALL_COMMAND} {model.id}",
+        "install_command": model_install_hint(model=model),
     }
 
 

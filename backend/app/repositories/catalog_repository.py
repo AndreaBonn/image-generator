@@ -22,6 +22,7 @@ class ModelEntry(BaseModel):
     size_bytes: int = Field(default=0, ge=0)
     enabled: bool = True
     license: str = ""
+    fooocus_migratable: bool = False
 
     @model_validator(mode="after")
     def validate_relative_paths(self) -> Self:
