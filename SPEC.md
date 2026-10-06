@@ -110,11 +110,13 @@ Ogni compito appartiene a una **famiglia di modello**: l'insieme dei pesi che il
 | `qualita` | Immagine di qualità | Juggernaut XL v8 + offset LoRA 0.1 | 30 step, CFG 4.0, sampler `dpmpp_2m_sde_gpu`, scheduler `karras` (default Fooocus "Speed") | Inglese |
 | `testo` | Testo nell'immagine e prompt complessi | FLUX.2 [klein] 4B distilled fp8 | 4 step, CFG 1.0, sampler `euler` con `Flux2Scheduler` (grafo del template ufficiale distilled: `CFGGuider`, negativo azzerato con `ConditioningZeroOut`, nessun prompt negativo) | Inglese consigliato; italiano **DA VERIFICARE** in Fase 0 |
 | `foto` | Foto realistica | Z-Image Turbo int8 (attivo da v1.1), text encoder Qwen3-4B fp4 condiviso con FLUX.2 klein (`CLIPLoader` tipo `lumina2`), grafo del template ufficiale | 8 step, CFG 1.0, sampler `res_multistep`, scheduler `simple`, `ModelSamplingAuraFlow` shift 3; misurato 21 s a freddo, 17 s a regime, 7,5 GB di picco a 1152×896 | Italiano o inglese (provato: segue un prompt italiano) |
+| `crea_da_riferimenti` (v1.2) | Crea dai riferimenti | FLUX.2 [klein] 4B distilled fp8, da 1 a 3 immagini di riferimento con `ReferenceLatent` sul positivo e sul negativo azzerato (grafo come `testo`, catena ripetuta per riferimento, template scelto per conteggio: `workflows/flux2_klein_refs_{1,2,3}.json`) | 4 step, CFG 1.0; latente vuoto alle proporzioni scelte, non eredita le dimensioni dei riferimenti; ogni riferimento portato a circa 1 MP con lati multipli di 16; misurato 17-52 s e 7,2-7,8 GB di picco con 1-3 riferimenti (§ docs/benchmark.md, Riferimenti multipli O5) | Italiano o inglese, obbligatorio |
 
 Note:
 - `bozza` e `qualita` condividono il checkpoint: passare dall'uno all'altro non ricarica il modello.
 - I parametri di FLUX.2 klein vengono dalla [guida ufficiale ComfyUI](https://docs.comfy.org/tutorials/flux/flux-2-klein): oltre 4 step o con CFG alto l'immagine si degrada.
 - I parametri SDXL-Lightning vengono dal [README ByteDance](https://huggingface.co/ByteDance/SDXL-Lightning/blob/main/README.md): CFG 0 nella pipeline originale, in ComfyUI si usa 1.0.
+- `crea_da_riferimenti` serve a mantenere un soggetto o un personaggio coerente in una scena nuova (es. "la persona delle immagini seduta in un caffè di Parigi, luce del mattino"): a differenza di `modifica_libera` non eredita la composizione di nessuna immagine di partenza. Il massimo di 3 riferimenti è una scelta (AS-P8 del piano), non il limite di VRAM misurato (margine fino a 7,8 GB su 8 disponibili).
 
 ### 3.2 Compiti di modifica e miglioramento
 
@@ -467,8 +469,18 @@ Base `/api/v1`. Formato di successo `{"data": ..., "meta": {...}}`, di errore `{
   "mask_upload_id": null,
   "source_generation_id": null,
   "outpaint_directions": [],
-  "upscale_factor": null
+  "upscale_factor": null,
+  "references": null
 }
+```
+
+`references` (v1.2, solo `crea_da_riferimenti`): lista di 1-3 oggetti, ciascuno **esattamente uno** fra `upload_id` e `generation_id`:
+
+```json
+"references": [
+  {"upload_id": "b3f2..."},
+  {"generation_id": "a91c..."}
+]
 ```
 
 Regole di validazione (errore `422` con dettaglio per campo):
@@ -479,6 +491,7 @@ Regole di validazione (errore `422` con dettaglio per campo):
 - `batch` 1-4. `steps` e `cfg` nulli → default del compito; valorizzati → dentro il range dichiarato in `tasks.yaml` (visibili in UI solo in "Opzioni avanzate").
 - `aspect_ratio` dentro la lista del compito.
 - `inpaint` richiede immagine (`input_upload_id` o `source_generation_id`) e maschera; `outpaint` richiede immagine e almeno una direzione fra `top`, `bottom`, `left`, `right`; variazioni e upscale richiedono un'immagine; `upscale_factor` è 2 o 4.
+- `crea_da_riferimenti` richiede `references` con 1-3 voci, ciascuna con esattamente un campo fra `upload_id` e `generation_id`; 0 voci o più del massimo del compito → `422` con `details[0].field == "references"` e il massimo nel messaggio.
 
 ### 7.4 `config/tasks.yaml`
 
@@ -527,7 +540,7 @@ SQLite in `data/studio.db`, SQLAlchemy 2, schema creato con migrazioni Alembic (
 | `seed` | integer | duplicato fuori da JSON per ricerca e "rigenera" |
 | `width`, `height` | integer | |
 | `image_path`, `thumb_path` | text | relativi a `DATA_DIR` |
-| `parent_id` | UUID null | immagine di input per modifica/variazione/upscale |
+| `parent_id` | UUID null | immagine di input per modifica/variazione/upscale; per `crea_da_riferimenti` punta al primo riferimento venuto dalla galleria (`generation_id`), o resta null se tutti i riferimenti sono upload (AS-P7 del piano) |
 | `duration_ms` | integer | |
 | `favorite` | boolean | default false |
 | `created_at`, `updated_at` | datetime | |
@@ -535,7 +548,7 @@ SQLite in `data/studio.db`, SQLAlchemy 2, schema creato con migrazioni Alembic (
 
 Indici: `idx_generations_created_at`, `idx_generations_task_id`, `idx_generations_parent_id`.
 
-**`jobs`**: `id`, `task_id`, `status`, `comfy_prompt_id`, `request` (JSON), `error_code`, `error_message`, `idempotency_key` (indice unico), `created_at`, `updated_at`.
+**`jobs`**: `id`, `task_id`, `status`, `comfy_prompt_id`, `request` (JSON), `error_code`, `error_message`, `idempotency_key` (indice unico), `created_at`, `updated_at`. `request` porta `references` per intero quando il compito li usa (v1.2); nessuna migrazione di schema, è dentro il JSON esistente. La catena padre → figli in galleria mostra quindi un solo padre anche con più riferimenti.
 
 **`uploads`**: `id`, `kind`, `path`, `width`, `height`, `created_at`. Gli upload non collegati a nessuna generazione dopo 7 giorni si eliminano all'avvio.
 
