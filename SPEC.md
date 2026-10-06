@@ -178,7 +178,8 @@ In UI, sopra la casella del prompt: un badge con la lingua ("Scrivi in: inglese"
 - "Fooocus V2" non è uno stile ma la prompt expansion: escluso (§ 2.2).
 - Default per `qualita`: "Fooocus Enhance" + "Fooocus Sharp", come il preset di Fooocus.
 - Nei compiti non SDXL il selettore stili è nascosto.
-- UI: ricerca per nome, massimo 5 stili selezionati. Le anteprime visive sono fuori dalla v1.
+- UI: ricerca per nome, massimo 5 stili selezionati.
+- **Anteprime visive (v1.2, FN19)**: generate una volta in locale con il compito `qualita` a 12 passi, prompt e seed fissi uguali per ogni stile, con `uv run python -m app.cli.assets styles` (circa 13,5 s per stile, circa 62 minuti per tutti). Salvate come WEBP 256 px in `<DATA_DIR>/style_previews`. Il piano prevedeva `bozza` (AS-P9), scartata dopo la misura: SDXL-Lightning a CFG 1 quasi non segue il testo dello stile, e le anteprime di stili come "Action Figure" uscivano come foto normali (§ docs/benchmark.md). Per lo stesso motivo gli stili applicati al compito `bozza` hanno poco effetto.
 
 ---
 
@@ -620,6 +621,7 @@ DIAL: strumento creativo personale per un utente non tecnico, linguaggio da tool
 - "Opzioni avanzate" chiuse di default: passi, aderenza, negativo.
 - Bottone "Genera" con stato di attesa e "Annulla" durante il job.
 - A destra: area risultato con avanzamento (barra con passo N di M, anteprima se disponibile, messaggio di cambio modello con tempo stimato), poi griglia dei risultati con azioni: scarica, preferito, modifica, variazione, ingrandisci, rigenera.
+- Primo avvio (§ 11.3): al posto della griglia, esempi generati in locale, uno per compito di generazione disponibile, ciascuno col proprio prompt e un bottone "Prova questo" che compila compito, prompt, seed e formato senza avviare la generazione. Regola "mai immagini inventate" (`ui-ux.md` § Onestà del contenuto): gli esempi sono immagini vere, generate sulla macchina dell'utente con `uv run python -m app.cli.assets examples`; se il comando non è ancora stato eseguito la pagina mostra solo i prompt di esempio come testo cliccabile, senza miniature.
 
 **Modifica** (inpaint e outpaint)
 - Input: trascina un file, oppure "usa come input" dalla galleria o da Crea.
@@ -639,6 +641,7 @@ Ogni superficie dati ha Loading, Empty, Error, Populated, Edge (`ui-ux.md` dell'
 
 - Motore spento: banner persistente in testa con il comando per avviarlo; "Genera" disattivato con il motivo.
 - Galleria vuota (primo uso): spiegazione e bottone verso Crea.
+- Crea, stato primo uso: galleria senza nessuna generazione (cestino incluso, non un flag salvato, AS-P11) → mostra gli esempi al posto della griglia risultati, invece della griglia vuota.
 - Errore di generazione: messaggio in italiano dalla tabella § 7.5, **prompt e parametri preservati**, bottone "Riprova".
 - Job oltre 60 s senza progresso: "Ci sta mettendo più del previsto" con possibilità di annullare.
 - Edge: prompt di 2000 caratteri, galleria con 5.000 elementi, immagine di input 4096×4096, upload non immagine.
