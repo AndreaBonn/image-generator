@@ -25,7 +25,7 @@ from app.engine.comfy_engine import ComfyEngine
 from app.engine.types import EngineClient
 from app.engine.workflow_builder import Graph
 from app.errors import EngineUnavailableError
-from app.repositories.asset_repository import AssetRepository, atomic_write_bytes
+from app.repositories.asset_repository import EXAMPLES_DIRNAME, AssetRepository, atomic_write_bytes
 from app.repositories.style_repository import load_styles
 from app.services.asset_generation import (
     PREVIEW_TASK_ID,
@@ -39,7 +39,6 @@ from app.services.style_service import StyleService
 from app.services.task_catalog import load_catalog, single_workflow_filename
 
 ENGINE_HTTP_TIMEOUT_S = 30
-EXAMPLES_DIRNAME = "examples"
 
 EngineFactory = Callable[[Settings], AbstractAsyncContextManager[EngineClient]]
 

@@ -36,6 +36,11 @@ class GenerationRepository:
                 raise NotFoundError()
             return record
 
+    def has_any(self) -> bool:
+        """Any generation at all, trash included (AS-P11 first-use check)."""
+        with self.database.sessions() as session:
+            return session.scalar(select(GenerationRecord.id).limit(1)) is not None
+
     def list(self, query: GalleryQuery) -> tuple[list[GenerationRecord], int]:
         filters = gallery_filters(query=query)
         order = GenerationRecord.deleted_at if query.trashed else GenerationRecord.created_at
