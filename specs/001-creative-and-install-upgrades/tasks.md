@@ -157,3 +157,14 @@ pura con test parametrizzati e l'esecuzione reale solo su Linux.
 
 La differenza con la stima di `plan.md` (34-42,5 h base) copre test che falliscono per motivi
 inattesi, review (`code-reviewer` per fase) e verifica reale; il buffer del 20-30% si aggiunge sopra.
+
+## Esito dell'implementazione (7 ottobre 2026)
+
+Tutte le fasi sono implementate e committate. Scostamenti dal piano, ciascuno con il motivo:
+
+- **T066**: gate di qualità superato per giudizio dell'utente; T0A1-T0A7 (ControlNet) non eseguiti perché non necessari.
+- **T076-T077**: anteprime con `qualita` a 12 passi invece di `bozza` (lo stile non si vedeva), circa 62 minuti di GPU invece di 20; scelta confermata dall'utente.
+- **T075**: il selettore mostrava 8 stili con miniature da 28 px; sostituito da una griglia sfogliabile di tutti gli stili con miniature da 96 px, perché il render reale mostrava che le anteprime non aiutavano a scegliere.
+- **T084**: esempi su due colonne anche a 375 px, perché impilati a tutta larghezza spingevano il modulo sotto circa 4000 px.
+- **Aggiunte non pianificate, nate dalle review**: componente condiviso `CopyableCommand`; file di stato `engine/run/studio.pids` usato da `stop.py` su tutti i sistemi (al posto della sola ricerca con `pgrep`).
+- **Non verificati**: T032 (un modello appena scaricato è visto da ComfyUI senza riavvio: nessun modello piccolo mancava sulla macchina); esecuzione reale su Windows e macOS (AS-P12); Ctrl+C di `start.sh` provato solo con test unitario.

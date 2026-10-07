@@ -173,7 +173,7 @@ FLUX):
   Nessuna migrazione dello schema. La catena padre → figli in galleria mostra quindi un solo padre.
 - AS-P8. O5: il numero massimo di riferimenti è quello che la misura (T034) dimostra stare in 8 GB
   senza OOM a 1 MP; il tetto è 3 anche se la misura ne permette di più.
-- AS-P9. (Confermata dall'utente) O9: le miniature si generano con `bozza` (Lightning, circa 4 s a regime, misurato), non
+- AS-P9. **Superata dalla misura (7 ottobre 2026), nuova scelta confermata dall'utente: anteprime con `qualita` a 12 passi**, perché con `bozza` lo stile non si vede (docs/benchmark.md, Anteprime degli stili). Circa 62 minuti invece di 20. Testo originale: O9: le miniature si generano con `bozza` (Lightning, circa 4 s a regime, misurato), non
   con `qualita` (30 s): 277 × 4 s ≈ 18-20 minuti di GPU contro 2,5 ore. Le anteprime sono quindi
   indicative dello stile, non identiche al risultato di `qualita`. Prompt fisso unico per tutti
   gli stili (es. "a woman sitting by a window with a cup of tea").

@@ -117,7 +117,7 @@ Osservazioni di chi ha generato i campioni, da non confondere col verdetto: nel 
 dello schizzo restano visibili sopra la foto, e nel n. 7 l'omino compare come oggetto nella
 scena invece di dare la posa al personaggio. Gli altri seguono composizione o posa.
 
-**Verdetto del gate (soglia 4/5 schizzi, 2/3 pose): in attesa del giudizio dell'utente.**
+**Verdetto del gate (soglia 4/5 schizzi, 2/3 pose): superato, giudizio dell'utente del 7 ottobre 2026.** `da_schizzo` e `in_posa` restano su FLUX.2 klein; l'uscita verso ControlNet (task T0A1-T0A7) non serve.
 
 ## Anteprime degli stili (O9)
 
