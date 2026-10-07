@@ -16,6 +16,9 @@ HF_RESOLVE_TEMPLATE = "https://huggingface.co/{repo}/resolve/main/{repo_path}"
 CHUNK_BYTES = 4 * 1024 * 1024
 MAX_REDIRECTS = 5
 STAGING_DIRNAME = ".downloads"
+# Hugging Face serves files from its own CDN (e.g. us.aws.cdn.hf.co); a redirect anywhere
+# else would mean a compromised or spoofed response, so it is refused before any byte is read.
+TRUSTED_REDIRECT_DOMAINS = ("huggingface.co", "hf.co")
 
 
 class ProgressCallback(Protocol):
@@ -29,6 +32,11 @@ def download_url(*, model: ModelEntry) -> str:
             message=f"Il modello {model.id} non ha repo e repo_path nel registro."
         )
     return HF_RESOLVE_TEMPLATE.format(repo=model.repo, repo_path=model.repo_path)
+
+
+def is_trusted_redirect_host(*, host: str) -> bool:
+    """True for Hugging Face hosts and their subdomains, never for look-alikes."""
+    return any(host == domain or host.endswith(f".{domain}") for domain in TRUSTED_REDIRECT_DOMAINS)
 
 
 class ModelFilesRepository:
@@ -59,6 +67,10 @@ class ModelFilesRepository:
                 if target.scheme != "https":
                     raise DownloadFailedError(
                         message="Il server ha rifiutato un redirect non sicuro (non https)."
+                    )
+                if not is_trusted_redirect_host(host=target.host):
+                    raise DownloadFailedError(
+                        message="Il download è stato rediretto verso un indirizzo non affidabile."
                     )
                 current_url = str(target)
                 continue

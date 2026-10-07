@@ -9,7 +9,7 @@ import respx
 from app.config import Settings
 from app.errors import ChecksumMismatchError, DownloadFailedError
 from app.repositories.catalog_repository import ModelEntry
-from app.repositories.model_files import ModelFilesRepository
+from app.repositories.model_files import ModelFilesRepository, is_trusted_redirect_host
 
 RESOLVE_URL = "https://huggingface.co/Kim2091/UltraSharp/resolve/main/4x-UltraSharp.safetensors"
 CDN_URL = "https://us.aws.cdn.hf.co/xet-bridge-us/fake-object"
@@ -150,6 +150,22 @@ async def test_download_rejects_non_https_redirect(tmp_path: Path) -> None:
 
 
 @respx.mock
+async def test_download_rejects_https_redirect_outside_hugging_face(tmp_path: Path) -> None:
+    respx.get(RESOLVE_URL).respond(
+        status_code=302, headers={"location": "https://evil.example/model.bin"}
+    )
+    evil = respx.get("https://evil.example/model.bin").respond(content=CONTENT)
+    model = make_model(tmp_path=tmp_path)
+    async with httpx.AsyncClient() as http:
+        repository = make_repository(tmp_path=tmp_path, http=http)
+        with pytest.raises(DownloadFailedError, match="non affidabile"):
+            await repository.download(
+                model=model, on_progress=lambda *, bytes_downloaded, total_bytes: None
+            )
+    assert not evil.called
+
+
+@respx.mock
 async def test_download_disk_error_raises_download_failed_and_removes_partial(
     tmp_path: Path,
 ) -> None:
@@ -166,3 +182,19 @@ async def test_download_disk_error_raises_download_failed_and_removes_partial(
 
     assert list((tmp_path / "models" / ".downloads").iterdir()) == []
     assert not repository.destination(model=model).exists()
+
+
+@pytest.mark.parametrize(
+    ("host", "expected"),
+    [
+        ("huggingface.co", True),
+        ("cdn-lfs.huggingface.co", True),
+        ("us.aws.cdn.hf.co", True),
+        ("evilhf.co", False),
+        ("huggingface.co.evil.example", False),
+    ],
+)
+def test_is_trusted_redirect_host_accepts_only_hugging_face_domains(
+    host: str, expected: bool
+) -> None:
+    assert is_trusted_redirect_host(host=host) is expected
