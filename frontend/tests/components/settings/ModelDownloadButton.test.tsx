@@ -16,7 +16,7 @@ function wrapper({ children }: { children: ReactNode }) {
 }
 
 function buildDownload(overrides: Partial<UseModelDownloadResult> = {}): UseModelDownloadResult {
-  return { state: IDLE, start: vi.fn(), cancel: vi.fn(), ...overrides };
+  return { state: IDLE, start: vi.fn(), cancel: vi.fn(), connectionLost: false, ...overrides };
 }
 
 describe("ModelDownloadButton", () => {
@@ -133,5 +133,19 @@ describe("ModelDownloadButton", () => {
       screen.getByText("È in corso il download di un altro modello. Attendi che finisca."),
     ).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /Installa/ })).not.toBeInTheDocument();
+  });
+});
+
+describe("ModelDownloadButton connection", () => {
+  it("tells the user the connection dropped while a download is running", () => {
+    const model = buildModelInfo({ id: "flux2-klein", status: "missing", enabled: true, size_gb: 4 });
+    const download = buildDownload({
+      state: { modelId: "flux2-klein", phase: "downloading", bytes: 1, total: 2, error: null },
+      connectionLost: true,
+    });
+
+    render(<ModelDownloadButton model={model} disk={DISK} download={download} />, { wrapper });
+
+    expect(screen.getByText("Connessione con l'app interrotta: riprovo...")).toBeInTheDocument();
   });
 });

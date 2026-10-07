@@ -32,7 +32,16 @@ export function ModelDownloadButton({ model, disk, download }: ModelDownloadButt
   }
 
   if (isThisModel && (state.phase === "downloading" || state.phase === "verifying")) {
-    return <DownloadProgress model={model} state={state} onCancel={cancel} />;
+    return (
+      <div className="flex flex-col gap-1">
+        <DownloadProgress model={model} state={state} onCancel={cancel} />
+        {download.connectionLost ? (
+          <p role="status" className="text-sm text-warning">
+            Connessione con l&apos;app interrotta: riprovo...
+          </p>
+        ) : null}
+      </div>
+    );
   }
 
   if (isThisModel && state.phase === "failed") {

@@ -9,7 +9,9 @@ function parseEvent(name: string, raw: string): ModelDownloadEvent | null {
   try {
     const payload = raw ? (JSON.parse(raw) as Record<string, unknown>) : {};
     return { type: name, ...payload } as ModelDownloadEvent;
-  } catch {
+  } catch (error) {
+    // A malformed event would otherwise freeze the progress bar with no trace.
+    console.warn(`Evento di download non leggibile (${name}):`, error);
     return null;
   }
 }
@@ -45,6 +47,8 @@ export interface UseModelDownloadResult {
   state: ModelDownloadState;
   start: (modelId: string) => Promise<void>;
   cancel: () => Promise<void>;
+  /** True after the SSE stream errored and until the next event arrives (the browser reconnects). */
+  connectionLost: boolean;
 }
 
 function toDownloadError(error: unknown): { code: string; message: string } {
@@ -94,11 +98,13 @@ function applyEvent(
 export function useModelDownload(): UseModelDownloadResult {
   const [state, setState] = useState<ModelDownloadState>(IDLE_STATE);
   const modelIdRef = useRef<string | null>(null);
+  const [connectionLost, setConnectionLost] = useState(false);
 
   useEffect(() => {
     const source = new EventSource("/api/v1/models/downloads/events");
     const handlers = EVENT_NAMES.map((name) => {
       const handler = (ev: MessageEvent) => {
+        setConnectionLost(false);
         const event = parseEvent(name, ev.data as string);
         if (!event) return;
         const activeModelId = modelIdRef.current;
@@ -110,6 +116,7 @@ export function useModelDownload(): UseModelDownloadResult {
       source.addEventListener(name, handler);
       return [name, handler] as const;
     });
+    source.onerror = () => setConnectionLost(true);
     return () => {
       for (const [name, handler] of handlers) source.removeEventListener(name, handler);
       source.close();
@@ -137,5 +144,5 @@ export function useModelDownload(): UseModelDownloadResult {
     }
   }, []);
 
-  return { state, start, cancel };
+  return { state, start, cancel, connectionLost };
 }

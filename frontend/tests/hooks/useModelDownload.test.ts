@@ -163,3 +163,39 @@ describe("useModelDownload cancel failure", () => {
     expect(result.current.state.error?.message).toBeTruthy();
   });
 });
+
+describe("useModelDownload connection", () => {
+  beforeEach(() => {
+    installMockEventSource();
+  });
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("reports a lost connection and clears it when events flow again", () => {
+    const { result } = renderHook(() => useModelDownload());
+    expect(result.current.connectionLost).toBe(false);
+
+    act(() => latestEventSource().onerror?.(new Event("error")));
+    expect(result.current.connectionLost).toBe(true);
+
+    act(() => latestEventSource().emit("progress", { bytes: 1, total: 2 }));
+    expect(result.current.connectionLost).toBe(false);
+  });
+
+  it("logs a malformed event instead of dropping it silently", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    renderHook(() => useModelDownload());
+    const source = latestEventSource() as unknown as {
+      listeners: Map<string, Set<(event: MessageEvent) => void>>;
+    };
+
+    act(() => {
+      for (const listener of source.listeners.get("progress") ?? []) {
+        listener({ data: "{not json" } as MessageEvent);
+      }
+    });
+
+    expect(warn).toHaveBeenCalled();
+  });
+});
