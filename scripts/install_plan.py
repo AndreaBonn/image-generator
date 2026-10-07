@@ -119,6 +119,36 @@ def build_models_step(profile: str, missing_model_ids: tuple[str, ...]) -> Step 
     )
 
 
+def _engine_step(state: InstallState) -> Step | None:
+    if state.engine_installed:
+        return None
+    return Step(name="engine", description="Installa il motore ComfyUI")
+
+
+def _backend_deps_step(state: InstallState) -> Step | None:
+    if state.backend_deps_installed:
+        return None
+    return Step(name="backend_deps", description="Installa le dipendenze backend (uv sync)")
+
+
+def _frontend_build_step(state: InstallState) -> Step | None:
+    if state.frontend_built:
+        return None
+    return Step(
+        name="frontend_build",
+        description="Compila il frontend (npm ci && npm run build)",
+    )
+
+
+def _styles_step(state: InstallState) -> Step | None:
+    if not state.missing_style_filenames:
+        return None
+    return Step(
+        name="styles",
+        description=f"Scarica {len(state.missing_style_filenames)} file di stili",
+    )
+
+
 def plan_steps(profile: str, state: InstallState) -> list[Step]:
     """Return the ordered steps install.py must still run for `profile`.
 
@@ -127,30 +157,13 @@ def plan_steps(profile: str, state: InstallState) -> list[Step]:
     """
     if profile not in PROFILES:
         raise ValueError(f"unknown profile '{profile}', expected one of {PROFILES}")
-    steps: list[Step] = []
-    if not state.engine_installed:
-        steps.append(Step(name="engine", description="Installa il motore ComfyUI"))
-    if not state.backend_deps_installed:
-        steps.append(
-            Step(
-                name="backend_deps",
-                description="Installa le dipendenze backend (uv sync)",
-            )
-        )
-    if not state.frontend_built:
-        steps.append(
-            Step(
-                name="frontend_build",
-                description="Compila il frontend (npm ci && npm run build)",
-            )
-        )
-    if state.missing_style_filenames:
-        steps.append(
-            Step(
-                name="styles",
-                description=f"Scarica {len(state.missing_style_filenames)} file di stili",
-            )
-        )
+    step_builders = (
+        _engine_step,
+        _backend_deps_step,
+        _frontend_build_step,
+        _styles_step,
+    )
+    steps = [step for build in step_builders if (step := build(state)) is not None]
     models_step = build_models_step(profile=profile, missing_model_ids=state.missing_model_ids)
     if models_step is not None:
         steps.append(models_step)

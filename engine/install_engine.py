@@ -21,7 +21,7 @@ import importlib.util
 import os
 import shutil
 import sys
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -143,6 +143,17 @@ def detect_engine_state(engine_dir: Path, os_name: str) -> EngineState:
 # --- orchestration -------------------------------------------------------------
 
 
+def _run_smoke_test_step(
+    *, engine_dir: Path, os_name: str, comfy_port: int, timeout_s: float, repo_root: Path
+) -> None:
+    if os.environ.get("SKIP_SMOKE_TEST") == "1":
+        log("Smoke test saltato (SKIP_SMOKE_TEST=1)")
+        return
+    execute_smoke_test(
+        engine_dir, os_name, comfy_port=comfy_port, timeout_s=timeout_s, repo_root=repo_root
+    )
+
+
 def execute_step(
     step: Step,
     *,
@@ -154,27 +165,25 @@ def execute_step(
     comfy_port: int,
     timeout_s: float,
 ) -> None:
-    if step.name == "space_check":
-        assert_free_space(repo_root, MIN_FREE_GB_FOR_ENGINE)
-    elif step.name == "clone_comfyui":
-        execute_clone_comfyui(engine_dir)
-    elif step.name == "venv":
-        execute_create_venv(engine_dir)
-    elif step.name == "torch_and_requirements":
-        execute_install_deps(engine_dir, os_name, has_nvidia)
-    elif step.name == "inpaint_nodes":
-        execute_inpaint_nodes(engine_dir)
-    elif step.name == "model_paths":
-        execute_write_model_paths(engine_dir, models_dir, TEMPLATE_PATH)
-    elif step.name == "smoke_test":
-        if os.environ.get("SKIP_SMOKE_TEST") == "1":
-            log("Smoke test saltato (SKIP_SMOKE_TEST=1)")
-            return
-        execute_smoke_test(
-            engine_dir, os_name, comfy_port=comfy_port, timeout_s=timeout_s, repo_root=repo_root
-        )
-    else:
+    handlers: dict[str, Callable[[], None]] = {
+        "space_check": lambda: assert_free_space(repo_root, MIN_FREE_GB_FOR_ENGINE),
+        "clone_comfyui": lambda: execute_clone_comfyui(engine_dir),
+        "venv": lambda: execute_create_venv(engine_dir),
+        "torch_and_requirements": lambda: execute_install_deps(engine_dir, os_name, has_nvidia),
+        "inpaint_nodes": lambda: execute_inpaint_nodes(engine_dir),
+        "model_paths": lambda: execute_write_model_paths(engine_dir, models_dir, TEMPLATE_PATH),
+        "smoke_test": lambda: _run_smoke_test_step(
+            engine_dir=engine_dir,
+            os_name=os_name,
+            comfy_port=comfy_port,
+            timeout_s=timeout_s,
+            repo_root=repo_root,
+        ),
+    }
+    handler = handlers.get(step.name)
+    if handler is None:
         raise ValueError(f"passo sconosciuto: {step.name}")
+    handler()
 
 
 def build_parser() -> argparse.ArgumentParser:

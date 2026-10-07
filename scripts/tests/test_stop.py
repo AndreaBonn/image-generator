@@ -249,7 +249,12 @@ def test_remove_run_state_file_is_a_noop_when_missing(tmp_path):
 
 
 def test_windows_kill_command_graceful_has_no_force_flag():
-    assert stop_mod.windows_kill_command(4242, force=False) == ["taskkill", "/PID", "4242", "/T"]
+    assert stop_mod.windows_kill_command(4242, force=False) == [
+        "taskkill",
+        "/PID",
+        "4242",
+        "/T",
+    ]
 
 
 def test_windows_kill_command_force_appends_f_flag():
@@ -428,7 +433,10 @@ def test_stop_via_run_state_stops_both_recorded_pids_on_posix(tmp_path):
 
     assert code == 0
     assert sorted(sent) == [(11, "SIGTERM"), (22, "SIGTERM")]
-    assert messages[-1] == ("Image Generator", "Chiuso. La memoria della scheda video è libera.")
+    assert messages[-1] == (
+        "Image Generator",
+        "Chiuso. La memoria della scheda video è libera.",
+    )
 
 
 def test_stop_via_run_state_ignores_engine_when_it_was_preexisting(tmp_path):
@@ -475,6 +483,37 @@ def test_stop_via_run_state_returns_1_when_a_pid_survives_force(tmp_path):
     )
 
 
+def test_stop_via_run_state_reports_unverifiable_pid_and_keeps_state_file(tmp_path):
+    """A3: process_cmdline(pid) returning None on a *live* PID means "can't
+    read its command line", not "not ours". Silently skipping it let the
+    final message claim "Non era in esecuzione." while the process (and the
+    GPU memory it holds) was still alive. It must neither be signalled nor
+    have the run-state file dropped, and the report must name the PID."""
+    kill, sent = make_kill_recorder()
+    notify_send, messages = make_notify_recorder()
+    state = stop_mod.RunState(engine_pid=11, backend_pid=None)
+    state_path = platform_support.run_state_path(tmp_path)
+    state_path.parent.mkdir(parents=True)
+    state_path.write_text(json.dumps({"engine": 11, "backend": None}))
+
+    code = stop_mod.stop_via_run_state(
+        tmp_path,
+        state,
+        os_name="linux",
+        process_exists=lambda pid: True,
+        process_cmdline=lambda pid: None,  # unreadable, but the PID is alive
+        send_signal=kill,
+        sleep=lambda s: None,
+        notify_send=notify_send,
+    )
+
+    assert code == 1
+    assert sent == []  # never signalled: might not be ours
+    assert state_path.exists()  # not dropped: we might still need to track it
+    assert "11" in messages[-1][1]
+    assert "non posso verificare" in messages[-1][1]
+
+
 def test_stop_via_run_state_skips_pid_whose_cmdline_does_not_match(tmp_path):
     """T0xx MEDIUM finding: a crash followed by a restart can let an
     unrelated process reuse a recorded PID. The command line, not the bare
@@ -507,7 +546,10 @@ def test_stop_via_run_state_skips_pid_whose_cmdline_does_not_match(tmp_path):
 
     assert code == 0
     assert sent == [(22, "SIGTERM")]  # pid 11 never signalled: foreign process
-    assert messages[-1] == ("Image Generator", "Chiuso. La memoria della scheda video è libera.")
+    assert messages[-1] == (
+        "Image Generator",
+        "Chiuso. La memoria della scheda video è libera.",
+    )
     assert not platform_support.run_state_path(tmp_path).exists()
 
 
@@ -536,7 +578,9 @@ def test_pid_cmdline_matches_windows_checks_image_name_only():
         '"python.exe","1234","Console","1","12,345 K"', os_name="windows", kind="engine"
     )
     assert not stop_mod.pid_cmdline_matches(
-        '"notepad.exe","1234","Console","1","12,345 K"', os_name="windows", kind="backend"
+        '"notepad.exe","1234","Console","1","12,345 K"',
+        os_name="windows",
+        kind="backend",
     )
 
 

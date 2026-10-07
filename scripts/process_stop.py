@@ -9,6 +9,7 @@ delay every pid after the first by however long its predecessor took to die.
 from __future__ import annotations
 
 import importlib.util
+import subprocess
 import sys
 import time
 from collections.abc import Callable, Sequence
@@ -94,3 +95,25 @@ def stop_pids(
         if process_exists(pid):
             _send_force(pid, os_name=os_name, send_signal=send_signal, run_command=run_command)
     sleep(1)
+
+
+STARTED_PROCESS_STOP_TIMEOUT_S = 10.0
+
+
+def stop_started_processes(
+    processes: Sequence[subprocess.Popen],
+    *,
+    os_name: str,
+    timeout_s: float = STARTED_PROCESS_STOP_TIMEOUT_S,
+) -> None:
+    """Stop exactly `processes`, never anything else. Graceful then forced."""
+    platform_support.stop_strategy(os_name)  # validates os_name; data is unused here
+    alive = [p for p in processes if p.poll() is None]
+    for process in alive:
+        process.terminate()
+    for process in alive:
+        try:
+            process.wait(timeout=timeout_s)
+        except subprocess.TimeoutExpired:
+            process.kill()
+            process.wait(timeout=5)

@@ -98,6 +98,14 @@ class ProcessExitedError(RuntimeError):
         super().__init__(f"process exited (code {returncode}) before responding")
 
 
+def _url_responds(url: str, timeout_s: float) -> bool:
+    try:
+        urllib.request.urlopen(url, timeout=timeout_s)
+        return True
+    except OSError:
+        return False
+
+
 def wait_for_url(
     url: str,
     process: subprocess.Popen,
@@ -107,29 +115,18 @@ def wait_for_url(
 ) -> None:
     """Poll `url` until it answers; raise at once if `process` dies first.
 
-    Parameters
-    ----------
-    url : str
-        Address to poll (e.g. a health endpoint).
-    process : subprocess.Popen
-        The process expected to serve `url`. Checked before every poll via
-        `poll()`, so a process that crashes fails immediately instead of
-        waiting out `timeout_s`.
-    timeout_s : float
-        Overall budget. Raises `TimeoutError` once exceeded.
-    poll_interval_s : float
-        Delay between polls, and the per-request network timeout.
+    `process` is checked via `poll()` before every request, so a crash fails
+    fast instead of waiting out `timeout_s`. Raises `TimeoutError` once the
+    budget is exceeded. `poll_interval_s` is both the delay between polls and
+    the per-request network timeout.
     """
     deadline = time.monotonic() + timeout_s
     while True:
         returncode = process.poll()
         if returncode is not None:
             raise ProcessExitedError(returncode)
-        try:
-            urllib.request.urlopen(url, timeout=poll_interval_s)
+        if _url_responds(url, poll_interval_s):
             return
-        except OSError:
-            pass
         if time.monotonic() >= deadline:
             raise TimeoutError(f"{url} did not respond within {timeout_s}s")
         time.sleep(poll_interval_s)

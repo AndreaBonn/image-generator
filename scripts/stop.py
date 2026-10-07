@@ -17,14 +17,11 @@ for anyone who started the engine/backend some other way).
 from __future__ import annotations
 
 import importlib.util
-import json
-import os
 import shutil
 import subprocess
 import sys
 import time
 from collections.abc import Callable, Sequence
-from dataclasses import dataclass
 from pathlib import Path
 
 _SCRIPT_DIR = Path(__file__).resolve().parent
@@ -60,88 +57,97 @@ def _real_notify_send(app_name: str, message: str) -> None:
     subprocess.run(["notify-send", f"--app-name={app_name}", app_name, message], check=False)
 
 
-# --- run-state path (all platforms) --------------------------------------
+recorded_pids = _load_sibling("recorded_pids")
 
-
-@dataclass(frozen=True)
-class RunState:
-    engine_pid: int | None
-    backend_pid: int | None
-
-
-def read_run_state(repo_root: Path) -> RunState | None:
-    """Parse the run-state file, or None if it's missing or unreadable."""
-    path = platform_support.run_state_path(repo_root)
-    if not path.is_file():
-        return None
-    try:
-        data = json.loads(path.read_text())
-    except (json.JSONDecodeError, OSError):
-        return None
-    return RunState(engine_pid=data.get("engine"), backend_pid=data.get("backend"))
-
-
-def remove_run_state_file(repo_root: Path) -> None:
-    platform_support.run_state_path(repo_root).unlink(missing_ok=True)
-
-
+RunState = recorded_pids.RunState
+RecordedPidsCheck = recorded_pids.RecordedPidsCheck
+read_run_state = recorded_pids.read_run_state
+remove_run_state_file = recorded_pids.remove_run_state_file
+check_recorded_pids = recorded_pids.check_recorded_pids
+real_process_exists = recorded_pids.real_process_exists
+real_run_command = recorded_pids.real_run_command
+real_kill = recorded_pids.real_kill
 pid_cmdline_matches = process_ownership.pid_cmdline_matches
 real_process_cmdline = process_ownership.real_process_cmdline
-
-
-def real_process_exists(pid: int) -> bool:
-    if platform_support.detect_os_name() == "windows":
-        import ctypes
-
-        handle = ctypes.windll.kernel32.OpenProcess(0x1000, False, pid)  # PROCESS_QUERY_LIMITED
-        if not handle:
-            return False
-        ctypes.windll.kernel32.CloseHandle(handle)
-        return True
-    try:
-        os.kill(pid, 0)
-    except ProcessLookupError:
-        return False
-    except PermissionError:
-        return True
-    return True
-
-
-def real_run_command(argv: Sequence[str]) -> None:
-    subprocess.run(list(argv), check=False)
-
-
-def real_kill(pid: int, signal_name: str) -> None:
-    import signal
-
-    sig = signal.SIGTERM if signal_name == "SIGTERM" else signal.SIGKILL
-    try:
-        os.kill(pid, sig)
-    except ProcessLookupError:
-        pass
-
 
 windows_kill_command = process_stop.windows_kill_command
 wait_for_pids_gone = process_stop.wait_for_pids_gone
 stop_pids = process_stop.stop_pids
 
 
-def owned_recorded_pids(
+def _notify_unverifiable_pids(
+    check: RecordedPidsCheck,
+    notify_send: Callable[[str, str], None] | None,
+) -> int:
+    """Alive but unreadable: do not touch it, keep the state file so the PID
+    is not lost, and tell the user to deal with it by hand."""
+    pid_list = ", ".join(str(pid) for _, pid in check.unverifiable)
+    notify(
+        f"Il processo {pid_list} è attivo ma non posso verificare che sia di "
+        f"{APP_NAME}: fermalo a mano o riavvia.",
+        notify_send=notify_send,
+    )
+    return 1
+
+
+def _notify_no_owned_pids(
+    repo_root: Path,
     state: RunState,
+    notify_send: Callable[[str, str], None] | None,
+) -> int:
+    remove_run_state_file(repo_root)
+    was_recorded = state.engine_pid is not None or state.backend_pid is not None
+    notify(
+        "File di stato obsoleto: rimosso." if was_recorded else "Non era in esecuzione.",
+        notify_send=notify_send,
+    )
+    return 0
+
+
+def _stop_owned_pids(
+    repo_root: Path,
+    owned_pids: list[int],
     *,
     os_name: str,
     process_exists: Callable[[int], bool],
-    process_cmdline: Callable[[int], str | None],
-) -> list[int]:
-    """Recorded PIDs that are alive and still run our engine or backend."""
-    owned: list[int] = []
-    for kind, pid in (("engine", state.engine_pid), ("backend", state.backend_pid)):
-        if pid is None or not process_exists(pid):
-            continue
-        cmdline = process_cmdline(pid)
-        if cmdline is not None and pid_cmdline_matches(cmdline, os_name=os_name, kind=kind):
-            owned.append(pid)
-    return owned
+    send_signal: Callable[[int, str], None],
+    run_command: Callable[[Sequence[str]], None],
+    sleep: Callable[[float], None],
+    timeout_s: float,
+    notify_send: Callable[[str, str], None] | None,
+) -> int:
+    stop_pids(
+        owned_pids,
+        os_name=os_name,
+        process_exists=process_exists,
+        send_signal=send_signal,
+        run_command=run_command,
+        sleep=sleep,
+        timeout_s=timeout_s,
+    )
+    remove_run_state_file(repo_root)
+    if any(process_exists(pid) for pid in owned_pids):
+        notify(
+            "Alcuni processi non si chiudono nemmeno forzandoli: riavvia il computer.",
+            notify_send=notify_send,
+        )
+        return 1
+    notify("Chiuso. La memoria della scheda video è libera.", notify_send=notify_send)
+    return 0
+
+
+def _short_circuit_stop(
+    check: RecordedPidsCheck,
+    repo_root: Path,
+    state: RunState,
+    notify_send: Callable[[str, str], None] | None,
+) -> int | None:
+    """Exit code if nothing should be stopped (unverifiable, or none owned)."""
+    if check.unverifiable:
+        return _notify_unverifiable_pids(check, notify_send)
+    if not check.owned:
+        return _notify_no_owned_pids(repo_root, state, notify_send)
+    return None
 
 
 def stop_via_run_state(
@@ -157,47 +163,83 @@ def stop_via_run_state(
     timeout_s: float = STOP_TIMEOUT_S,
     notify_send: Callable[[str, str], None] | None = None,
 ) -> int:
-    """Stop the PIDs recorded by start.py. Drops the file when done either way.
-
-    Each recorded PID must be both alive and ownership-checked via its
-    command line (`pid_cmdline_matches`): after a crash and a restart, a PID
-    can be reused by an unrelated process, and the bare liveness check alone
-    would signal that foreign process instead of skipping it.
-    """
-    owned_pids = owned_recorded_pids(
+    """Stop the PIDs recorded by start.py, unless a PID is unverifiable."""
+    check = check_recorded_pids(
         state, os_name=os_name, process_exists=process_exists, process_cmdline=process_cmdline
     )
-    if not owned_pids:
-        remove_run_state_file(repo_root)
-        was_recorded = state.engine_pid is not None or state.backend_pid is not None
-        notify(
-            "File di stato obsoleto: rimosso." if was_recorded else "Non era in esecuzione.",
-            notify_send=notify_send,
-        )
-        return 0
-
-    stop_pids(
-        owned_pids,
+    if (early := _short_circuit_stop(check, repo_root, state, notify_send)) is not None:
+        return early
+    return _stop_owned_pids(
+        repo_root,
+        check.owned,
         os_name=os_name,
         process_exists=process_exists,
         send_signal=send_signal,
         run_command=run_command,
         sleep=sleep,
         timeout_s=timeout_s,
+        notify_send=notify_send,
     )
-
-    remove_run_state_file(repo_root)
-    if any(process_exists(pid) for pid in owned_pids):
-        notify(
-            "Alcuni processi non si chiudono nemmeno forzandoli: riavvia il computer.",
-            notify_send=notify_send,
-        )
-        return 1
-    notify("Chiuso. La memoria della scheda video è libera.", notify_send=notify_send)
-    return 0
 
 
 # --- dispatcher -------------------------------------------------------------
+
+
+def _stop_without_run_state(
+    repo_root: Path,
+    *,
+    os_name: str,
+    pgrep: Callable[[str], Sequence[int]],
+    send_signal: Callable[[int, str], None],
+    sleep: Callable[[float], None],
+    clock: Callable[[], float],
+    timeout_s: float,
+    notify_send: Callable[[str, str], None] | None,
+) -> int:
+    """No run-state file: pgrep hunt (POSIX only, no prior stop.sh behaviour
+    on Windows to preserve)."""
+    if os_name == "windows":
+        notify("Non era in esecuzione.", notify_send=notify_send)
+        return 0
+    return pgrep_fallback.stop_via_pgrep(
+        repo_root,
+        pgrep=pgrep,
+        kill=send_signal,
+        notify=lambda message: notify(message, notify_send=notify_send),
+        sleep=sleep,
+        clock=clock,
+        timeout_s=timeout_s,
+    )
+
+
+def _stop_shared_kwargs(
+    os_name: str,
+    send_signal: Callable[[int, str], None],
+    sleep: Callable[[float], None],
+    timeout_s: float,
+    notify_send: Callable[[str, str], None] | None,
+) -> dict[str, object]:
+    """Kwargs shared by `stop_via_run_state` and `_stop_without_run_state`."""
+    return {
+        "os_name": os_name,
+        "send_signal": send_signal,
+        "sleep": sleep,
+        "timeout_s": timeout_s,
+        "notify_send": notify_send,
+    }
+
+
+def _stop_run_state_only_kwargs(
+    process_exists: Callable[[int], bool],
+    process_cmdline: Callable[[int], str | None],
+    run_command: Callable[[Sequence[str]], None],
+) -> dict[str, object]:
+    """Kwargs only `stop_via_run_state` needs, beyond `_stop_shared_kwargs`."""
+    return {
+        "process_exists": process_exists,
+        "process_cmdline": process_cmdline,
+        "run_command": run_command,
+    }
 
 
 def stop(
@@ -216,38 +258,13 @@ def stop(
     notify_send: Callable[[str, str], None] | None = None,
 ) -> int:
     """Stop this checkout's engine and backend. Returns the process exit code."""
-    if os_name is None:
-        os_name = platform_support.detect_os_name()
-
+    os_name = os_name or platform_support.detect_os_name()
     state = read_run_state(repo_root)
+    shared = _stop_shared_kwargs(os_name, send_signal, sleep, timeout_s, notify_send)
     if state is not None:
-        return stop_via_run_state(
-            repo_root,
-            state,
-            os_name=os_name,
-            process_exists=process_exists,
-            process_cmdline=process_cmdline,
-            send_signal=send_signal,
-            run_command=run_command,
-            sleep=sleep,
-            timeout_s=timeout_s,
-            notify_send=notify_send,
-        )
-
-    if os_name == "windows":
-        # No pgrep on Windows, and no prior stop.sh behaviour to preserve there.
-        notify("Non era in esecuzione.", notify_send=notify_send)
-        return 0
-
-    return pgrep_fallback.stop_via_pgrep(
-        repo_root,
-        pgrep=pgrep,
-        kill=send_signal,
-        notify=lambda message: notify(message, notify_send=notify_send),
-        sleep=sleep,
-        clock=clock,
-        timeout_s=timeout_s,
-    )
+        run_state_only = _stop_run_state_only_kwargs(process_exists, process_cmdline, run_command)
+        return stop_via_run_state(repo_root, state, **shared, **run_state_only)
+    return _stop_without_run_state(repo_root, pgrep=pgrep, clock=clock, **shared)
 
 
 def main(argv: Sequence[str] | None = None) -> int:

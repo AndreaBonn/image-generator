@@ -117,6 +117,26 @@ def execute_write_model_paths(engine_dir: Path, models_dir: Path, template_path:
     log(f"extra_model_paths.yaml written (models: {models_dir})")
 
 
+def _stop_smoke_test_process(process: subprocess.Popen) -> None:
+    process.terminate()
+    try:
+        process.wait(timeout=10)
+    except subprocess.TimeoutExpired:
+        process.kill()
+
+
+def _comfy_launch_argv(venv_py: Path, engine_dir: Path, comfy_port: int) -> list[str]:
+    return [
+        str(venv_py),
+        str(engine_dir / "main.py"),
+        "--listen",
+        "127.0.0.1",
+        "--port",
+        str(comfy_port),
+        "--disable-auto-launch",
+    ]
+
+
 def execute_smoke_test(
     engine_dir: Path,
     os_name: str,
@@ -133,26 +153,11 @@ def execute_smoke_test(
     instead of ever launching real ComfyUI.
     """
     venv_py = platform_support.venv_python(os_name, engine_dir / ".venv")
-    log_path = repo_root / "engine" / "smoke_test.log"
     url = f"http://127.0.0.1:{comfy_port}/system_stats"
-    process = start_process(
-        [
-            str(venv_py),
-            str(engine_dir / "main.py"),
-            "--listen",
-            "127.0.0.1",
-            "--port",
-            str(comfy_port),
-            "--disable-auto-launch",
-        ],
-        log_path=log_path,
-    )
+    argv = _comfy_launch_argv(venv_py, engine_dir, comfy_port)
+    process = start_process(argv, log_path=repo_root / "engine" / "smoke_test.log")
     try:
         wait_for_url(url, process, timeout_s=timeout_s)
         log(f"ComfyUI answered on {url}")
     finally:
-        process.terminate()
-        try:
-            process.wait(timeout=10)
-        except subprocess.TimeoutExpired:
-            process.kill()
+        _stop_smoke_test_process(process)
