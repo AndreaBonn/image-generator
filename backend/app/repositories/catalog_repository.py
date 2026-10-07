@@ -38,9 +38,7 @@ class ModelEntry(BaseModel):
     @model_validator(mode="after")
     def validate_huggingface_fields(self) -> Self:
         if self.source == "huggingface" and not (self.repo and self.repo_path and self.sha256):
-            raise ValueError(
-                "models with source huggingface must set repo, repo_path and sha256"
-            )
+            raise ValueError("models with source huggingface must set repo, repo_path and sha256")
         return self
 
 
