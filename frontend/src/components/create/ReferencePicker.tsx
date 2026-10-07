@@ -84,6 +84,7 @@ export function ReferencePicker({
 }: ReferencePickerProps) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [galleryOpen, setGalleryOpen] = useState(false);
+  const [formatError, setFormatError] = useState(false);
   const atMax = items.length >= maxReferences;
   const missingLabel = labels?.[items.length];
   usePreviewRevocation(items);
@@ -105,16 +106,23 @@ export function ReferencePicker({
   function handleFiles(files: FileList | null) {
     const file = files?.[0];
     if (!file || disabled || atMax) return;
-    if (!ACCEPTED_TYPES.includes(file.type)) return;
+    if (!ACCEPTED_TYPES.includes(file.type)) {
+      setFormatError(true);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
+    setFormatError(false);
     uploadMutation.mutate(file);
     if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
   function handleRemove(key: string) {
+    setFormatError(false);
     onChange(items.filter((item) => item.key !== key));
   }
 
   function handlePickFromGallery(generationId: string) {
+    setFormatError(false);
     onChange([
       ...items,
       {
@@ -200,6 +208,11 @@ export function ReferencePicker({
         aria-label="Aggiungi riferimento da file"
       />
 
+      {formatError ? (
+        <p role="alert" className="text-sm text-danger">
+          Formato non supportato: usa un&apos;immagine PNG, JPEG o WEBP.
+        </p>
+      ) : null}
       {uploadMutation.isError ? (
         <p role="alert" className="text-sm text-danger">
           Impossibile caricare l&apos;immagine. Verifica formato e dimensione.

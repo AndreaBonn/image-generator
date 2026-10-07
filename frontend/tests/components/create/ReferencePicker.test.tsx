@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReferencePicker, type ReferenceItem } from "@/components/create/ReferencePicker";
@@ -179,5 +179,36 @@ describe("ReferencePicker with labelled slots (da_schizzo, in_posa)", () => {
 
     expect(screen.getByText("Posa")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Aggiungi personaggio da file" })).toBeInTheDocument();
+  });
+});
+
+describe("ReferencePicker with an unsupported file", () => {
+  it("explains the accepted formats instead of ignoring the file", async () => {
+    const uploadFile = vi.spyOn(queries, "uploadFile");
+    renderPicker([]);
+
+    fireEvent.change(screen.getByLabelText("Aggiungi riferimento da file"), {
+      target: { files: [new File(["%PDF"], "doc.pdf", { type: "application/pdf" })] },
+    });
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Formato non supportato: usa un'immagine PNG, JPEG o WEBP.",
+    );
+    expect(uploadFile).not.toHaveBeenCalled();
+  });
+
+  it("clears the format error once the user removes a reference", async () => {
+    const items: ReferenceItem[] = [
+      { key: "upload:a", input: { upload_id: "a" }, previewUrl: "blob:a" },
+    ];
+    renderPicker(items);
+    fireEvent.change(screen.getByLabelText("Aggiungi riferimento da file"), {
+      target: { files: [new File(["%PDF"], "doc.pdf", { type: "application/pdf" })] },
+    });
+    expect(await screen.findByRole("alert")).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole("button", { name: "Rimuovi riferimento 1" }));
+
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });
 });
