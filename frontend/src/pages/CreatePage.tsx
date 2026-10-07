@@ -4,28 +4,13 @@ import { fetchTasks, fetchExamples, createJob, cancelJob } from "@/api/queries";
 import { useJobEvents } from "@/api/useJobEvents";
 import { ApiError } from "@/api/errors";
 import { TaskSelector } from "@/components/create/TaskSelector";
-import { PromptGuide } from "@/components/create/PromptGuide";
-import { AspectRatioPicker } from "@/components/create/AspectRatioPicker";
-import { SeedField } from "@/components/create/SeedField";
-import { StyleSelector } from "@/components/create/StyleSelector";
-import { AdvancedOptions } from "@/components/create/AdvancedOptions";
+import { CreateForm } from "@/components/create/CreateForm";
 import { ResultArea } from "@/components/create/ResultArea";
-import { RecipeImport } from "@/components/create/RecipeImport";
-import { ReferencePicker, type ReferenceItem } from "@/components/create/ReferencePicker";
-import { SketchPad } from "@/components/create/SketchPad";
 import { ExamplesPanel, type TryExamplePatch } from "@/components/create/ExamplesPanel";
-import { GpuWarning } from "@/components/layout/GpuWarning";
-import { InfoTip } from "@/components/ui/InfoTip";
-import { HELP_TEXTS } from "@/lib/helpTexts";
+import { MAX_PROMPT_LENGTH } from "@/lib/createFormLimits";
 import type { RecipeImportPatch } from "@/lib/recipeImport";
 import type { Task } from "@/api/types";
-
-const MAX_PROMPT_LENGTH = 2000;
-const MIN_BATCH = 1;
-const MAX_BATCH = 4;
-/** Only task whose first reference slot can be drawn instead of picked (SPEC.md
- * § 3.2): /tasks has no "can sketch" flag, so the id is matched directly. */
-const SKETCH_TASK_ID = "da_schizzo";
+import { useReferences } from "@/hooks/useReferences";
 
 export function CreatePage() {
   const tasksQuery = useQuery({ queryKey: ["tasks"], queryFn: ({ signal }) => fetchTasks(signal) });
@@ -53,17 +38,21 @@ export function CreatePage() {
   const [jobId, setJobId] = useState<string | null>(null);
   const [generationIds, setGenerationIds] = useState<string[]>([]);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [references, setReferences] = useState<ReferenceItem[]>([]);
-  const [referencesNotice, setReferencesNotice] = useState<string | null>(null);
-  const [sketchDirty, setSketchDirty] = useState(false);
 
   const selectedTask: Task | undefined = creationTasks.find((t) => t.id === taskId);
-  const requiresReferences = (selectedTask?.max_references ?? 0) > 0;
-  const minReferences = selectedTask?.min_references ?? 1;
-  const missingReferences = requiresReferences && references.length < minReferences;
-  const canSketch = selectedTask?.id === SKETCH_TASK_ID && references.length === 0;
-  // Adding a reference would unmount the pad and drop a drawing not yet used as the sketch.
-  const sketchInProgress = canSketch && sketchDirty;
+  const {
+    references,
+    setReferences,
+    referencesNotice,
+    setReferencesNotice,
+    requiresReferences,
+    minReferences,
+    missingReferences,
+    canSketch,
+    sketchInProgress,
+    setSketchDirty,
+    resetReferences,
+  } = useReferences(selectedTask);
 
   useEffect(() => {
     if (!taskId && creationTasks.length > 0) {
@@ -143,8 +132,7 @@ export function CreatePage() {
       setSeed(patch.seed);
       setSeedLocked(true);
     }
-    setReferences([]);
-    setReferencesNotice(null);
+    resetReferences();
     generateButtonRef.current?.focus();
   }
 
@@ -155,8 +143,7 @@ export function CreatePage() {
       setAspectRatio(task.default_aspect_ratio);
       setStyleIds(task.default_styles);
     }
-    setReferences([]);
-    setReferencesNotice(null);
+    resetReferences();
   }
 
   function validate(): boolean {
@@ -219,128 +206,43 @@ export function CreatePage() {
         <TaskSelector tasks={creationTasks} selectedTaskId={taskId} onSelect={handleSelectTask} />
 
         {selectedTask ? (
-          <>
-            <PromptGuide
-              promptLanguage={selectedTask.prompt_language}
-              tips={selectedTask.prompt_tips}
-              examples={selectedTask.prompt_examples}
-              prompt={prompt}
-              onUseExample={setPrompt}
-            />
-
-            {requiresReferences ? (
-              <div className="flex flex-col gap-1">
-                <ReferencePicker
-                  items={references}
-                  onChange={setReferences}
-                  minReferences={minReferences}
-                  maxReferences={selectedTask?.max_references ?? minReferences}
-                  labels={selectedTask?.reference_labels}
-                  disabled={sketchInProgress}
-                />
-                {canSketch ? (
-                  <div className="flex flex-col gap-1">
-                    <span className="text-sm font-semibold text-ink">Disegna lo schizzo</span>
-                    <SketchPad
-                      onReferenceCreated={(item) => setReferences([...references, item])}
-                      onDirtyChange={setSketchDirty}
-                    />
-                  </div>
-                ) : null}
-                {sketchInProgress ? (
-                  <p className="text-sm text-ink-muted">
-                    Usa lo schizzo o cancellalo prima di aggiungere altre immagini.
-                  </p>
-                ) : null}
-                {referencesNotice ? (
-                  <p role="status" className="text-sm text-ink-muted">
-                    {referencesNotice}
-                  </p>
-                ) : null}
-              </div>
-            ) : null}
-
-            <RecipeImport tasks={creationTasks} onApply={handleApplyRecipe}>
-              <div className="flex flex-col gap-1">
-                <label htmlFor="prompt-input" className="text-sm font-semibold text-ink">
-                  Descrizione
-                </label>
-                <textarea
-                  id="prompt-input"
-                  value={prompt}
-                  onChange={(event) => setPrompt(event.target.value)}
-                  rows={3}
-                  maxLength={MAX_PROMPT_LENGTH}
-                  className="rounded-md border border-border bg-paper-2 px-2 py-1 text-sm text-ink"
-                  aria-invalid={promptError !== null}
-                  aria-describedby={promptError ? "prompt-error" : undefined}
-                />
-                {promptError ? (
-                  <p id="prompt-error" role="alert" className="text-sm text-danger">
-                    {promptError}
-                  </p>
-                ) : null}
-              </div>
-            </RecipeImport>
-
-            <AspectRatioPicker ratios={selectedTask.aspect_ratios} value={aspectRatio} onChange={setAspectRatio} />
-
-            <div className="flex flex-col gap-1 text-sm text-ink">
-              <span className="flex items-center gap-1">
-                <label htmlFor="batch-input">Numero di immagini</label>
-                <InfoTip text={HELP_TEXTS.batch} label="Informazioni: Numero di immagini" />
-              </span>
-              <input
-                id="batch-input"
-                type="number"
-                min={MIN_BATCH}
-                max={MAX_BATCH}
-                value={batch}
-                onChange={(event) =>
-                  setBatch(Math.min(MAX_BATCH, Math.max(MIN_BATCH, Number(event.target.value))))
-                }
-                className="min-h-11 w-24 rounded-md border border-border bg-paper-2 px-2 py-1"
-              />
-            </div>
-
-            {selectedTask.supports_styles ? (
-              <StyleSelector selected={styleIds} onChange={setStyleIds} />
-            ) : null}
-
-            <SeedField seed={seed} locked={seedLocked} onChange={setSeed} onToggleLocked={setSeedLocked} />
-
-            <AdvancedOptions
-              task={selectedTask}
-              steps={steps}
-              cfg={cfg}
-              negativePrompt={negativePrompt}
-              onStepsChange={setSteps}
-              onCfgChange={setCfg}
-              onNegativePromptChange={setNegativePrompt}
-            />
-
-            <GpuWarning />
-
-            <div className="flex flex-col gap-1">
-              <button
-                ref={generateButtonRef}
-                type="button"
-                onClick={handleSubmit}
-                disabled={jobMutation.isPending || jobId !== null || missingReferences}
-                aria-describedby={missingReferences ? "references-missing-reason" : undefined}
-                className="min-h-11 w-fit rounded-md bg-accent px-4 py-2 text-sm font-semibold text-accent-ink disabled:cursor-not-allowed disabled:bg-paper-3 disabled:text-ink-muted"
-              >
-                {jobMutation.isPending || (jobId !== null && !isDone) ? "Generazione in corso..." : "Genera"}
-              </button>
-              {missingReferences ? (
-                <p id="references-missing-reason" className="text-sm text-ink-muted">
-                  {minReferences > 1
-                    ? `Aggiungi almeno ${minReferences} immagini di riferimento per generare.`
-                    : "Aggiungi almeno un'immagine di riferimento per generare."}
-                </p>
-              ) : null}
-            </div>
-          </>
+          <CreateForm
+            selectedTask={selectedTask}
+            creationTasks={creationTasks}
+            prompt={prompt}
+            onPromptChange={setPrompt}
+            promptError={promptError}
+            negativePrompt={negativePrompt}
+            onNegativePromptChange={setNegativePrompt}
+            aspectRatio={aspectRatio}
+            onAspectRatioChange={setAspectRatio}
+            batch={batch}
+            onBatchChange={setBatch}
+            styleIds={styleIds}
+            onStyleIdsChange={setStyleIds}
+            seed={seed}
+            seedLocked={seedLocked}
+            onSeedChange={setSeed}
+            onSeedLockedChange={setSeedLocked}
+            steps={steps}
+            cfg={cfg}
+            onStepsChange={setSteps}
+            onCfgChange={setCfg}
+            onApplyRecipe={handleApplyRecipe}
+            references={references}
+            onReferencesChange={setReferences}
+            referencesNotice={referencesNotice}
+            requiresReferences={requiresReferences}
+            minReferences={minReferences}
+            missingReferences={missingReferences}
+            canSketch={canSketch}
+            sketchInProgress={sketchInProgress}
+            onSketchDirtyChange={setSketchDirty}
+            onSubmit={handleSubmit}
+            submitDisabled={jobMutation.isPending || jobId !== null || missingReferences}
+            submitLabel={jobMutation.isPending || (jobId !== null && !isDone) ? "Generazione in corso..." : "Genera"}
+            generateButtonRef={generateButtonRef}
+          />
         ) : null}
       </div>
 
