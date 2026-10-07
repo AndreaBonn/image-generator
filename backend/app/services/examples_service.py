@@ -48,12 +48,16 @@ def available_examples(
     image was never generated, is skipped rather than surfaced as a broken example.
     """
     available_ids = {plan.id for plan in plan_examples(tasks=tasks)}
+    entries = read_manifest(path=manifest_path)
+    well_formed = [entry for entry in entries if _is_well_formed(entry=entry)]
+    if discarded := len(entries) - len(well_formed):
+        logger.warning(
+            "Examples manifest %s: %d malformed entries discarded", manifest_path, discarded
+        )
     return [
         entry
-        for entry in read_manifest(path=manifest_path)
-        if _is_well_formed(entry=entry)
-        and entry["id"] in available_ids
-        and (examples_dir / entry["file"]).is_file()
+        for entry in well_formed
+        if entry["id"] in available_ids and (examples_dir / entry["file"]).is_file()
     ]
 
 
