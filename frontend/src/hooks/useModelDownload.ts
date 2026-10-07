@@ -1,4 +1,12 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type Dispatch,
+  type MutableRefObject,
+  type SetStateAction,
+} from "react";
 import { ApiError } from "@/api/errors";
 import { cancelModelDownload, startModelDownload } from "@/api/queries";
 import type { ModelDownloadEvent } from "@/api/types";
@@ -56,6 +64,15 @@ function toDownloadError(error: unknown): { code: string; message: string } {
   return { code: "UNKNOWN_ERROR", message: "Si è verificato un errore imprevisto. Riprova." };
 }
 
+/** A finished download (completed or failed): no progress to show any more. */
+function settledState(
+  modelId: string | null,
+  phase: "completed" | "failed",
+  error: ModelDownloadState["error"] = null,
+): ModelDownloadState {
+  return { modelId, phase, bytes: null, total: null, error };
+}
+
 function applyEvent(
   prev: ModelDownloadState,
   activeModelId: string | null,
@@ -63,30 +80,50 @@ function applyEvent(
 ): ModelDownloadState {
   switch (event.type) {
     case "progress":
-      return {
-        modelId: activeModelId,
-        phase: "downloading",
-        bytes: event.bytes,
-        total: event.total,
-        error: null,
-      };
+      return { modelId: activeModelId, phase: "downloading", bytes: event.bytes, total: event.total, error: null };
     case "verifying":
       return { ...prev, modelId: activeModelId, phase: "verifying", error: null };
     case "completed":
-      return { modelId: activeModelId, phase: "completed", bytes: null, total: null, error: null };
+      return settledState(activeModelId, "completed");
     case "failed":
-      return {
-        modelId: activeModelId,
-        phase: "failed",
-        bytes: null,
-        total: null,
-        error: { code: event.code, message: event.message },
-      };
+      return settledState(activeModelId, "failed", { code: event.code, message: event.message });
     case "cancelled":
       return IDLE_STATE;
     default:
       return prev;
   }
+}
+
+/**
+ * Subscribes to the download SSE stream and folds each event into `setState`.
+ * Returns true while the stream is down (the browser reconnects on its own).
+ */
+function useDownloadEvents(
+  modelIdRef: MutableRefObject<string | null>,
+  setState: Dispatch<SetStateAction<ModelDownloadState>>,
+): boolean {
+  const [connectionLost, setConnectionLost] = useState(false);
+  useEffect(() => {
+    const source = new EventSource("/api/v1/models/downloads/events");
+    const handlers = EVENT_NAMES.map((name) => {
+      const handler = (ev: MessageEvent) => {
+        setConnectionLost(false);
+        const event = parseEvent(name, ev.data as string);
+        if (!event) return;
+        const activeModelId = modelIdRef.current;
+        if (event.type === "completed" || event.type === "cancelled") modelIdRef.current = null;
+        setState((prev) => applyEvent(prev, activeModelId, event));
+      };
+      source.addEventListener(name, handler);
+      return [name, handler] as const;
+    });
+    source.onerror = () => setConnectionLost(true);
+    return () => {
+      for (const [name, handler] of handlers) source.removeEventListener(name, handler);
+      source.close();
+    };
+  }, [modelIdRef, setState]);
+  return connectionLost;
 }
 
 /**
@@ -98,30 +135,7 @@ function applyEvent(
 export function useModelDownload(): UseModelDownloadResult {
   const [state, setState] = useState<ModelDownloadState>(IDLE_STATE);
   const modelIdRef = useRef<string | null>(null);
-  const [connectionLost, setConnectionLost] = useState(false);
-
-  useEffect(() => {
-    const source = new EventSource("/api/v1/models/downloads/events");
-    const handlers = EVENT_NAMES.map((name) => {
-      const handler = (ev: MessageEvent) => {
-        setConnectionLost(false);
-        const event = parseEvent(name, ev.data as string);
-        if (!event) return;
-        const activeModelId = modelIdRef.current;
-        if (event.type === "completed" || event.type === "cancelled") {
-          modelIdRef.current = null;
-        }
-        setState((prev) => applyEvent(prev, activeModelId, event));
-      };
-      source.addEventListener(name, handler);
-      return [name, handler] as const;
-    });
-    source.onerror = () => setConnectionLost(true);
-    return () => {
-      for (const [name, handler] of handlers) source.removeEventListener(name, handler);
-      source.close();
-    };
-  }, []);
+  const connectionLost = useDownloadEvents(modelIdRef, setState);
 
   const start = useCallback(async (modelId: string) => {
     modelIdRef.current = modelId;
@@ -130,7 +144,7 @@ export function useModelDownload(): UseModelDownloadResult {
       await startModelDownload(modelId);
     } catch (error) {
       modelIdRef.current = null;
-      setState({ modelId, phase: "failed", bytes: null, total: null, error: toDownloadError(error) });
+      setState(settledState(modelId, "failed", toDownloadError(error)));
     }
   }, []);
 

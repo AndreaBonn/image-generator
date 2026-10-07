@@ -24,6 +24,35 @@ export interface UseStrokeCanvasOptions {
   onLivePaint?: (mask: Uint8Array) => void;
 }
 
+type CanvasPointerEvent = ReactPointerEvent<HTMLCanvasElement>;
+type StrokeHandler = (event: CanvasPointerEvent, radius: number, value: MaskValue) => void;
+
+/** Pointer position in mask pixels: the canvas may be displayed scaled. */
+function pointFromEvent(event: CanvasPointerEvent, width: number, height: number): MaskPoint {
+  const rect = event.currentTarget.getBoundingClientRect();
+  return {
+    x: (event.clientX - rect.left) * (width / rect.width),
+    y: (event.clientY - rect.top) * (height / rect.height),
+  };
+}
+
+/** Undo/redo history of masks, plus `push` for a committed stroke. */
+function useMaskHistory(width: number, height: number) {
+  const [history, setHistory] = useState<MaskHistory>(() =>
+    createMaskHistory(createEmptyMask(width, height)),
+  );
+  return {
+    mask: currentMask(history),
+    canUndo: canUndoMaskHistory(history),
+    canRedo: canRedoMaskHistory(history),
+    undo: () => setHistory((h) => undoMaskHistory(h)),
+    redo: () => setHistory((h) => redoMaskHistory(h)),
+    invert: () => setHistory((h) => pushMaskHistory(h, invertMask(currentMask(h)))),
+    clear: () => setHistory((h) => pushMaskHistory(h, createEmptyMask(width, height))),
+    push: (next: Uint8Array) => setHistory((h) => pushMaskHistory(h, next)),
+  };
+}
+
 /**
  * Shared pointer-to-stroke orchestration for brush-based canvases (MaskEditor,
  * SketchPad): an undo/redo history of `Uint8Array` masks, turning Pointer
@@ -34,66 +63,29 @@ export interface UseStrokeCanvasOptions {
 export function useStrokeCanvas({ width, height, onLivePaint }: UseStrokeCanvasOptions) {
   const strokePoints = useRef<MaskPoint[]>([]);
   const isDrawing = useRef(false);
-  const [history, setHistory] = useState<MaskHistory>(() =>
-    createMaskHistory(createEmptyMask(width, height)),
-  );
-  const mask = currentMask(history);
+  const { push, ...history } = useMaskHistory(width, height);
+  const { mask } = history;
 
-  function pointFromEvent(event: ReactPointerEvent<HTMLCanvasElement>): MaskPoint {
-    const rect = event.currentTarget.getBoundingClientRect();
-    const scaleX = width / rect.width;
-    const scaleY = height / rect.height;
-    return {
-      x: (event.clientX - rect.left) * scaleX,
-      y: (event.clientY - rect.top) * scaleY,
-    };
-  }
-
-  function paint(point: MaskPoint, radius: number, value: MaskValue): Uint8Array {
-    strokePoints.current.push(point);
-    const next = paintStroke(mask, width, height, strokePoints.current, radius, value);
-    onLivePaint?.(next);
-    return next;
-  }
-
-  function handlePointerDown(
-    event: ReactPointerEvent<HTMLCanvasElement>,
-    radius: number,
-    value: MaskValue,
-  ) {
+  const paint: StrokeHandler = (event, radius, value) => {
+    strokePoints.current.push(pointFromEvent(event, width, height));
+    onLivePaint?.(paintStroke(mask, width, height, strokePoints.current, radius, value));
+  };
+  const handlePointerDown: StrokeHandler = (event, radius, value) => {
     event.currentTarget.setPointerCapture(event.pointerId);
     isDrawing.current = true;
     strokePoints.current = [];
-    paint(pointFromEvent(event), radius, value);
-  }
-
-  function handlePointerMove(
-    event: ReactPointerEvent<HTMLCanvasElement>,
-    radius: number,
-    value: MaskValue,
-  ) {
-    if (!isDrawing.current) return;
-    paint(pointFromEvent(event), radius, value);
-  }
-
+    paint(event, radius, value);
+  };
+  const handlePointerMove: StrokeHandler = (event, radius, value) => {
+    if (isDrawing.current) paint(event, radius, value);
+  };
   function commitStroke(radius: number, value: MaskValue) {
     if (!isDrawing.current) return;
     isDrawing.current = false;
     const next = paintStroke(mask, width, height, strokePoints.current, radius, value);
     strokePoints.current = [];
-    setHistory((h) => pushMaskHistory(h, next));
+    push(next);
   }
 
-  return {
-    mask,
-    canUndo: canUndoMaskHistory(history),
-    canRedo: canRedoMaskHistory(history),
-    undo: () => setHistory((h) => undoMaskHistory(h)),
-    redo: () => setHistory((h) => redoMaskHistory(h)),
-    invert: () => setHistory((h) => pushMaskHistory(h, invertMask(currentMask(h)))),
-    clear: () => setHistory((h) => pushMaskHistory(h, createEmptyMask(width, height))),
-    handlePointerDown,
-    handlePointerMove,
-    commitStroke,
-  };
+  return { ...history, handlePointerDown, handlePointerMove, commitStroke };
 }
