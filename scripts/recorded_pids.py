@@ -120,7 +120,13 @@ def check_recorded_pids(
     process_cmdline: Callable[[int], str | None],
 ) -> RecordedPidsCheck:
     """Classify each recorded PID: alive+ours, alive+unreadable, or ignorable
-    (dead, or alive but confirmed foreign via its command line)."""
+    (dead, or alive but confirmed foreign via its command line).
+
+    Known, accepted race: a PID can exit and be reused between this check and
+    the signal stop.py sends. Closing it needs pidfd (Linux) or process handles
+    (Windows); the window is milliseconds and the PID must also be reused by a
+    process of the same user, so it is documented rather than engineered away.
+    """
     owned: list[int] = []
     unverifiable: list[tuple[str, int]] = []
     for kind, pid in (("engine", state.engine_pid), ("backend", state.backend_pid)):
