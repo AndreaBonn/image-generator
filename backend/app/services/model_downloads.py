@@ -16,7 +16,16 @@ from app.errors import (
 )
 from app.repositories.catalog_repository import ModelEntry
 from app.repositories.model_files import ModelFilesRepository
-from app.services.model_download_events import ModelDownloadEvent, ModelDownloadEvents
+from app.services.model_download_events import (
+    CancelledEvent,
+    CompletedEvent,
+    FailedData,
+    FailedEvent,
+    ModelDownloadEvents,
+    ProgressData,
+    ProgressEvent,
+    VerifyingEvent,
+)
 from app.services.model_space import GB, has_room, lock_filename
 from app.services.task_catalog import TaskCatalog
 
@@ -94,9 +103,9 @@ class ModelDownloads:
     async def _run(self, model: ModelEntry, lock_path: Path) -> None:
         try:
             await self.files.download(model=model, on_progress=self._on_progress)
-            self.events.publish(ModelDownloadEvent(event="completed"))
+            self.events.publish(CompletedEvent())
         except asyncio.CancelledError:
-            self.events.publish(ModelDownloadEvent(event="cancelled"))
+            self.events.publish(CancelledEvent())
             raise
         except (ChecksumMismatchError, DownloadFailedError) as error:
             logger.warning("Model download failed for %s: %s", model.id, error.code)
@@ -112,18 +121,14 @@ class ModelDownloads:
             self.task = None
 
     def _publish_failed(self, *, code: str, message: str) -> None:
-        self.events.publish(
-            ModelDownloadEvent(event="failed", data={"code": code, "message": message})
-        )
+        self.events.publish(FailedEvent(data=FailedData(code=code, message=message)))
 
     def _on_progress(self, *, bytes_downloaded: int, total_bytes: int) -> None:
         self.events.publish(
-            ModelDownloadEvent(
-                event="progress", data={"bytes": bytes_downloaded, "total": total_bytes}
-            )
+            ProgressEvent(data=ProgressData(bytes=bytes_downloaded, total=total_bytes))
         )
         if total_bytes > 0 and bytes_downloaded >= total_bytes:
-            self.events.publish(ModelDownloadEvent(event="verifying"))
+            self.events.publish(VerifyingEvent())
 
     async def cancel(self, model_id: str) -> None:
         """No-op if nothing is downloading, or a different model id is active."""

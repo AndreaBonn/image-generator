@@ -179,7 +179,7 @@ async def test_checksum_mismatch_publishes_failed_with_its_code(tmp_path: Path) 
 
     assert terminal is not None
     assert terminal.event == "failed"
-    assert terminal.data["code"] == "CHECKSUM_MISMATCH"
+    assert terminal.data.code == "CHECKSUM_MISMATCH"
     assert downloads.current_model_id is None
 
 

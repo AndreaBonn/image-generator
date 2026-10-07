@@ -24,7 +24,7 @@ class JobParams(BaseModel):
 
 
 class ReferenceInput(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", frozen=True)
     upload_id: UUID | None = None
     generation_id: UUID | None = None
 

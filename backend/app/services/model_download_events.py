@@ -1,19 +1,64 @@
 import asyncio
 from collections.abc import AsyncIterator
-from typing import Any, Literal
+from typing import Annotated, Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
-EventName = Literal["progress", "verifying", "completed", "failed", "cancelled"]
 TERMINAL_EVENTS = frozenset({"completed", "failed", "cancelled"})
 
 
-class ModelDownloadEvent(BaseModel):
-    event: EventName
-    data: dict[str, Any] = Field(default_factory=dict)
+class ProgressData(BaseModel):
+    model_config = ConfigDict(frozen=True)
+    bytes: int = Field(ge=0)
+    total: int = Field(ge=0)
+
+
+class FailedData(BaseModel):
+    model_config = ConfigDict(frozen=True)
+    code: str
+    message: str
+
+
+class EmptyData(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+
+class ProgressEvent(BaseModel):
+    event: Literal["progress"] = "progress"
+    data: ProgressData
     # Monotonic per-process counter set by publish(); lets a late subscriber drop
     # events already reflected in the snapshot it received on connect.
     seq: int = Field(default=0, exclude=True)
+
+
+class VerifyingEvent(BaseModel):
+    event: Literal["verifying"] = "verifying"
+    data: EmptyData = Field(default_factory=EmptyData)
+    seq: int = Field(default=0, exclude=True)
+
+
+class CompletedEvent(BaseModel):
+    event: Literal["completed"] = "completed"
+    data: EmptyData = Field(default_factory=EmptyData)
+    seq: int = Field(default=0, exclude=True)
+
+
+class FailedEvent(BaseModel):
+    event: Literal["failed"] = "failed"
+    data: FailedData
+    seq: int = Field(default=0, exclude=True)
+
+
+class CancelledEvent(BaseModel):
+    event: Literal["cancelled"] = "cancelled"
+    data: EmptyData = Field(default_factory=EmptyData)
+    seq: int = Field(default=0, exclude=True)
+
+
+ModelDownloadEvent = Annotated[
+    ProgressEvent | VerifyingEvent | CompletedEvent | FailedEvent | CancelledEvent,
+    Field(discriminator="event"),
+]
 
 
 class ModelDownloadEvents:

@@ -62,3 +62,28 @@ def test_model_entry_huggingface_fields_default_to_none() -> None:
     assert entry.repo is None
     assert entry.repo_path is None
     assert entry.sha256 is None
+
+
+@pytest.mark.parametrize("missing_field", ["repo", "repo_path", "sha256"])
+def test_huggingface_source_requires_repo_repo_path_and_sha256(missing_field: str) -> None:
+    fields = {
+        "repo": "Kim2091/UltraSharp",
+        "repo_path": "4x-UltraSharp.safetensors",
+        "sha256": "36a340b5509b699d2c06cb445ddc1d3d39199ac734d889ed6d7915f60e05bcbc",
+    }
+    del fields[missing_field]
+    with pytest.raises(ValidationError, match="repo, repo_path and sha256"):
+        ModelEntry.model_validate({**BASE_ENTRY, "source": "huggingface", **fields})
+
+
+def test_huggingface_source_accepts_all_three_fields() -> None:
+    entry = ModelEntry.model_validate(
+        {
+            **BASE_ENTRY,
+            "source": "huggingface",
+            "repo": "Kim2091/UltraSharp",
+            "repo_path": "4x-UltraSharp.safetensors",
+            "sha256": "36a340b5509b699d2c06cb445ddc1d3d39199ac734d889ed6d7915f60e05bcbc",
+        }
+    )
+    assert entry.source == "huggingface"

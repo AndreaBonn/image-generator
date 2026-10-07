@@ -31,7 +31,8 @@ async def cancel_install(model_id: str, downloads: DownloadsDependency) -> dict[
 
 async def stream_download_events(downloads: ModelDownloads) -> AsyncIterator[dict[str, str]]:
     async for event in downloads.events.stream():
-        yield {"event": event.event, "data": json.dumps(event.data, ensure_ascii=False)}
+        payload = event.data.model_dump(mode="json")
+        yield {"event": event.event, "data": json.dumps(payload, ensure_ascii=False)}
 
 
 @router.get(path="/downloads/events")
