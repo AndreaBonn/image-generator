@@ -137,6 +137,26 @@ async def _interrupt_quietly(engine: EngineClient) -> None:
         logger.exception("Engine interrupt failed while cancelling an asset generation")
 
 
+async def _run_to_single_image(
+    engine: EngineClient,
+    request: EngineRequest,
+    *,
+    interrupted_error: type[Exception],
+    interrupted_message: str,
+) -> bytes | None:
+    """Drive one engine run to completion and return its single output image, if any."""
+    image: bytes | None = None
+    async with aclosing(engine.run(request=request)) as stream:
+        async for event in stream:
+            if isinstance(event, Failed):
+                raise event.error
+            if isinstance(event, Interrupted):
+                raise interrupted_error(interrupted_message)
+            if isinstance(event, Generated):
+                image = event.images[0]
+    return image
+
+
 async def _collect_image(
     engine: EngineClient,
     request: EngineRequest,
@@ -151,16 +171,13 @@ async def _collect_image(
     first (only) generated image, erroring out the same way on failure,
     interruption, or an engine that completes without producing anything.
     """
-    image: bytes | None = None
     try:
-        async with aclosing(engine.run(request=request)) as stream:
-            async for event in stream:
-                if isinstance(event, Failed):
-                    raise event.error
-                if isinstance(event, Interrupted):
-                    raise interrupted_error(interrupted_message)
-                if isinstance(event, Generated):
-                    image = event.images[0]
+        image = await _run_to_single_image(
+            engine=engine,
+            request=request,
+            interrupted_error=interrupted_error,
+            interrupted_message=interrupted_message,
+        )
     except asyncio.CancelledError:
         # Ctrl+C in the CLI cancels this coroutine; without an interrupt the prompt
         # keeps running on the GPU after the CLI has exited (same as JobRunner._stop).

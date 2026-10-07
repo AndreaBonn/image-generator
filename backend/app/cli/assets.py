@@ -25,6 +25,8 @@ from app.engine.comfy_engine import ComfyEngine
 from app.engine.types import EngineClient
 from app.engine.workflow_builder import Graph
 from app.errors import EngineUnavailableError
+from app.models.style import Style
+from app.models.task import TaskDefinition
 from app.repositories.asset_repository import EXAMPLES_DIRNAME, AssetRepository, atomic_write_bytes
 from app.repositories.style_repository import load_styles
 from app.services.asset_generation import (
@@ -69,6 +71,32 @@ def _format_progress(index: int, total: int, style_name: str, durations: list[fl
     return f"{index}/{total} · {style_name} · tempo stimato rimanente {eta_min} min"
 
 
+async def _render_missing_previews(
+    engine: EngineClient,
+    task: TaskDefinition,
+    template: Graph,
+    style_service: StyleService,
+    repository: AssetRepository,
+    targets: Sequence[Style],
+) -> None:
+    durations: list[float] = []
+    for index, style in enumerate(targets, start=1):
+        started_at = monotonic()
+        await generate_style_preview(
+            style=style,
+            engine=engine,
+            task=task,
+            template=template,
+            style_service=style_service,
+            repository=repository,
+        )
+        durations.append(monotonic() - started_at)
+        progress = _format_progress(
+            index=index, total=len(targets), style_name=style.name, durations=durations
+        )
+        print(progress)
+
+
 async def _generate_missing_previews(
     settings: Settings, engine: EngineClient, limit: int | None
 ) -> int:
@@ -86,22 +114,14 @@ async def _generate_missing_previews(
         print("Tutte le anteprime richieste sono già presenti.")
         return 0
 
-    durations: list[float] = []
-    for index, style in enumerate(targets, start=1):
-        started_at = monotonic()
-        await generate_style_preview(
-            style=style,
-            engine=engine,
-            task=task,
-            template=template,
-            style_service=style_service,
-            repository=repository,
-        )
-        durations.append(monotonic() - started_at)
-        progress = _format_progress(
-            index=index, total=len(targets), style_name=style.name, durations=durations
-        )
-        print(progress)
+    await _render_missing_previews(
+        engine=engine,
+        task=task,
+        template=template,
+        style_service=style_service,
+        repository=repository,
+        targets=targets,
+    )
     return 0
 
 

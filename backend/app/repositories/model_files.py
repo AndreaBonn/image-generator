@@ -68,26 +68,41 @@ class ModelFilesRepository:
             return response
         raise DownloadFailedError(message="Troppi redirect durante il download del modello.")
 
-    async def download(self, *, model: ModelEntry, on_progress: ProgressCallback) -> Path:
-        """Stream the model into staging, verify its sha256, then move it atomically.
-
-        The partial file is removed from staging on any failure (network error, non-2xx
-        status, checksum mismatch, or cancellation). Raises DownloadFailedError or
-        ChecksumMismatchError; re-raises asyncio.CancelledError after cleanup so the
-        caller (a cancelled asyncio.Task) observes the cancellation as usual.
-        """
-        staging_path = self.staging_dir() / staging_filename(model_id=model.id)
-        response = await self._open_stream(url=download_url(model=model))
-        total_bytes = int(response.headers.get("content-length") or model.size_bytes)
+    async def _write_chunks(
+        self,
+        *,
+        staging_path: Path,
+        response: httpx.Response,
+        total_bytes: int,
+        on_progress: ProgressCallback,
+    ) -> str:
+        """Stream the response body into staging while hashing it; returns the hex digest."""
         digest = hashlib.sha256()
         bytes_downloaded = 0
+        with staging_path.open(mode="wb") as handle:
+            async for chunk in response.aiter_bytes(CHUNK_BYTES):
+                handle.write(chunk)
+                digest.update(chunk)
+                bytes_downloaded += len(chunk)
+                on_progress(bytes_downloaded=bytes_downloaded, total_bytes=total_bytes)
+        return digest.hexdigest()
+
+    async def _stream_to_staging(
+        self,
+        *,
+        staging_path: Path,
+        response: httpx.Response,
+        total_bytes: int,
+        on_progress: ProgressCallback,
+    ) -> str:
+        """Stream into staging; removes the partial file on any failure, then re-raises."""
         try:
-            with staging_path.open(mode="wb") as handle:
-                async for chunk in response.aiter_bytes(CHUNK_BYTES):
-                    handle.write(chunk)
-                    digest.update(chunk)
-                    bytes_downloaded += len(chunk)
-                    on_progress(bytes_downloaded=bytes_downloaded, total_bytes=total_bytes)
+            return await self._write_chunks(
+                staging_path=staging_path,
+                response=response,
+                total_bytes=total_bytes,
+                on_progress=on_progress,
+            )
         except httpx.RequestError as error:
             staging_path.unlink(missing_ok=True)
             raise DownloadFailedError() from error
@@ -99,9 +114,28 @@ class ModelFilesRepository:
         except asyncio.CancelledError:
             staging_path.unlink(missing_ok=True)
             raise
+
+    async def download(self, *, model: ModelEntry, on_progress: ProgressCallback) -> Path:
+        """Stream the model into staging, verify its sha256, then move it atomically.
+
+        The partial file is removed from staging on any failure (network error, non-2xx
+        status, checksum mismatch, or cancellation). Raises DownloadFailedError or
+        ChecksumMismatchError; re-raises asyncio.CancelledError after cleanup so the
+        caller (a cancelled asyncio.Task) observes the cancellation as usual.
+        """
+        staging_path = self.staging_dir() / staging_filename(model_id=model.id)
+        response = await self._open_stream(url=download_url(model=model))
+        total_bytes = int(response.headers.get("content-length") or model.size_bytes)
+        try:
+            digest_hex = await self._stream_to_staging(
+                staging_path=staging_path,
+                response=response,
+                total_bytes=total_bytes,
+                on_progress=on_progress,
+            )
         finally:
             await response.aclose()
-        if not digest_matches(actual=digest.hexdigest(), expected=model.sha256 or ""):
+        if not digest_matches(actual=digest_hex, expected=model.sha256 or ""):
             staging_path.unlink(missing_ok=True)
             raise ChecksumMismatchError()
         destination = self.destination(model=model)
