@@ -12,7 +12,7 @@ const NAV_ITEMS = [
 
 function linkClassName({ isActive }: { isActive: boolean }): string {
   const base =
-    "flex min-h-11 flex-col items-center justify-center gap-0.5 whitespace-nowrap rounded-md px-1 py-1 text-[11px] font-medium transition-colors sm:flex-row sm:gap-2 sm:px-3 sm:py-2 sm:text-sm";
+    "flex min-h-11 flex-col items-center justify-center gap-0.5 whitespace-nowrap rounded-md px-0 py-1 text-[10px] font-medium transition-colors min-[400px]:text-[11px] sm:flex-row sm:gap-2 sm:px-3 sm:py-2 sm:text-sm";
   return isActive
     ? `${base} bg-paper-3 text-ink`
     : `${base} text-ink-muted hover:bg-paper-2 hover:text-ink`;
@@ -39,9 +39,11 @@ export function NavBar() {
       </ul>
       <Link
         to="/guida"
+        aria-label="Come funziona"
         className="order-2 ml-auto flex min-h-11 shrink-0 items-center px-2 text-sm text-ink-muted underline hover:text-ink sm:order-3"
       >
-        Come funziona
+        <span className="sm:hidden">Guida</span>
+        <span className="hidden sm:inline">Come funziona</span>
       </Link>
       <button
         type="button"
@@ -49,7 +51,8 @@ export function NavBar() {
         className="order-2 flex min-h-11 shrink-0 items-center rounded-md border border-border px-3 py-2 text-sm text-ink-muted hover:text-ink sm:order-3"
         aria-label={theme === "dark" ? "Passa al tema chiaro" : "Passa al tema scuro"}
       >
-        {theme === "dark" ? "Tema chiaro" : "Tema scuro"}
+        <span className="sm:hidden">{theme === "dark" ? "Chiaro" : "Scuro"}</span>
+        <span className="hidden sm:inline">{theme === "dark" ? "Tema chiaro" : "Tema scuro"}</span>
       </button>
     </nav>
   );
