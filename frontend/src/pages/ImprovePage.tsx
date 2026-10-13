@@ -15,6 +15,7 @@ import { UpscaleAction } from "@/components/improve/UpscaleAction";
 import { RemoveBackgroundAction } from "@/components/improve/RemoveBackgroundAction";
 import { RefinedUpscaleAction } from "@/components/improve/RefinedUpscaleAction";
 import { ImproveResultCard } from "@/components/improve/ImproveResultCard";
+import { ActionCard } from "@/components/improve/ActionCard";
 import type { CreateJobBody, Task } from "@/api/types";
 import { PageTitle } from "@/components/layout/PageTitle";
 
@@ -173,83 +174,89 @@ export function ImprovePage() {
           </div>
         ) : null}
 
-        {promptGuideTask ? (
-          <>
-            <PromptGuide
-              promptLanguage={promptGuideTask.prompt_language}
-              tips={promptGuideTask.prompt_tips}
-              examples={promptGuideTask.prompt_examples}
-              prompt={prompt}
-              onUseExample={setPrompt}
-            />
-            <div className="flex flex-col gap-1">
-              <label htmlFor="improve-prompt-input" className="text-sm font-semibold text-ink">
-                Descrizione (facoltativa)
-              </label>
-              <textarea
-                id="improve-prompt-input"
-                value={prompt}
-                onChange={(event) => setPrompt(event.target.value)}
-                rows={3}
-                maxLength={MAX_PROMPT_LENGTH}
-                className="rounded-md border border-border bg-paper-2 px-2 py-1 text-sm text-ink"
-                aria-invalid={promptError !== null}
-                aria-describedby={promptError ? "improve-prompt-error" : undefined}
-              />
-              {promptError ? (
-                <p id="improve-prompt-error" role="alert" className="text-sm text-danger">
-                  {promptError}
-                </p>
-              ) : null}
-            </div>
-          </>
-        ) : null}
-
-        <SeedField seed={seed} locked={seedLocked} onChange={setSeed} onToggleLocked={setSeedLocked} />
-
         <GpuWarning />
 
         {!hasImage ? (
           <p className="text-sm text-ink-muted">Carica un&apos;immagine per attivare le azioni qui sotto.</p>
         ) : null}
 
-        <VariationActions
-          subtleDisabledReason={disabledReasonFor(subtleTask)}
-          strongDisabledReason={disabledReasonFor(strongTask)}
-          isGenerating={isGenerating}
-          activeAction={activeAction}
-          onSelect={handleAction}
-        />
+        <ActionCard title="Cambiala un po'" hint="Una nuova versione simile all'originale.">
+          {promptGuideTask ? (
+            <>
+              <PromptGuide
+                promptLanguage={promptGuideTask.prompt_language}
+                tips={promptGuideTask.prompt_tips}
+                examples={promptGuideTask.prompt_examples}
+                prompt={prompt}
+                onUseExample={setPrompt}
+              />
+              <div className="flex flex-col gap-1">
+                <label htmlFor="improve-prompt-input" className="text-sm font-semibold text-ink">
+                  Descrizione (facoltativa)
+                </label>
+                <textarea
+                  id="improve-prompt-input"
+                  value={prompt}
+                  onChange={(event) => setPrompt(event.target.value)}
+                  rows={3}
+                  maxLength={MAX_PROMPT_LENGTH}
+                  className="rounded-md border border-border bg-paper px-2 py-1 text-sm text-ink"
+                  aria-invalid={promptError !== null}
+                  aria-describedby={promptError ? "improve-prompt-error" : undefined}
+                />
+                {promptError ? (
+                  <p id="improve-prompt-error" role="alert" className="text-sm text-danger">
+                    {promptError}
+                  </p>
+                ) : null}
+              </div>
+            </>
+          ) : null}
 
-        <UpscaleAction
-          factor={upscaleFactor}
-          onFactorChange={setUpscaleFactor}
-          disabledReason={disabledReasonFor(upscaleTask)}
-          isGenerating={isGenerating}
-          isActive={activeAction === "upscale"}
-          onClick={() => handleAction("upscale")}
-          sourceSize={image ? { width: image.width, height: image.height } : null}
-        />
+          <SeedField seed={seed} locked={seedLocked} onChange={setSeed} onToggleLocked={setSeedLocked} />
 
-        <RemoveBackgroundAction
-          disabledReason={disabledReasonFor(removeBackgroundTask)}
-          isGenerating={isGenerating}
-          isActive={activeAction === "rimuovi_sfondo"}
-          onClick={() => handleAction("rimuovi_sfondo")}
-        />
+          <VariationActions
+            subtleDisabledReason={disabledReasonFor(subtleTask)}
+            strongDisabledReason={disabledReasonFor(strongTask)}
+            isGenerating={isGenerating}
+            activeAction={activeAction}
+            onSelect={handleAction}
+          />
+        </ActionCard>
 
-        <RefinedUpscaleAction
-          task={refinedUpscaleTask}
-          prompt={refinedPrompt}
-          promptError={refinedPromptError}
-          onPromptChange={setRefinedPrompt}
-          denoise={denoise}
-          onDenoiseChange={setDenoise}
-          disabledReason={disabledReasonFor(refinedUpscaleTask)}
-          isGenerating={isGenerating}
-          isActive={activeAction === "ingrandisci_rifinito"}
-          onClick={() => handleAction("ingrandisci_rifinito")}
-        />
+        <ActionCard title="Rendila più grande">
+          <UpscaleAction
+            factor={upscaleFactor}
+            onFactorChange={setUpscaleFactor}
+            disabledReason={disabledReasonFor(upscaleTask)}
+            isGenerating={isGenerating}
+            isActive={activeAction === "upscale"}
+            onClick={() => handleAction("upscale")}
+            sourceSize={image ? { width: image.width, height: image.height } : null}
+          />
+
+          <RefinedUpscaleAction
+            task={refinedUpscaleTask}
+            prompt={refinedPrompt}
+            promptError={refinedPromptError}
+            onPromptChange={setRefinedPrompt}
+            denoise={denoise}
+            onDenoiseChange={setDenoise}
+            disabledReason={disabledReasonFor(refinedUpscaleTask)}
+            isGenerating={isGenerating}
+            isActive={activeAction === "ingrandisci_rifinito"}
+            onClick={() => handleAction("ingrandisci_rifinito")}
+          />
+        </ActionCard>
+
+        <ActionCard title="Togli lo sfondo" hint="Resta solo il soggetto, su fondo trasparente (PNG).">
+          <RemoveBackgroundAction
+            disabledReason={disabledReasonFor(removeBackgroundTask)}
+            isGenerating={isGenerating}
+            isActive={activeAction === "rimuovi_sfondo"}
+            onClick={() => handleAction("rimuovi_sfondo")}
+          />
+        </ActionCard>
       </div>
 
       <div className="flex flex-col gap-4">

@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MemoryRouter } from "react-router-dom";
@@ -105,6 +105,22 @@ describe("ImprovePage", () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
+  });
+
+  it("groups the actions by the result the user wants (P1)", async () => {
+    vi.spyOn(queries, "fetchTasks").mockResolvedValue(improveTasks());
+    renderImprovePage();
+    await screen.findByRole("button", { name: "Variazione leggera" });
+
+    const change = screen.getByRole("region", { name: "Cambiala un po'" });
+    const bigger = screen.getByRole("region", { name: "Rendila più grande" });
+    const background = screen.getByRole("region", { name: "Togli lo sfondo" });
+    expect(within(change).getByRole("button", { name: "Variazione leggera" })).toBeInTheDocument();
+    expect(within(change).getByRole("button", { name: "Variazione forte" })).toBeInTheDocument();
+    expect(await within(change).findByLabelText("Descrizione (facoltativa)")).toBeInTheDocument();
+    expect(within(bigger).getByRole("button", { name: "Ingrandisci" })).toBeInTheDocument();
+    expect(within(bigger).getByRole("button", { name: "Ingrandisci con rifinitura" })).toBeInTheDocument();
+    expect(within(background).getByRole("button", { name: "Rimuovi lo sfondo" })).toBeInTheDocument();
   });
 
   it("disables every action with one shared notice until an image is loaded (P2)", async () => {
