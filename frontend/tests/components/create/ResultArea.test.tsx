@@ -64,6 +64,21 @@ describe("ResultArea empty/error/running states (SPEC.md § 11.2-11.3)", () => {
     expect(onCancel).toHaveBeenCalledTimes(1);
   });
 
+  it("shows progress as a bar with a percentage instead of model steps (C15)", () => {
+    renderResultArea({ isRunning: true, latestEvent: { type: "progress", step: 3, total: 4 } });
+
+    const bar = screen.getByRole("progressbar", { name: "Avanzamento" });
+    expect(bar).toHaveAttribute("aria-valuenow", "75");
+    expect(screen.getByText("75%")).toBeInTheDocument();
+    expect(screen.queryByText(/Passo/)).not.toBeInTheDocument();
+  });
+
+  it("explains that a model change only costs time the first time (C15)", () => {
+    renderResultArea({ isRunning: true, latestEvent: { type: "model_switch", family: "sdxl", eta_s: 12 } });
+
+    expect(screen.getByText("Succede solo quando passi a un lavoro di tipo diverso.")).toBeInTheDocument();
+  });
+
   it("shows a generic queue message when running with no event yet", () => {
     renderResultArea({ isRunning: true, latestEvent: null });
     expect(screen.getByText("In coda...")).toBeInTheDocument();
@@ -71,8 +86,8 @@ describe("ResultArea empty/error/running states (SPEC.md § 11.2-11.3)", () => {
 
   it.each<[JobEvent, string]>([
     [{ type: "queued", position: 3 }, "In coda, posizione 3."],
-    [{ type: "model_switch", family: "sdxl", eta_s: 12 }, "Cambio modello, circa 12 secondi."],
-    [{ type: "progress", step: 5, total: 30 }, "Passo 5 di 30."],
+    [{ type: "model_switch", family: "sdxl", eta_s: 12 }, "Preparo il modello, circa 12 secondi."],
+    [{ type: "progress", step: 5, total: 30 }, "17%"],
     [{ type: "completed", generation_ids: ["gen-1"] }, "In corso..."],
     [{ type: "cancelled" }, "In corso..."],
   ])("renders the right progress message for %o", (event, expectedText) => {
@@ -101,7 +116,7 @@ describe("ResultArea live preview (A2)", () => {
   it("falls back to the normal progress message when no preview has arrived", () => {
     renderResultArea({ isRunning: true, latestEvent: { type: "progress", step: 2, total: 10 } });
 
-    expect(screen.getByText("Passo 2 di 10.")).toBeInTheDocument();
+    expect(screen.getByText("20%")).toBeInTheDocument();
     expect(screen.queryByAltText("Anteprima in corso")).not.toBeInTheDocument();
   });
 
@@ -115,7 +130,7 @@ describe("ResultArea live preview (A2)", () => {
     const preview = await screen.findByAltText("Anteprima in corso");
     expect(preview).toHaveAttribute("src", "/api/v1/jobs/job-1/preview?n=1");
     expect(screen.getByText("Anteprima in corso")).toBeInTheDocument();
-    expect(screen.getByText("Passo 3 di 10.")).toBeInTheDocument();
+    expect(screen.getByText("30%")).toBeInTheDocument();
   });
 
   it("hides the preview image once the job stops running", async () => {

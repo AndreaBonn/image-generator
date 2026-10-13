@@ -117,19 +117,37 @@ function ProgressMessage({ event }: { event: JobEvent | null }) {
       return <p className="text-sm text-ink-muted">In coda, posizione {event.position}.</p>;
     case "model_switch":
       return (
-        <p className="text-sm text-ink-muted">
-          Cambio modello, circa {event.eta_s} secondi.
-        </p>
+        <div className="flex flex-col gap-0.5 text-sm text-ink-muted">
+          <p>Preparo il modello, circa {event.eta_s} secondi.</p>
+          <p className="text-xs">Succede solo quando passi a un lavoro di tipo diverso.</p>
+        </div>
       );
     case "progress":
-      return (
-        <p className="text-sm text-ink-muted">
-          Passo {event.step} di {event.total}.
-        </p>
-      );
+      return <ProgressBar percent={Math.round((event.step / Math.max(event.total, 1)) * 100)} />;
     default:
       return <p className="text-sm text-ink-muted">In corso...</p>;
   }
+}
+
+function ProgressBar({ percent }: { percent: number }) {
+  return (
+    <div className="flex items-center gap-3">
+      <div
+        role="progressbar"
+        aria-label="Avanzamento"
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={percent}
+        className="h-2 flex-1 overflow-hidden rounded-full bg-paper-3"
+      >
+        <div
+          className="h-full w-full origin-left bg-accent transition-transform"
+          style={{ transform: `scaleX(${percent / 100})` }}
+        />
+      </div>
+      <span className="text-sm tabular-nums text-ink-muted">{percent}%</span>
+    </div>
+  );
 }
 
 function ResultsGrid({ generationIds }: { generationIds: string[] }) {

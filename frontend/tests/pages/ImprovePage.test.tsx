@@ -386,7 +386,7 @@ describe("ImprovePage", () => {
     const source = await waitFor(() => latestEventSource());
     source.emit("progress", { step: 7, total: 25 });
 
-    await waitFor(() => expect(screen.getByText("Passo 7 di 25.")).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText("28%")).toBeInTheDocument());
     expect(screen.getByRole("button", { name: "Generazione in corso..." })).toBeDisabled();
   });
 });

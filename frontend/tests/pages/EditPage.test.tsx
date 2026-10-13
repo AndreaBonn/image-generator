@@ -433,7 +433,7 @@ describe("EditPage", () => {
     const source = await waitFor(() => latestEventSource());
     source.emit("progress", { step: 3, total: 20 });
 
-    await waitFor(() => expect(screen.getByText("Passo 3 di 20.")).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText("15%")).toBeInTheDocument());
     expect(screen.getByRole("button", { name: "Generazione in corso..." })).toBeDisabled();
   });
 

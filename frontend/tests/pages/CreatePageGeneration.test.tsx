@@ -116,7 +116,7 @@ describe("CreatePage job lifecycle", () => {
     const source = await waitFor(() => latestEventSource());
     source.emit("progress", { step: 5, total: 30 });
 
-    await waitFor(() => expect(screen.getByText("Passo 5 di 30.")).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText("17%")).toBeInTheDocument());
     expect(screen.getByRole("button", { name: "Generazione in corso..." })).toBeDisabled();
   });
 });
