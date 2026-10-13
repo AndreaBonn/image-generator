@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
+import { renderWithProviders } from "../../fixtures/providers";
 import userEvent from "@testing-library/user-event";
 import { GenerationGrid } from "@/components/gallery/GenerationGrid";
 import { buildGenerationSummary } from "../../fixtures/generation";
@@ -49,28 +50,28 @@ describe("GenerationGrid", () => {
   });
 
   it("renders one card per item", () => {
-    render(<GenerationGrid {...baseProps()} />);
+    renderWithProviders(<GenerationGrid {...baseProps()} />);
 
     expect(screen.getAllByRole("img")).toHaveLength(2);
   });
 
   it("calls onOpen with the clicked generation's id", async () => {
     const onOpen = vi.fn();
-    render(<GenerationGrid {...baseProps()} onOpen={onOpen} items={[buildGenerationSummary({ id: "gen-7" })]} />);
+    renderWithProviders(<GenerationGrid {...baseProps()} onOpen={onOpen} items={[buildGenerationSummary({ id: "gen-7" })]} />);
 
-    await userEvent.click(screen.getByRole("button"));
+    await userEvent.click(screen.getByRole("button", { name: /^Apri:/ }));
 
     expect(onOpen).toHaveBeenCalledWith("gen-7");
   });
 
   it("shows the loading-more message while fetching the next page", () => {
-    render(<GenerationGrid {...baseProps()} isFetchingNextPage={true} />);
+    renderWithProviders(<GenerationGrid {...baseProps()} isFetchingNextPage={true} />);
 
     expect(screen.getByText("Caricamento altre immagini...")).toBeInTheDocument();
   });
 
   it("hides the loading-more message when not fetching the next page", () => {
-    render(<GenerationGrid {...baseProps()} isFetchingNextPage={false} />);
+    renderWithProviders(<GenerationGrid {...baseProps()} isFetchingNextPage={false} />);
 
     expect(screen.queryByText("Caricamento altre immagini...")).not.toBeInTheDocument();
   });
@@ -79,7 +80,7 @@ describe("GenerationGrid", () => {
     vi.stubGlobal("IntersectionObserver", FakeIntersectionObserver);
     const onLoadMore = vi.fn();
 
-    render(<GenerationGrid {...baseProps()} hasNextPage={true} onLoadMore={onLoadMore} />);
+    renderWithProviders(<GenerationGrid {...baseProps()} hasNextPage={true} onLoadMore={onLoadMore} />);
 
     expect(FakeIntersectionObserver.instances).toHaveLength(1);
     const observer = FakeIntersectionObserver.instances[0]!;
@@ -94,7 +95,7 @@ describe("GenerationGrid", () => {
     vi.stubGlobal("IntersectionObserver", FakeIntersectionObserver);
     const onLoadMore = vi.fn();
 
-    render(<GenerationGrid {...baseProps()} hasNextPage={false} onLoadMore={onLoadMore} />);
+    renderWithProviders(<GenerationGrid {...baseProps()} hasNextPage={false} onLoadMore={onLoadMore} />);
 
     expect(FakeIntersectionObserver.instances).toHaveLength(0);
     expect(onLoadMore).not.toHaveBeenCalled();
@@ -103,7 +104,7 @@ describe("GenerationGrid", () => {
   it("disconnects the observer on unmount", () => {
     vi.stubGlobal("IntersectionObserver", FakeIntersectionObserver);
 
-    const { unmount } = render(<GenerationGrid {...baseProps()} hasNextPage={true} />);
+    const { unmount } = renderWithProviders(<GenerationGrid {...baseProps()} hasNextPage={true} />);
     const observer = FakeIntersectionObserver.instances[0]!;
 
     unmount();
@@ -115,7 +116,7 @@ describe("GenerationGrid", () => {
     vi.stubGlobal("IntersectionObserver", undefined);
     const onLoadMore = vi.fn();
 
-    render(<GenerationGrid {...baseProps()} hasNextPage={true} onLoadMore={onLoadMore} />);
+    renderWithProviders(<GenerationGrid {...baseProps()} hasNextPage={true} onLoadMore={onLoadMore} />);
 
     expect({
       images: screen.getAllByRole("img").length,
