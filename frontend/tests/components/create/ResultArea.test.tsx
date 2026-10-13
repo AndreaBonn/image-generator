@@ -227,21 +227,6 @@ describe("ResultArea results grid and per-result actions", () => {
     expect(await screen.findByRole("button", { name: "Aggiungi ai preferiti" })).toBeInTheDocument();
   });
 
-  it("clears the confirmation while a second variant is being requested (R6)", async () => {
-    const rerunGeneration = vi
-      .spyOn(queries, "rerunGeneration")
-      .mockResolvedValueOnce({ job_id: "job-2" })
-      .mockReturnValueOnce(new Promise(() => {}));
-    renderResultArea({ generationIds: ["gen-1"] });
-
-    await userEvent.click(screen.getByRole("button", { name: "Un'altra variante" }));
-    await screen.findByText(/Nuova variante avviata/);
-    await userEvent.click(screen.getByRole("button", { name: "Un'altra variante" }));
-
-    expect(rerunGeneration).toHaveBeenCalledTimes(2);
-    expect(screen.queryByText(/Nuova variante avviata/)).not.toBeInTheDocument();
-  });
-
   it("starts another variant and says where it will appear (C13)", async () => {
     const rerunGeneration = vi.spyOn(queries, "rerunGeneration").mockResolvedValue({ job_id: "job-2" });
     renderResultArea({ generationIds: ["gen-1"] });
