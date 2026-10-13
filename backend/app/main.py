@@ -3,6 +3,7 @@ from fastapi.exceptions import RequestValidationError
 
 from app.api.origin_guard import OriginGuardMiddleware
 from app.api.spa import register_spa
+from app.api.v1.assets import router as assets_router
 from app.api.v1.examples import router as examples_router
 from app.api.v1.generations import router as generations_router
 from app.api.v1.health import router as health_router
@@ -43,6 +44,7 @@ def create_app(config: Settings | None = None) -> FastAPI:
     router.include_router(system_router)
     router.include_router(maintenance_router)
     router.include_router(models_router)
+    router.include_router(assets_router)
     application.include_router(router)
     register_spa(application=application)
     return application

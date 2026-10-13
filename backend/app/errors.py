@@ -88,6 +88,12 @@ class DiskFullError(AppError):
     )
 
 
+class AssetGenerationInProgressError(AppError):
+    code = "ASSET_GENERATION_IN_PROGRESS"
+    http_status = 409
+    default_message = "Sta già creando esempi o anteprime. Attendi che finisca o annulla."
+
+
 class DownloadInProgressError(AppError):
     code = "DOWNLOAD_IN_PROGRESS"
     http_status = 409

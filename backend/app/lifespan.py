@@ -20,6 +20,7 @@ from app.repositories.job_repository import JobRepository
 from app.repositories.model_files import STAGING_DIRNAME, ModelFilesRepository
 from app.repositories.style_repository import load_styles
 from app.repositories.upload_repository import UploadRepository
+from app.services.asset_jobs import AssetJobs
 from app.services.generation_service import GenerationService
 from app.services.job_resolution import GENERATION_TASKS, IMAGE_TASKS, is_reference_task
 from app.services.job_resources import JobResources
@@ -88,6 +89,8 @@ async def lifespan(application: FastAPI) -> AsyncIterator[None]:
     initialize_image_services(application=application, resources=resources)
     service = JobService(resources=resources)
     application.state.job_service = service
+    asset_jobs = AssetJobs(settings=config, gpu_turn=service.runner.execution_lock)
+    application.state.asset_jobs = asset_jobs
     async with httpx.AsyncClient(
         base_url=config.comfy_url, timeout=ENGINE_HTTP_TIMEOUT_S, trust_env=False
     ) as http:
@@ -105,6 +108,7 @@ async def lifespan(application: FastAPI) -> AsyncIterator[None]:
             try:
                 yield
             finally:
+                await asset_jobs.cancel()
                 await service.close()
                 await asyncio.to_thread(resources.repository.database.close)
 

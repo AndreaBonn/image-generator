@@ -465,6 +465,9 @@ Base `/api/v1`. Formato di successo `{"data": ..., "meta": {...}}`, di errore `{
 | POST | `/jobs` | Crea un job (corpo in § 7.3) → `202` con `{job_id}` |
 | GET | `/jobs/{id}` | Stato del job |
 | GET | `/jobs/active` | Lavori in corso in questo processo (`job_id`, `task_id`, `status`), letti dalla memoria e non dal database: un job rimasto `running` dopo un crash non compare. Alimenta l'indicatore nella barra (N1) |
+| POST | `/assets/{examples\|styles}/generate` | Crea dalle Impostazioni gli esempi di Crea o le anteprime degli stili che mancano (I4), con la stessa logica di `app.cli.assets` → `202` con lo stato; `409 ASSET_GENERATION_IN_PROGRESS` se una creazione è già in corso. Ogni immagine prende il turno sulla GPU come un job, quindi un lavoro dell'utente passa fra un'immagine e l'altra |
+| GET | `/assets/generation` | Stato della creazione: `kind`, `status` (`idle`, `running`, `completed`, `failed`, `cancelled`), `done`, `total`, `message`. Solo in memoria: un riavvio lo azzera, le immagini già create restano |
+| POST | `/assets/generation/cancel` | Annulla la creazione in corso; le immagini già finite restano, quella a metà non viene salvata |
 | GET | `/jobs/{id}/events` | SSE: `queued{position}`, `model_switch{family, eta_s}`, `progress{step, total}`, `preview{url}` (v1.1), `completed{generation_ids}`, `failed{code, message}`, `cancelled` |
 | GET | `/jobs/{id}/preview` | (v1.1) Ultima anteprima del job in esecuzione (JPEG, `Cache-Control: no-store`), 404 quando non c'è o il job è finito. Il backend chiede le anteprime a ComfyUI con `extra_data.preview_method` (`PREVIEW_METHOD`, default `latent2rgb`, `none` le disattiva) |
 | POST | `/jobs/{id}/cancel` | Annulla: rimuove dalla coda o interrompe |
