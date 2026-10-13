@@ -37,3 +37,9 @@ describe("readinessChecks (I1)", () => {
     expect(checks[3]).toEqual({ ok: false, text: "Scheda video non rilevata" });
   });
 });
+
+describe("readinessChecks with an empty catalog (R14)", () => {
+  it("does not call an empty task list fine", () => {
+    expect(readinessChecks(buildSystemInfo(), [])[1]).toEqual({ ok: false, text: "Nessun lavoro disponibile" });
+  });
+});

@@ -7,6 +7,7 @@ export interface ReadinessCheck {
 }
 
 function tasksCheck(tasks: Task[]): ReadinessCheck {
+  if (tasks.length === 0) return { ok: false, text: "Nessun lavoro disponibile" };
   const available = tasks.filter((task) => task.available).length;
   const noun = available === 1 ? "lavoro disponibile" : "lavori disponibili";
   const base = `${available} ${noun} su ${tasks.length}`;
