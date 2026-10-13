@@ -57,7 +57,7 @@ export function ResultArea({
   const isEmpty = !errorMessage && !isRunning && generationIds.length === 0 && !hasExternalResults;
 
   return (
-    <div className="flex flex-col gap-4 lg:sticky lg:top-4 lg:self-start" aria-live="polite">
+    <div className="flex w-full flex-col gap-4 lg:sticky lg:top-4 lg:self-start" aria-live="polite">
       {isEmpty ? (
         <div className="flex min-h-64 items-center justify-center rounded-md border border-dashed border-border bg-paper-2 p-6 text-center">
           <p className="text-sm text-ink-muted">Le immagini generate appariranno qui.</p>

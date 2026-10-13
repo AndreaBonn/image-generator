@@ -30,6 +30,15 @@ function renderResultArea(overrides: Partial<Parameters<typeof ResultArea>[0]> =
 }
 
 describe("ResultArea empty/error/running states (SPEC.md § 11.2-11.3)", () => {
+  it("fills its column instead of shrinking to its content (C1)", () => {
+    renderResultArea();
+
+    // self-start keeps it sticky inside a grid row, but in a flex column it also
+    // shrank the area to its content (~280 px): an explicit full width undoes that.
+    const area = screen.getByText("Le immagini generate appariranno qui.").closest("[aria-live]");
+    expect(area).toHaveClass("w-full", "lg:sticky", "lg:self-start");
+  });
+
   it("shows the empty placeholder when idle with no results", () => {
     renderResultArea();
     expect(screen.getByText("Le immagini generate appariranno qui.")).toBeInTheDocument();
