@@ -69,10 +69,10 @@ describe("EditPage - chained word-based edits", () => {
     );
   });
 
-  it("keeps the default inpaint tab when the mode parameter is not a known edit mode", async () => {
+  it("falls back to the default free-edit tab when the mode parameter is not a known edit mode", async () => {
     renderEditPage("/modifica?source=gen-1&mode=sconosciuto");
 
-    expect(await screen.findByRole("tab", { name: "Modifica una parte" })).toHaveAttribute(
+    expect(await screen.findByRole("tab", { name: "Modifica con le parole" })).toHaveAttribute(
       "aria-selected",
       "true",
     );

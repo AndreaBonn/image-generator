@@ -39,7 +39,7 @@ export function EditPage() {
 function EditWorkspace() {
   const [searchParams] = useSearchParams();
   const sourceGenerationId = searchParams.get("source");
-  const [mode, setMode] = useState<EditMode>(() => parseEditMode(searchParams.get("mode")) ?? "inpaint");
+  const [mode, setMode] = useState<EditMode>(() => parseEditMode(searchParams.get("mode")) ?? "modifica_libera");
   const [image, setImage] = useState<SourceImage | null>(null);
   const [mask, setMask] = useState<Uint8Array | null>(null);
   const [directions, setDirections] = useState<OutpaintDirection[]>([]);

@@ -111,7 +111,7 @@ describe("EditPage", () => {
   });
 
   it("disables Genera without a mask in inpaint mode, and without a direction in outpaint mode", async () => {
-    renderEditPage();
+    renderEditPage(["/modifica?mode=inpaint"]);
     await uploadSourceImage();
 
     expect(screen.getByRole("button", { name: "Genera" })).toBeDisabled();
@@ -135,7 +135,7 @@ describe("EditPage", () => {
       .spyOn(queries, "createJob")
       .mockResolvedValue({ job_id: "job-inpaint-1" });
 
-    renderEditPage();
+    renderEditPage(["/modifica?mode=inpaint"]);
     await uploadSourceImage();
     await paintMaskStroke();
 
@@ -212,7 +212,7 @@ describe("EditPage", () => {
       .spyOn(queries, "createJob")
       .mockResolvedValue({ job_id: "job-from-source" });
 
-    renderEditPage(["/modifica?source=gen-9"]);
+    renderEditPage(["/modifica?source=gen-9&mode=inpaint"]);
 
     await waitFor(() => expect(fetchGenerationSpy).toHaveBeenCalledWith("gen-9", expect.anything()));
     await waitFor(() =>
@@ -328,7 +328,7 @@ describe("EditPage", () => {
 
   it("requires a non-empty prompt before submitting an inpaint job", async () => {
     const createJobSpy = vi.spyOn(queries, "createJob");
-    renderEditPage();
+    renderEditPage(["/modifica?mode=inpaint"]);
     await uploadSourceImage();
     await paintMaskStroke();
 
@@ -360,7 +360,7 @@ describe("EditPage", () => {
   it("shows a mask-preparation error when exporting the mask fails, without submitting", async () => {
     vi.spyOn(maskExportLib, "exportMaskPng").mockRejectedValue(new Error("canvas unavailable"));
     const createJobSpy = vi.spyOn(queries, "createJob");
-    renderEditPage();
+    renderEditPage(["/modifica?mode=inpaint"]);
     await uploadSourceImage();
     await paintMaskStroke();
     await userEvent.type(screen.getByLabelText("Descrizione"), "fix the torn sail");
@@ -382,7 +382,7 @@ describe("EditPage", () => {
       .spyOn(queries, "createJob")
       .mockResolvedValue({ job_id: "job-will-fail" });
 
-    renderEditPage();
+    renderEditPage(["/modifica?mode=inpaint"]);
     await uploadSourceImage();
     await paintMaskStroke();
     await userEvent.type(screen.getByLabelText("Descrizione"), "fix the torn sail");
@@ -413,7 +413,7 @@ describe("EditPage", () => {
       }),
       buildTask({ id: "outpaint", group: "modifica", label: "Allarga l'immagine" }),
     ]);
-    renderEditPage();
+    renderEditPage(["/modifica?mode=inpaint"]);
 
     expect(
       await screen.findByText("Il modello di inpaint non è installato."),
@@ -495,7 +495,7 @@ describe("EditPage - modifica con le parole", () => {
     vi.restoreAllMocks();
   });
 
-  it("shows the free-edit tab first and lets the user switch to it", async () => {
+  it("lists the free-edit tab first and opens on it (M5)", async () => {
     vi.spyOn(queries, "fetchTasks").mockResolvedValue([
       freeEditTask(),
       buildTask({ id: "inpaint", group: "modifica", label: "Modifica una parte" }),
@@ -505,7 +505,8 @@ describe("EditPage - modifica con le parole", () => {
 
     const tabs = await screen.findAllByRole("tab");
     expect(tabs[0]).toHaveAccessibleName("Modifica con le parole");
-    expect(screen.getByRole("tab", { name: "Modifica una parte" })).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByRole("tab", { name: "Modifica con le parole" })).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByRole("tab", { name: "Modifica una parte" })).toHaveAttribute("aria-selected", "false");
   });
 
   it("requires a prompt and sends seed/steps/cfg, with no mask or directions", async () => {

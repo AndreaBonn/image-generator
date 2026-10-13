@@ -90,6 +90,8 @@ test("crea -> galleria -> modifica -> rigenera -> elimina (SPEC § 10.3)", async
     await dialog.getByRole("link", { name: "Modifica" }).click();
 
     await expect(page).toHaveURL(new RegExp(`/modifica\\?source=${sourceId}`));
+    // Modifica opens on "Modifica con le parole" (M5): switch to the mask editor.
+    await page.getByRole("tab", { name: "Modifica una parte" }).click();
     await expect(page.locator("canvas")).toBeVisible();
 
     const generateButton = page.getByRole("button", { name: "Genera", exact: true });
