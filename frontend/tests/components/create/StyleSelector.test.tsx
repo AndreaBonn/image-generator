@@ -43,7 +43,7 @@ describe("StyleSelector", () => {
     vi.spyOn(queries, "fetchStyles").mockResolvedValue([]);
     renderStyleSelector([]);
 
-    expect(await screen.findByText("Facoltativi: danno un aspetto preciso, come acquerello o foto.")).toBeInTheDocument();
+    expect(await screen.findByText("Danno un aspetto preciso, come acquerello o foto.")).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /^Informazioni/ })).not.toBeInTheDocument();
   });
 

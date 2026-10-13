@@ -87,5 +87,5 @@ export type HelpTextKey = keyof typeof HELP_TEXTS;
 export const FIELD_HINTS = {
   aspectRatio: "La forma dell'immagine finale.",
   batch: "Più immagini danno più scelta, ma richiedono più tempo.",
-  styles: "Facoltativi: danno un aspetto preciso, come acquerello o foto.",
+  styles: "Danno un aspetto preciso, come acquerello o foto.",
 } as const;
