@@ -28,6 +28,20 @@ describe("CreatePage validation and task list", () => {
     expect(textarea.compareDocumentPosition(example) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
+  it("keeps Genera in a sticky bar that sums up what will start (C2)", async () => {
+    vi.spyOn(queries, "fetchTasks").mockResolvedValue([buildTask({ label: "Bozza veloce" })]);
+    renderCreatePage();
+
+    const generate = await screen.findByRole("button", { name: "Genera" });
+    const bar = generate.parentElement;
+    expect(bar).toHaveClass("sticky", "bottom-0");
+    expect(generate).toHaveAccessibleDescription("Bozza veloce · 1 immagine");
+
+    const batchGroup = screen.getByRole("group", { name: "Numero di immagini" });
+    await userEvent.click(within(batchGroup).getByRole("button", { name: "3" }));
+    expect(generate).toHaveAccessibleDescription("Bozza veloce · 3 immagini");
+  });
+
   it("keeps the result code inside the advanced options (C12)", async () => {
     vi.spyOn(queries, "fetchTasks").mockResolvedValue([buildTask()]);
     renderCreatePage();

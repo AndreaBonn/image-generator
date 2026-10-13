@@ -183,19 +183,22 @@ export function CreateForm({
 
       <GpuWarning />
 
-      <div className="flex flex-col gap-1">
+      <div className="sticky bottom-0 z-sticky -mx-2 flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-border bg-paper px-2 py-3">
         <button
           ref={generateButtonRef}
           type="button"
           onClick={onSubmit}
           disabled={submitDisabled}
-          aria-describedby={missingReferences ? "references-missing-reason" : undefined}
+          aria-describedby={missingReferences ? "generate-summary references-missing-reason" : "generate-summary"}
           className="min-h-11 w-fit rounded-md bg-accent px-4 py-2 text-sm font-semibold text-accent-ink disabled:cursor-not-allowed disabled:bg-paper-3 disabled:text-ink-muted"
         >
           {submitLabel}
         </button>
+        <p id="generate-summary" className="text-xs text-ink-muted">
+          {selectedTask.label} · {batch === 1 ? "1 immagine" : `${batch} immagini`}
+        </p>
         {missingReferences ? (
-          <p id="references-missing-reason" className="text-sm text-ink-muted">
+          <p id="references-missing-reason" className="basis-full text-sm text-ink-muted">
             {minReferences > 1
               ? `Aggiungi almeno ${minReferences} immagini di riferimento per generare.`
               : "Aggiungi almeno un'immagine di riferimento per generare."}
