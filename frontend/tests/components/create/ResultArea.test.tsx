@@ -2,6 +2,7 @@ import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { MemoryRouter } from "react-router-dom";
 import { ResultArea } from "@/components/create/ResultArea";
 import * as queries from "@/api/queries";
 import type { JobEvent } from "@/api/types";
@@ -12,15 +13,17 @@ function renderResultArea(overrides: Partial<Parameters<typeof ResultArea>[0]> =
   const onCancel = vi.fn();
   render(
     <QueryClientProvider client={client}>
-      <ResultArea
-        latestEvent={null}
-        generationIds={[]}
-        errorMessage={null}
-        onRetry={onRetry}
-        onCancel={onCancel}
-        isRunning={false}
-        {...overrides}
-      />
+      <MemoryRouter>
+        <ResultArea
+          latestEvent={null}
+          generationIds={[]}
+          errorMessage={null}
+          onRetry={onRetry}
+          onCancel={onCancel}
+          isRunning={false}
+          {...overrides}
+        />
+      </MemoryRouter>
     </QueryClientProvider>,
   );
   return { onRetry, onCancel };
@@ -110,15 +113,17 @@ describe("ResultArea live preview (A2)", () => {
     const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
     const props = (overrides: Partial<Parameters<typeof ResultArea>[0]>) => (
       <QueryClientProvider client={client}>
-        <ResultArea
-          latestEvent={null}
-          generationIds={[]}
-          errorMessage={null}
-          onRetry={vi.fn()}
-          onCancel={vi.fn()}
-          isRunning
-          {...overrides}
-        />
+        <MemoryRouter>
+          <ResultArea
+            latestEvent={null}
+            generationIds={[]}
+            errorMessage={null}
+            onRetry={vi.fn()}
+            onCancel={vi.fn()}
+            isRunning
+            {...overrides}
+          />
+        </MemoryRouter>
       </QueryClientProvider>
     );
     const { rerender } = render(props({ previewUrl: "/api/v1/jobs/job-1/preview?n=1" }));
@@ -169,6 +174,13 @@ describe("ResultArea results grid and per-result actions", () => {
     const link = screen.getByRole("link", { name: "Scarica" });
     expect(link).toHaveAttribute("href", queries.imageUrl("gen-1"));
     expect(link).toHaveAttribute("download");
+  });
+
+  it("links each result to the word-based edit with that image as source", () => {
+    renderResultArea({ generationIds: ["gen-1"] });
+
+    const link = screen.getByRole("link", { name: "Modifica con le parole" });
+    expect(link).toHaveAttribute("href", "/modifica?source=gen-1&mode=modifica_libera");
   });
 
   it("marks a generation as favorite via the API when 'Preferito' is clicked", async () => {

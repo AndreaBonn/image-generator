@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import type { JobEvent } from "@/api/types";
 import { imageUrl, setFavorite, rerunGeneration } from "@/api/queries";
 import { useMutation } from "@tanstack/react-query";
+import { Link } from "react-router-dom";
 
 const SLOW_JOB_THRESHOLD_MS = 60_000;
 
@@ -155,7 +156,7 @@ function ResultCard({ generationId }: { generationId: string }) {
 }
 
 /**
- * Scarica/preferito/rigenera for one generation. Exported so other result
+ * Scarica/preferito/rigenera/modifica for one generation. Exported so other result
  * layouts (e.g. ImprovePage's before/after slider, SPEC.md § 11.2) reuse
  * the same actions instead of duplicating the mutations.
  */
@@ -190,6 +191,12 @@ export function ResultCardActions({ generationId }: { generationId: string }) {
       >
         Rigenera
       </button>
+      <Link
+        to={`/modifica?source=${generationId}&mode=modifica_libera`}
+        className="inline-flex min-h-11 items-center rounded-md border border-border px-3 text-sm text-ink-muted hover:bg-paper-3"
+      >
+        Modifica con le parole
+      </Link>
     </div>
   );
 }

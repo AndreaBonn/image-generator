@@ -1,6 +1,7 @@
 import { TabList, type TabItem } from "@/components/ui/TabList";
+import type { EditMode } from "@/lib/editMode";
 
-export type EditMode = "modifica_libera" | "inpaint" | "outpaint";
+export type { EditMode };
 
 const TABS: TabItem<EditMode>[] = [
   { id: "modifica_libera", label: "Modifica con le parole" },

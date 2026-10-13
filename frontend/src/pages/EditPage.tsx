@@ -10,6 +10,7 @@ import { ImageInput } from "@/components/edit/ImageInput";
 import { MaskEditor } from "@/components/edit/MaskEditor";
 import { OutpaintPanel } from "@/components/edit/OutpaintPanel";
 import { EditModeTabs, type EditMode } from "@/components/edit/EditModeTabs";
+import { parseEditMode } from "@/lib/editMode";
 import { FreeEditOptions } from "@/components/edit/FreeEditOptions";
 import { GpuWarning } from "@/components/layout/GpuWarning";
 import { exportMaskPng } from "@/lib/maskExport";
@@ -28,11 +29,16 @@ interface SourceImage {
   uploadId: string | null;
 }
 
+/** Keyed on the source image: editing a result starts a fresh step (empty prompt, no stale result). */
 export function EditPage() {
   const [searchParams] = useSearchParams();
-  const sourceGenerationId = searchParams.get("source");
+  return <EditWorkspace key={searchParams.get("source") ?? "upload"} />;
+}
 
-  const [mode, setMode] = useState<EditMode>("inpaint");
+function EditWorkspace() {
+  const [searchParams] = useSearchParams();
+  const sourceGenerationId = searchParams.get("source");
+  const [mode, setMode] = useState<EditMode>(() => parseEditMode(searchParams.get("mode")) ?? "inpaint");
   const [image, setImage] = useState<SourceImage | null>(null);
   const [mask, setMask] = useState<Uint8Array | null>(null);
   const [directions, setDirections] = useState<OutpaintDirection[]>([]);
@@ -89,6 +95,7 @@ export function EditPage() {
     mutationFn: createJob,
     onSuccess: (response) => {
       setErrorMessage(null);
+      setGenerationIds([]);
       setJobId(response.job_id);
     },
     onError: (error: unknown) => {
@@ -215,6 +222,7 @@ export function EditPage() {
           />
         ) : null}
 
+        {hasImage && mode === "modifica_libera" ? <img src={image.url} alt="Immagine da modificare" className="h-auto max-h-[50vh] w-full rounded-md object-contain" /> : null}
         {selectedTask ? (
           <>
             <PromptGuide
