@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { maskToOverlayRgba, type MaskValue } from "@/lib/mask";
 import { useStrokeCanvas } from "@/hooks/useStrokeCanvas";
 import { InfoTip } from "@/components/ui/InfoTip";
@@ -40,6 +40,7 @@ export function MaskEditor({ imageUrl, width, height, onMaskChange }: MaskEditor
 
   const stroke = useStrokeCanvas({ width, height, onLivePaint: redraw });
   const { mask } = stroke;
+  const isMaskEmpty = useMemo(() => !mask.some((value) => value > 0), [mask]);
 
   useEffect(() => {
     const ctx = canvasRef.current?.getContext("2d");
@@ -94,6 +95,11 @@ export function MaskEditor({ imageUrl, width, height, onMaskChange }: MaskEditor
             onPointerCancel={commitStroke}
             className="absolute inset-0 h-full w-full cursor-crosshair touch-none"
           />
+          {isMaskEmpty ? (
+            <p className="pointer-events-none absolute left-1/2 top-3 -translate-x-1/2 rounded-md border border-border bg-paper/90 px-3 py-1.5 text-center text-sm text-ink shadow">
+              Colora con il pennello la zona da cambiare
+            </p>
+          ) : null}
         </div>
       </div>
 

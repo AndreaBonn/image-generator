@@ -74,6 +74,16 @@ describe("MaskEditor", () => {
     ]);
   }
 
+  it("tells the user to paint the area to change until the first stroke (M4)", async () => {
+    render(<MaskEditor imageUrl="/src.png" width={WIDTH} height={HEIGHT} onMaskChange={vi.fn()} />);
+
+    expect(screen.getByText("Colora con il pennello la zona da cambiare")).toBeInTheDocument();
+
+    await drag({ x: 50, y: 50 }, { x: 120, y: 50 });
+
+    expect(screen.queryByText("Colora con il pennello la zona da cambiare")).not.toBeInTheDocument();
+  });
+
   it("reports an empty mask on mount and paints the overlay via the 2D context", () => {
     const onMaskChange = vi.fn();
     render(<MaskEditor imageUrl="/src.png" width={WIDTH} height={HEIGHT} onMaskChange={onMaskChange} />);
