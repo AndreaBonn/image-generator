@@ -89,7 +89,8 @@ export function ImprovePage() {
   const isGenerating = jobMutation.isPending || (jobId !== null && !isDone);
 
   function disabledReasonFor(task: Task | undefined): string | null {
-    if (!hasImage) return "Carica un'immagine prima di generare.";
+    // Empty reason: disabled, with the single notice above the actions instead of one per button (P2).
+    if (!hasImage) return "";
     if (!task) return "Caricamento compiti...";
     if (!task.available) return task.unavailable_reason ?? "Compito non disponibile.";
     return null;
@@ -207,6 +208,10 @@ export function ImprovePage() {
         <SeedField seed={seed} locked={seedLocked} onChange={setSeed} onToggleLocked={setSeedLocked} />
 
         <GpuWarning />
+
+        {!hasImage ? (
+          <p className="text-sm text-ink-muted">Carica un&apos;immagine per attivare le azioni qui sotto.</p>
+        ) : null}
 
         <VariationActions
           subtleDisabledReason={disabledReasonFor(subtleTask)}

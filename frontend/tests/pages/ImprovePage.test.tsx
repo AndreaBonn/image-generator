@@ -12,7 +12,7 @@ import { buildTask } from "../fixtures/task";
 import { installMockEventSource, latestEventSource } from "../mocks/mockEventSource";
 import type { Generation, Task } from "@/api/types";
 
-const NO_IMAGE_REASON = "Carica un'immagine prima di generare.";
+const NO_IMAGE_REASON = "Carica un'immagine per attivare le azioni qui sotto.";
 
 function allImproveTasks(): Task[] {
   return [
@@ -107,7 +107,7 @@ describe("ImprovePage", () => {
     vi.restoreAllMocks();
   });
 
-  it("disables every action with a reason until an image is loaded", async () => {
+  it("disables every action with one shared notice until an image is loaded (P2)", async () => {
     vi.spyOn(queries, "fetchTasks").mockResolvedValue(improveTasks());
     renderImprovePage();
 
@@ -122,7 +122,8 @@ describe("ImprovePage", () => {
     for (const name of actionNames) {
       expect(screen.getByRole("button", { name })).toBeDisabled();
     }
-    expect(screen.getAllByText(NO_IMAGE_REASON)).toHaveLength(actionNames.length);
+    expect(screen.getAllByText(NO_IMAGE_REASON)).toHaveLength(1);
+    expect(screen.queryByText("Carica un'immagine prima di generare.")).not.toBeInTheDocument();
 
     await uploadImage();
     expect(screen.getByRole("button", { name: "Variazione leggera" })).toBeEnabled();
