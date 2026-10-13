@@ -17,7 +17,8 @@ export function ActiveJobsIndicator() {
   const tasksQuery = useQuery({ queryKey: ["tasks"], queryFn: ({ signal }) => fetchTasks(signal) });
   const jobs = activeQuery.data ?? [];
   const first = jobs[0];
-  const { latest } = useJobEvents(first?.job_id ?? null);
+  // Progress is shown only for a single job, so only then is its event stream opened.
+  const { latest } = useJobEvents(jobs.length === 1 && first ? first.job_id : null);
 
   if (!first) return null;
 
