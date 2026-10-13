@@ -57,7 +57,7 @@ test("crea -> galleria -> modifica -> rigenera -> elimina (SPEC § 10.3)", async
   await test.step("Crea: bozza veloce genera un'immagine", async () => {
     await page.goto("/");
     await page.getByRole("button", { name: "Bozza veloce" }).click();
-    await page.getByLabel("Descrizione").fill(prompt);
+    await page.getByLabel("Descrivi l'immagine che vuoi").fill(prompt);
     await page.getByRole("button", { name: "Genera", exact: true }).click();
     await expect(page.getByRole("link", { name: "Scarica" })).toBeVisible({
       timeout: GENERATE_TIMEOUT,
