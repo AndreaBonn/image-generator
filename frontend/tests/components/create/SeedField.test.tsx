@@ -7,7 +7,7 @@ describe("SeedField", () => {
   it("disables the number input and checks 'Casuale' when seed is null", () => {
     render(<SeedField seed={null} locked={false} onChange={vi.fn()} onToggleLocked={vi.fn()} />);
 
-    const input = screen.getByLabelText("Seed") as HTMLInputElement;
+    const input = screen.getByLabelText("Codice del risultato") as HTMLInputElement;
     expect(input).toBeDisabled();
     expect(input.value).toBe("");
     expect(screen.getByRole("checkbox", { name: "Casuale" })).toBeChecked();
@@ -16,7 +16,7 @@ describe("SeedField", () => {
   it("enables the number input and unchecks 'Casuale' when seed has a value", () => {
     render(<SeedField seed={42} locked={false} onChange={vi.fn()} onToggleLocked={vi.fn()} />);
 
-    const input = screen.getByLabelText("Seed") as HTMLInputElement;
+    const input = screen.getByLabelText("Codice del risultato") as HTMLInputElement;
     expect(input).toBeEnabled();
     expect(input.value).toBe("42");
     expect(screen.getByRole("checkbox", { name: "Casuale" })).not.toBeChecked();
@@ -42,7 +42,7 @@ describe("SeedField", () => {
     const onChange = vi.fn();
     render(<SeedField seed={42} locked={false} onChange={onChange} onToggleLocked={vi.fn()} />);
 
-    fireEvent.change(screen.getByLabelText("Seed"), { target: { value: "123" } });
+    fireEvent.change(screen.getByLabelText("Codice del risultato"), { target: { value: "123" } });
     expect(onChange).toHaveBeenCalledWith(123);
   });
 
@@ -50,17 +50,17 @@ describe("SeedField", () => {
   // reachable here: jsdom and Chromium both sanitize an out-of-range value such as "1e500"
   // to "" (Number("") is 0). It is kept as a guard for browsers not measured (Firefox).
 
-  it("shows 'Fissa seed' and aria-pressed=false when not locked", () => {
+  it("shows 'Tieni questo codice' and aria-pressed=false when not locked", () => {
     render(<SeedField seed={42} locked={false} onChange={vi.fn()} onToggleLocked={vi.fn()} />);
 
-    const button = screen.getByRole("button", { name: "Fissa seed" });
+    const button = screen.getByRole("button", { name: "Tieni questo codice" });
     expect(button).toHaveAttribute("aria-pressed", "false");
   });
 
-  it("shows 'Seed fissato' and aria-pressed=true when locked", () => {
+  it("shows 'Codice tenuto' and aria-pressed=true when locked", () => {
     render(<SeedField seed={42} locked={true} onChange={vi.fn()} onToggleLocked={vi.fn()} />);
 
-    const button = screen.getByRole("button", { name: "Seed fissato" });
+    const button = screen.getByRole("button", { name: "Codice tenuto" });
     expect(button).toHaveAttribute("aria-pressed", "true");
   });
 
@@ -68,7 +68,7 @@ describe("SeedField", () => {
     const onToggleLocked = vi.fn();
     render(<SeedField seed={42} locked={false} onChange={vi.fn()} onToggleLocked={onToggleLocked} />);
 
-    await userEvent.click(screen.getByRole("button", { name: "Fissa seed" }));
+    await userEvent.click(screen.getByRole("button", { name: "Tieni questo codice" }));
     expect(onToggleLocked).toHaveBeenCalledWith(true);
   });
 });

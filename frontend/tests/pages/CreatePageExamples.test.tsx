@@ -61,7 +61,7 @@ describe("CreatePage examples panel (SPEC.md § 11.3)", () => {
     await userEvent.click(await screen.findByRole("button", { name: "Prova questo" }));
 
     await waitFor(() => expect(screen.getByLabelText("Descrizione")).toHaveValue(example.prompt));
-    expect(screen.getByLabelText("Seed")).toHaveValue(777);
+    expect(screen.getByLabelText("Codice del risultato")).toHaveValue(777);
     expect(screen.getByRole("button", { name: "Genera" })).toHaveFocus();
     expect(createJobSpy).not.toHaveBeenCalled();
   });

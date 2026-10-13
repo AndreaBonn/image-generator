@@ -20,9 +20,9 @@ export const HELP_TEXTS = {
     "La forma dell'immagine finale: quadrata, verticale o orizzontale. Scegli il formato più adatto a dove la userai.",
   styles:
     "Applica uno stile visivo predefinito al risultato, come acquerello, foto o fumetto. Puoi scegliere al massimo 5 stili insieme.",
-  seed: "Il numero che determina la parte casuale del risultato. Con lo stesso seed e lo stesso testo ottieni immagini simili; lascialo su Casuale per avere ogni volta un risultato diverso.",
+  seed: "Il numero che determina la parte casuale del risultato. Con lo stesso codice e la stessa descrizione ottieni un'immagine quasi identica; lascialo su Casuale per avere ogni volta un risultato diverso.",
   seedLock:
-    "Blocca il seed attuale per riusarlo nella prossima generazione: utile per confrontare piccole modifiche al testo mantenendo lo stesso punto di partenza.",
+    "Tiene il codice attuale anche nella prossima generazione: utile per confrontare piccole modifiche alla descrizione partendo dallo stesso punto.",
   steps:
     "Quante volte il motore raffina l'immagine prima di mostrarla. Più passi: più dettagli ma più lento. Il valore consigliato va bene quasi sempre.",
   cfg: "Quanto l'immagine deve seguire fedelmente il testo scritto. Valori alti seguono di più il testo ma possono saturare i colori; valori bassi lasciano più libertà al motore.",

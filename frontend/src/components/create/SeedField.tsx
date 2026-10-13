@@ -16,9 +16,9 @@ export function SeedField({ seed, locked, onChange, onToggleLocked }: SeedFieldP
     <div className="flex flex-col gap-2">
       <span className="flex items-center gap-1">
         <label htmlFor="seed-input" className="text-sm font-semibold text-ink">
-          Seed
+          Codice del risultato
         </label>
-        <InfoTip text={HELP_TEXTS.seed} label="Informazioni: Seed" />
+        <InfoTip text={HELP_TEXTS.seed} label="Informazioni: Codice del risultato" />
       </span>
       <div className="flex flex-wrap items-center gap-2">
         <input
@@ -49,9 +49,9 @@ export function SeedField({ seed, locked, onChange, onToggleLocked }: SeedFieldP
             locked ? "border-accent bg-paper-3 text-ink" : "border-border bg-paper-2 text-ink-muted"
           }`}
         >
-          {locked ? "Seed fissato" : "Fissa seed"}
+          {locked ? "Codice tenuto" : "Tieni questo codice"}
         </button>
-        <InfoTip text={HELP_TEXTS.seedLock} label="Informazioni: Fissa seed" />
+        <InfoTip text={HELP_TEXTS.seedLock} label="Informazioni: Tieni questo codice" />
       </div>
     </div>
   );
