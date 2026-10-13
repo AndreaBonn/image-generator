@@ -170,3 +170,17 @@ async def test_unknown_kind_is_a_validation_error(job_app: JobApp) -> None:
     response = await client.post(url="/api/v1/assets/everything/generate")
 
     assert response.status_code == 422
+
+
+async def test_generation_forgets_which_model_family_the_runner_had_loaded(job_app: JobApp) -> None:
+    application, client = job_app
+    _write_styles(styles_dir=application.state.settings.styles_dir)
+    application.state.engine = FakeEngine(step_delay_s=0)
+    runner = application.state.job_service.runner
+    runner.family = "sdxl"
+
+    await client.post(url="/api/v1/assets/styles/generate")
+
+    assert (await _wait_terminal(client=client))["status"] == "completed"
+    # The run may have loaded another model: the next job must switch and free memory again.
+    assert runner.family is None

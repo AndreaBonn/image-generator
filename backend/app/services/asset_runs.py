@@ -6,7 +6,7 @@ which keeps a status the UI polls), so both write exactly the same files.
 
 import dataclasses
 import json
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from contextlib import AbstractAsyncContextManager, nullcontext
 from pathlib import Path
 from typing import Any, Protocol
@@ -28,7 +28,8 @@ from app.services.asset_generation import (
 from app.services.style_service import StyleService
 from app.services.task_catalog import TaskCatalog, load_catalog, single_workflow_filename
 
-GpuTurn = AbstractAsyncContextManager[Any]
+# Opens one GPU turn per image: the job runner's `foreign_turn` when called from the app.
+GpuTurn = Callable[[], AbstractAsyncContextManager[Any]]
 
 
 class AssetProgress(Protocol):
@@ -41,8 +42,8 @@ def _find_task(catalog: TaskCatalog, task_id: str) -> TaskDefinition:
     return next(task for task in catalog.tasks if task.id == task_id)
 
 
-def _gpu_turn_or_noop(gpu_turn: GpuTurn | None) -> GpuTurn:
-    return gpu_turn if gpu_turn is not None else nullcontext()
+def _gpu_turn_or_noop(gpu_turn: GpuTurn | None) -> AbstractAsyncContextManager[Any]:
+    return gpu_turn() if gpu_turn is not None else nullcontext()
 
 
 def _load_template(settings: Settings, task: TaskDefinition) -> Graph:
@@ -61,8 +62,8 @@ async def generate_missing_previews(
 ) -> int:
     """Render every style preview still missing, one image per `gpu_turn`; returns how many.
 
-    `gpu_turn` is the job runner's execution lock when called from the app: holding it
-    per image, not for the whole run, lets a user's job slip in between two previews.
+    One `gpu_turn` per image, not for the whole run, lets a user's job slip in between
+    two previews.
     """
     task = _find_task(catalog=load_catalog(settings=settings), task_id=PREVIEW_TASK_ID)
     template = _load_template(settings=settings, task=task)

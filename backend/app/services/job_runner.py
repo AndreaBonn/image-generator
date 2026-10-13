@@ -1,5 +1,7 @@
 import asyncio
 import logging
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
 from time import monotonic
 
 from app.async_tasks import drain_task
@@ -25,6 +27,19 @@ class JobRunner:
         self.family: str | None = None
         self.previews: dict[str, PreviewImage] = {}
         self._preview_counter = 0
+
+    @asynccontextmanager
+    async def foreign_turn(self) -> AsyncIterator[None]:
+        """GPU turn for work outside the job pipeline (I4 asset runs).
+
+        Such work may load any model family, so the runner forgets the loaded one and
+        the next job announces the switch and frees memory instead of assuming no change.
+        """
+        async with self.execution_lock:
+            try:
+                yield
+            finally:
+                self.family = None
 
     async def run(self, run: JobRun) -> None:
         started = monotonic()

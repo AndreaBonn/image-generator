@@ -89,7 +89,7 @@ async def lifespan(application: FastAPI) -> AsyncIterator[None]:
     initialize_image_services(application=application, resources=resources)
     service = JobService(resources=resources)
     application.state.job_service = service
-    asset_jobs = AssetJobs(settings=config, gpu_turn=service.runner.execution_lock)
+    asset_jobs = AssetJobs(settings=config, gpu_turn=service.runner.foreign_turn)
     application.state.asset_jobs = asset_jobs
     async with httpx.AsyncClient(
         base_url=config.comfy_url, timeout=ENGINE_HTTP_TIMEOUT_S, trust_env=False
