@@ -42,7 +42,8 @@ export function CreatePage() {
   const [seedLocked, setSeedLocked] = useState(draft?.seedLocked ?? false);
   const [steps, setSteps] = useState<number | null>(draft?.steps ?? null);
   const [cfg, setCfg] = useState<number | null>(draft?.cfg ?? null);
-  const [draftRestored, setDraftRestored] = useState(Boolean(draft?.prompt.trim()));
+  // The "ripresa" note holds only while the description is still the restored one (R4).
+  const [restoredPrompt, setRestoredPrompt] = useState(draft?.prompt.trim() ? draft.prompt : null);
   const [promptError, setPromptError] = useState<string | null>(null);
   const [jobId, setJobId] = useState<string | null>(null);
   const [generationIds, setGenerationIds] = useState<string[]>([]);
@@ -83,7 +84,7 @@ export function CreatePage() {
 
   function handleClearPrompt() {
     setPrompt("");
-    setDraftRestored(false);
+    setRestoredPrompt(null);
   }
 
   const { latest, latestPreviewUrl, isDone } = useJobEvents(jobId);
@@ -269,7 +270,7 @@ export function CreatePage() {
             submitDisabled={jobMutation.isPending || jobId !== null || missingReferences}
             submitLabel={jobMutation.isPending || (jobId !== null && !isDone) ? "Generazione in corso..." : "Genera"}
             generateButtonRef={generateButtonRef}
-            draftRestored={draftRestored && prompt !== ""}
+            draftRestored={restoredPrompt !== null && prompt === restoredPrompt}
             onClearPrompt={handleClearPrompt}
             italianAlternative={
               italianTask ? { label: italianTask.label, onSwitch: () => handleSelectTask(italianTask.id) } : null

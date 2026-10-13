@@ -157,7 +157,15 @@ export function CreateForm({
           {draftRestored ? (
             <p className="flex flex-wrap items-center gap-x-2 text-xs text-ink-muted">
               <span>Ripresa da dove avevi lasciato.</span>
-              <button type="button" onClick={onClearPrompt} className="min-h-11 text-accent-text underline">
+              <button
+                type="button"
+                onClick={() => {
+                  onClearPrompt();
+                  // The button disappears with the note: keep keyboard users on the field (R3).
+                  document.getElementById("prompt-input")?.focus();
+                }}
+                className="min-h-11 text-accent-text underline"
+              >
                 Svuota la descrizione
               </button>
             </p>

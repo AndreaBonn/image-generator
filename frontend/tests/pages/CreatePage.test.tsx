@@ -43,6 +43,20 @@ describe("CreatePage validation and task list", () => {
 
     await userEvent.click(screen.getByRole("button", { name: "Svuota la descrizione" }));
     expect(textarea).toHaveValue("");
+    expect(textarea).toHaveFocus();
+    expect(screen.queryByText("Ripresa da dove avevi lasciato.")).not.toBeInTheDocument();
+  });
+
+  it("drops the 'ripresa' note as soon as the description changes (R4)", async () => {
+    vi.spyOn(queries, "fetchTasks").mockResolvedValue([buildTask()]);
+    const first = renderCreatePage();
+    await userEvent.type(await screen.findByLabelText("Descrivi l'immagine che vuoi"), "a red fox");
+    first.unmount();
+
+    renderCreatePage();
+    await screen.findByText("Ripresa da dove avevi lasciato.");
+    await userEvent.type(screen.getByLabelText("Descrivi l'immagine che vuoi"), " at dawn");
+
     expect(screen.queryByText("Ripresa da dove avevi lasciato.")).not.toBeInTheDocument();
   });
 
