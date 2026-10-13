@@ -70,7 +70,6 @@ function QuickActions({ generation }: { generation: GenerationSummary }) {
       <button
         type="button"
         aria-label={generation.favorite ? "Rimuovi dai preferiti" : "Aggiungi ai preferiti"}
-        aria-pressed={generation.favorite}
         disabled={favoriteMutation.isPending}
         onClick={() => favoriteMutation.mutate(!generation.favorite)}
         className={QUICK_ACTION_CLASS}

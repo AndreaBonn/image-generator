@@ -208,7 +208,6 @@ export function GenerationDetailDialog({
                 type="button"
                 onClick={() => favoriteMutation.mutate(!detail.favorite)}
                 disabled={favoriteMutation.isPending}
-                aria-pressed={detail.favorite}
                 className="min-h-11 rounded-md border border-border px-3 py-2 text-sm text-ink"
               >
                 {detail.favorite ? "Rimuovi dai preferiti" : "Aggiungi ai preferiti"}

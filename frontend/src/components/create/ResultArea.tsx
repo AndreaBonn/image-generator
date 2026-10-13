@@ -199,7 +199,6 @@ export function ResultCardActions({ generationId }: { generationId: string }) {
       <div className="flex flex-wrap gap-1">
         <button
           type="button"
-          aria-pressed={isFavorite}
           disabled={favoriteMutation.isPending}
           onClick={() => favoriteMutation.mutate(!isFavorite)}
           className={`${ACTION_CLASS} ${isFavorite ? "border-accent text-ink" : ""}`}

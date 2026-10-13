@@ -217,10 +217,11 @@ describe("ResultArea results grid and per-result actions", () => {
     renderResultArea({ generationIds: ["gen-1"] });
 
     const button = screen.getByRole("button", { name: "Aggiungi ai preferiti" });
-    expect(button).toHaveAttribute("aria-pressed", "false");
+    // R12: the label carries the state, so no aria-pressed ("Nei preferiti, premuto" would say it twice).
+    expect(button).not.toHaveAttribute("aria-pressed");
     await userEvent.click(button);
     expect(setFavorite).toHaveBeenLastCalledWith("gen-1", true);
-    expect(await screen.findByRole("button", { name: "Nei preferiti" })).toHaveAttribute("aria-pressed", "true");
+    expect(await screen.findByRole("button", { name: "Nei preferiti" })).not.toHaveAttribute("aria-pressed");
 
     await userEvent.click(screen.getByRole("button", { name: "Nei preferiti" }));
     expect(setFavorite).toHaveBeenLastCalledWith("gen-1", false);

@@ -219,7 +219,7 @@ describe("GenerationDetailDialog", () => {
     renderDialog();
 
     const favoriteButton = await screen.findByRole("button", { name: "Aggiungi ai preferiti" });
-    expect(favoriteButton).toHaveAttribute("aria-pressed", "false");
+    expect(favoriteButton).not.toHaveAttribute("aria-pressed");
 
     await userEvent.click(favoriteButton);
 
@@ -232,7 +232,7 @@ describe("GenerationDetailDialog", () => {
     renderDialog();
 
     const favoriteButton = await screen.findByRole("button", { name: "Rimuovi dai preferiti" });
-    expect(favoriteButton).toHaveAttribute("aria-pressed", "true");
+    expect(favoriteButton).not.toHaveAttribute("aria-pressed");
   });
 
   it("reruns with a new seed and shows a confirmation message", async () => {

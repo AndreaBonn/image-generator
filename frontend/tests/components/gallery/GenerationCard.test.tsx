@@ -23,7 +23,9 @@ describe("GenerationCard", () => {
       "href",
       "/modifica?source=gen-4",
     );
-    await userEvent.click(within(actions).getByRole("button", { name: "Aggiungi ai preferiti" }));
+    const favorite = within(actions).getByRole("button", { name: "Aggiungi ai preferiti" });
+    expect(favorite).not.toHaveAttribute("aria-pressed");
+    await userEvent.click(favorite);
     expect(setFavorite).toHaveBeenCalledWith("gen-4", true);
     expect(onOpen).not.toHaveBeenCalled();
   });
