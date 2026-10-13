@@ -5,6 +5,7 @@ export function buildTask(overrides: Partial<Task> = {}): Task {
     id: "qualita",
     label: "Immagine di qualità",
     description: "Generazione SDXL ad alta qualità.",
+    duration_hint: null,
     group: "crea",
     family: "sdxl",
     available: true,

@@ -32,6 +32,30 @@ describe("TaskSelector", () => {
     expect(within(fromImages).getByRole("button", { name: /In posa/ })).toBeInTheDocument();
   });
 
+  it("tags each card with its time, its language and whether it is ready now (C4)", () => {
+    const tasks = [
+      buildTask({ id: "bozza", label: "Bozza veloce", family: "sdxl", duration_hint: "circa 4 s" }),
+      buildTask({
+        id: "foto",
+        label: "Foto realistica",
+        family: "zimage",
+        duration_hint: "circa 17 s",
+        prompt_language: { required: "any", label: "Italiano o inglese", reason: "Capisce entrambe." },
+      }),
+    ];
+
+    render(<TaskSelector tasks={tasks} selectedTaskId={null} onSelect={vi.fn()} loadedFamily="sdxl" />);
+
+    const draft = screen.getByRole("button", { name: /Bozza veloce/ });
+    const photo = screen.getByRole("button", { name: /Foto realistica/ });
+    expect(draft).toHaveTextContent("circa 4 s");
+    expect(draft).toHaveTextContent("in inglese");
+    expect(draft).toHaveTextContent("pronto subito");
+    expect(photo).toHaveTextContent("circa 17 s");
+    expect(photo).toHaveTextContent("anche in italiano");
+    expect(photo).not.toHaveTextContent("pronto subito");
+  });
+
   it("shows the unavailable reason and disables the card", () => {
     const tasks = [
       buildTask({

@@ -14,6 +14,13 @@ import { MAX_PROMPT_LENGTH, MIN_BATCH, MAX_BATCH } from "@/lib/createFormLimits"
 import type { RecipeImportPatch } from "@/lib/recipeImport";
 import type { Task } from "@/api/types";
 
+/** "Bozza veloce · 3 immagini · circa 4 s a immagine": what Genera will start (C2, C4). */
+function generateSummary(task: Task, batch: number): string {
+  const parts = [task.label, batch === 1 ? "1 immagine" : `${batch} immagini`];
+  if (task.duration_hint) parts.push(batch === 1 ? task.duration_hint : `${task.duration_hint} a immagine`);
+  return parts.join(" · ");
+}
+
 const BATCH_OPTIONS = Array.from({ length: MAX_BATCH - MIN_BATCH + 1 }, (_, index) => MIN_BATCH + index);
 
 interface CreateFormProps {
@@ -195,7 +202,7 @@ export function CreateForm({
           {submitLabel}
         </button>
         <p id="generate-summary" className="text-xs text-ink-muted">
-          {selectedTask.label} · {batch === 1 ? "1 immagine" : `${batch} immagini`}
+          {generateSummary(selectedTask, batch)}
         </p>
         {missingReferences ? (
           <p id="references-missing-reason" className="basis-full text-sm text-ink-muted">

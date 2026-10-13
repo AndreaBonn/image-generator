@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { fetchTasks, fetchExamples, createJob, cancelJob } from "@/api/queries";
+import { fetchTasks, fetchExamples, fetchSystem, createJob, cancelJob } from "@/api/queries";
 import { useJobEvents } from "@/api/useJobEvents";
 import { ApiError } from "@/api/errors";
 import { TaskSelector } from "@/components/create/TaskSelector";
@@ -23,6 +23,8 @@ export function CreatePage() {
   // generated anything, so a failed fetch just means no panel, not a page error.
   const examplesQuery = useQuery({ queryKey: ["examples"], queryFn: ({ signal }) => fetchExamples(signal) });
   const showExamples = examplesQuery.data?.first_use === true;
+  // Same cache entry as GpuWarning: which model family is already in GPU memory (C4).
+  const systemQuery = useQuery({ queryKey: ["system"], queryFn: ({ signal }) => fetchSystem(signal) });
   const generateButtonRef = useRef<HTMLButtonElement | null>(null);
 
   const [taskId, setTaskId] = useState<string | null>(null);
@@ -205,7 +207,12 @@ export function CreatePage() {
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
       <div className="flex flex-col gap-4">
         <PageTitle>Crea</PageTitle>
-        <TaskSelector tasks={creationTasks} selectedTaskId={taskId} onSelect={handleSelectTask} />
+        <TaskSelector
+          tasks={creationTasks}
+          selectedTaskId={taskId}
+          onSelect={handleSelectTask}
+          loadedFamily={systemQuery.data?.loaded_family ?? null}
+        />
 
         {selectedTask ? (
           <CreateForm

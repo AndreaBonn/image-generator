@@ -39,6 +39,8 @@ export interface Task {
   id: string;
   label: string;
   description: string;
+  /** Measured typical time, e.g. "circa 4 s"; null when never measured. */
+  duration_hint: string | null;
   group: TaskGroup;
   family: string;
   available: boolean;
