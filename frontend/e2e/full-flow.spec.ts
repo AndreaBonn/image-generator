@@ -125,7 +125,7 @@ test("crea -> galleria -> modifica -> rigenera -> elimina (SPEC § 10.3)", async
     await page.goto("/galleria");
     await cardLocator(page, sourceId).click();
     const dialog = page.getByRole("dialog", { name: "Dettaglio immagine" });
-    await dialog.getByRole("button", { name: "Rigenera" }).click();
+    await dialog.getByRole("button", { name: "Un'altra variante" }).click();
     await expect(dialog.getByText("Nuova generazione avviata.")).toBeVisible();
 
     await expect

@@ -162,7 +162,35 @@ export function GenerationDetailDialog({
               </button>
             ) : null}
 
-            <div className="flex flex-wrap gap-2">
+            <div role="group" aria-label="Continua da qui" className="flex flex-col gap-1">
+              <p aria-hidden="true" className="text-xs font-semibold text-ink-muted">
+                Continua da qui
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <Link
+                  to={`/modifica?source=${detail.id}`}
+                  className="min-h-11 rounded-md bg-accent px-3 py-2 text-sm font-semibold text-accent-ink"
+                >
+                  Modifica
+                </Link>
+                <Link
+                  to={`/migliora?source=${detail.id}`}
+                  className="min-h-11 rounded-md border border-border px-3 py-2 text-sm text-ink"
+                >
+                  Migliora
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => rerunMutation.mutate(true)}
+                  disabled={rerunMutation.isPending}
+                  className="min-h-11 rounded-md border border-border px-3 py-2 text-sm text-ink"
+                >
+                  Un&apos;altra variante
+                </button>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2 border-t border-border pt-3">
               <a
                 href={imageUrl(detail.id)}
                 download
@@ -179,55 +207,37 @@ export function GenerationDetailDialog({
               >
                 {detail.favorite ? "Rimuovi dai preferiti" : "Aggiungi ai preferiti"}
               </button>
-              <button
-                type="button"
-                onClick={() => rerunMutation.mutate(true)}
-                disabled={rerunMutation.isPending}
-                className="min-h-11 rounded-md border border-border px-3 py-2 text-sm text-ink"
-              >
-                Rigenera
-              </button>
-              <Link
-                to={`/modifica?source=${detail.id}`}
-                className="min-h-11 rounded-md border border-border px-3 py-2 text-sm text-ink"
-              >
-                Modifica
-              </Link>
-              <Link
-                to={`/migliora?source=${detail.id}`}
-                className="min-h-11 rounded-md border border-border px-3 py-2 text-sm text-ink"
-              >
-                Migliora
-              </Link>
 
-              {confirmingDelete ? (
-                <span className="flex items-center gap-2 text-sm">
-                  <span className="text-ink">Eliminare questa immagine?</span>
+              <div className="ml-auto">
+                {confirmingDelete ? (
+                  <span className="flex flex-wrap items-center gap-2 text-sm">
+                    <span className="text-ink">Eliminare questa immagine?</span>
+                    <button
+                      type="button"
+                      onClick={() => deleteMutation.mutate()}
+                      disabled={deleteMutation.isPending}
+                      className="min-h-11 rounded-md border border-danger px-3 py-2 text-danger"
+                    >
+                      Sì, elimina
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setConfirmingDelete(false)}
+                      className="min-h-11 rounded-md border border-border px-3 py-2 text-ink-muted"
+                    >
+                      Annulla
+                    </button>
+                  </span>
+                ) : (
                   <button
                     type="button"
-                    onClick={() => deleteMutation.mutate()}
-                    disabled={deleteMutation.isPending}
-                    className="min-h-11 rounded-md border border-danger px-3 py-2 text-danger"
+                    onClick={() => setConfirmingDelete(true)}
+                    className="min-h-11 rounded-md border border-danger px-3 py-2 text-sm text-danger"
                   >
-                    Sì, elimina
+                    Elimina
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => setConfirmingDelete(false)}
-                    className="min-h-11 rounded-md border border-border px-3 py-2 text-ink-muted"
-                  >
-                    Annulla
-                  </button>
-                </span>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => setConfirmingDelete(true)}
-                  className="min-h-11 rounded-md border border-danger px-3 py-2 text-sm text-danger"
-                >
-                  Elimina
-                </button>
-              )}
+                )}
+              </div>
             </div>
 
             {rerunDone ? (

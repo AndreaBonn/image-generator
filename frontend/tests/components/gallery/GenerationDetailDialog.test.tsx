@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -184,6 +184,18 @@ describe("GenerationDetailDialog", () => {
     expect(downloadLink).toHaveAttribute("download");
   });
 
+  it("leads with the ways to continue and keeps Elimina apart (G5)", async () => {
+    vi.spyOn(queries, "fetchGeneration").mockResolvedValue(buildGeneration());
+
+    renderDialog();
+
+    const next = await screen.findByRole("group", { name: "Continua da qui" });
+    expect(within(next).getAllByRole("link").map((link) => link.textContent)).toEqual(["Modifica", "Migliora"]);
+    expect(within(next).getByRole("button", { name: "Un'altra variante" })).toBeInTheDocument();
+    expect(within(next).queryByRole("button", { name: "Elimina" })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Elimina" })).toBeInTheDocument();
+  });
+
   it("links Modifica and Migliora to the editor pages with this generation as source", async () => {
     vi.spyOn(queries, "fetchGeneration").mockResolvedValue(buildGeneration({ id: "gen-5" }));
 
@@ -230,7 +242,7 @@ describe("GenerationDetailDialog", () => {
 
     renderDialog({ generationId: "gen-3" });
 
-    const rerunButton = await screen.findByRole("button", { name: "Rigenera" });
+    const rerunButton = await screen.findByRole("button", { name: "Un'altra variante" });
     expect(screen.queryByRole("status")).not.toBeInTheDocument();
 
     await userEvent.click(rerunButton);
