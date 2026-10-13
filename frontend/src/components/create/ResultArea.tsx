@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import type { JobEvent } from "@/api/types";
 import { imageUrl, setFavorite, rerunGeneration } from "@/api/queries";
 import { useMutation } from "@tanstack/react-query";
@@ -19,6 +19,8 @@ interface ResultAreaProps {
   hasExternalResults?: boolean;
   /** Live preview URL from useJobEvents (A2); omitted by jobs that emit no preview (upscale, background removal). */
   previewUrl?: string | null;
+  /** Replaces the default empty placeholder, e.g. Crea's latest images (C14). */
+  emptyContent?: ReactNode;
 }
 
 /** Progress, slow-job notice, error with retry, and the results grid (SPEC.md § 11.2-11.3). */
@@ -31,6 +33,7 @@ export function ResultArea({
   isRunning,
   hasExternalResults = false,
   previewUrl = null,
+  emptyContent,
 }: ResultAreaProps) {
   const [isSlow, setIsSlow] = useState(false);
   const [displayedPreviewUrl, setDisplayedPreviewUrl] = useState<string | null>(null);
@@ -60,7 +63,8 @@ export function ResultArea({
 
   return (
     <div className="flex w-full flex-col gap-4 lg:sticky lg:top-4 lg:self-start" aria-live="polite">
-      {isEmpty ? (
+      {isEmpty && emptyContent ? emptyContent : null}
+      {isEmpty && !emptyContent ? (
         <div className="flex min-h-64 items-center justify-center rounded-md border border-dashed border-border bg-paper-2 p-6 text-center">
           <p className="text-sm text-ink-muted">Le immagini generate appariranno qui.</p>
         </div>

@@ -7,6 +7,7 @@ import { TaskSelector } from "@/components/create/TaskSelector";
 import { CreateForm } from "@/components/create/CreateForm";
 import { ResultArea } from "@/components/create/ResultArea";
 import { ExamplesPanel, type TryExamplePatch } from "@/components/create/ExamplesPanel";
+import { RecentImages } from "@/components/create/RecentImages";
 import { MAX_PROMPT_LENGTH } from "@/lib/createFormLimits";
 import type { RecipeImportPatch } from "@/lib/recipeImport";
 import type { Task } from "@/api/types";
@@ -279,6 +280,7 @@ export function CreatePage() {
           onRetry={handleSubmit}
           onCancel={() => jobId && cancelMutation.mutate(jobId)}
           hasExternalResults={showExamples}
+          emptyContent={<RecentImages />}
         />
       </div>
     </div>
