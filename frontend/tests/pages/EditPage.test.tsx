@@ -495,6 +495,23 @@ describe("EditPage - modifica con le parole", () => {
     vi.restoreAllMocks();
   });
 
+  it("numbers the steps: what to do, the image, the description (M3)", async () => {
+    vi.spyOn(queries, "fetchTasks").mockResolvedValue([
+      freeEditTask(),
+      buildTask({ id: "inpaint", group: "modifica", label: "Modifica una parte" }),
+      buildTask({ id: "outpaint", group: "modifica", label: "Allarga l'immagine" }),
+    ]);
+    renderEditPage();
+
+    await screen.findByRole("heading", { name: "Passo 3: Descrivi la modifica" });
+    const headings = screen.getAllByRole("heading", { level: 2 });
+    expect(headings).toHaveLength(3);
+    expect(headings[0]).toHaveAccessibleName("Passo 1: Cosa vuoi fare?");
+    expect(headings[1]).toHaveAccessibleName("Passo 2: L'immagine");
+    expect(headings[2]).toHaveAccessibleName("Passo 3: Descrivi la modifica");
+    expect(screen.getByText("Manca l'immagine: aggiungila al passo 2.")).toBeInTheDocument();
+  });
+
   it("lists the free-edit tab first and opens on it (M5)", async () => {
     vi.spyOn(queries, "fetchTasks").mockResolvedValue([
       freeEditTask(),

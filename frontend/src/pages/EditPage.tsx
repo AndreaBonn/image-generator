@@ -18,6 +18,7 @@ import { isMaskEmpty } from "@/lib/mask";
 import { toggleDirection, type OutpaintDirection } from "@/lib/outpaint";
 import type { CreateJobBody, Task } from "@/api/types";
 import { PageTitle } from "@/components/layout/PageTitle";
+import { StepHeading } from "@/components/edit/StepHeading";
 
 const MAX_PROMPT_LENGTH = 2000;
 const INPAINT_REQUIRED_MESSAGE = "Descrivi cosa deve apparire nella zona scelta.";
@@ -122,7 +123,7 @@ function EditWorkspace() {
   const disabledReason = taskUnavailable
     ? selectedTask?.unavailable_reason
     : !hasImage
-      ? "Carica un'immagine prima di generare."
+      ? "Manca l'immagine: aggiungila al passo 2."
       : mode === "inpaint" && maskIsEmpty
         ? "Disegna la zona da modificare prima di generare."
         : mode === "outpaint" && directions.length === 0
@@ -197,8 +198,10 @@ function EditWorkspace() {
       <div className="flex flex-col gap-4">
         <PageTitle>Modifica</PageTitle>
 
+        <StepHeading step={1}>Cosa vuoi fare?</StepHeading>
         <EditModeTabs mode={mode} onSelect={handleModeChange} />
 
+        <StepHeading step={2}>L&apos;immagine</StepHeading>
         {!hasImage ? (
           <ImageInput onFileSelected={(file) => uploadImageMutation.mutate(file)} disabled={sourceGenerationId !== null} />
         ) : null}
@@ -226,6 +229,7 @@ function EditWorkspace() {
         {hasImage && mode === "modifica_libera" ? <img src={image.url} alt="Immagine da modificare" className="h-auto max-h-[50vh] w-full rounded-md object-contain" /> : null}
         {selectedTask ? (
           <>
+            <StepHeading step={3}>Descrivi la modifica</StepHeading>
             <PromptGuide
               promptLanguage={selectedTask.prompt_language}
               tips={selectedTask.prompt_tips}
