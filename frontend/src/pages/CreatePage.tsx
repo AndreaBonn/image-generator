@@ -14,6 +14,7 @@ import type { Task } from "@/api/types";
 import { useReferences } from "@/hooks/useReferences";
 import { PageTitle } from "@/components/layout/PageTitle";
 import { italianFriendlyTask } from "@/lib/taskGroups";
+import { loadCreateDraft, saveCreateDraft } from "@/lib/createDraft";
 
 export function CreatePage() {
   const tasksQuery = useQuery({ queryKey: ["tasks"], queryFn: ({ signal }) => fetchTasks(signal) });
@@ -29,16 +30,19 @@ export function CreatePage() {
   const systemQuery = useQuery({ queryKey: ["system"], queryFn: ({ signal }) => fetchSystem(signal) });
   const generateButtonRef = useRef<HTMLButtonElement | null>(null);
 
-  const [taskId, setTaskId] = useState<string | null>(null);
-  const [prompt, setPrompt] = useState("");
-  const [negativePrompt, setNegativePrompt] = useState("");
-  const [aspectRatio, setAspectRatio] = useState("");
-  const [batch, setBatch] = useState(1);
-  const [styleIds, setStyleIds] = useState<string[]>([]);
-  const [seed, setSeed] = useState<number | null>(null);
-  const [seedLocked, setSeedLocked] = useState(false);
-  const [steps, setSteps] = useState<number | null>(null);
-  const [cfg, setCfg] = useState<number | null>(null);
+  // C16: the form survives a visit to another page (sessionStorage, this tab only).
+  const [draft] = useState(loadCreateDraft);
+  const [taskId, setTaskId] = useState<string | null>(draft?.taskId ?? null);
+  const [prompt, setPrompt] = useState(draft?.prompt ?? "");
+  const [negativePrompt, setNegativePrompt] = useState(draft?.negativePrompt ?? "");
+  const [aspectRatio, setAspectRatio] = useState(draft?.aspectRatio ?? "");
+  const [batch, setBatch] = useState(draft?.batch ?? 1);
+  const [styleIds, setStyleIds] = useState<string[]>(draft?.styleIds ?? []);
+  const [seed, setSeed] = useState<number | null>(draft?.seed ?? null);
+  const [seedLocked, setSeedLocked] = useState(draft?.seedLocked ?? false);
+  const [steps, setSteps] = useState<number | null>(draft?.steps ?? null);
+  const [cfg, setCfg] = useState<number | null>(draft?.cfg ?? null);
+  const [draftRestored, setDraftRestored] = useState(Boolean(draft?.prompt.trim()));
   const [promptError, setPromptError] = useState<string | null>(null);
   const [jobId, setJobId] = useState<string | null>(null);
   const [generationIds, setGenerationIds] = useState<string[]>([]);
@@ -61,7 +65,13 @@ export function CreatePage() {
   } = useReferences(selectedTask);
 
   useEffect(() => {
-    if (!taskId && creationTasks.length > 0) {
+    saveCreateDraft({ taskId, prompt, negativePrompt, aspectRatio, batch, styleIds, seed, seedLocked, steps, cfg });
+  }, [taskId, prompt, negativePrompt, aspectRatio, batch, styleIds, seed, seedLocked, steps, cfg]);
+
+  useEffect(() => {
+    // A restored task that left the catalog falls back to the first available one.
+    const knownTask = taskId !== null && creationTasks.some((t) => t.id === taskId);
+    if (!knownTask && creationTasks.length > 0) {
       const firstAvailable = creationTasks.find((t) => t.available);
       if (firstAvailable) {
         setTaskId(firstAvailable.id);
@@ -70,6 +80,11 @@ export function CreatePage() {
       }
     }
   }, [creationTasks, taskId]);
+
+  function handleClearPrompt() {
+    setPrompt("");
+    setDraftRestored(false);
+  }
 
   const { latest, latestPreviewUrl, isDone } = useJobEvents(jobId);
   const queryClient = useQueryClient();
@@ -254,6 +269,8 @@ export function CreatePage() {
             submitDisabled={jobMutation.isPending || jobId !== null || missingReferences}
             submitLabel={jobMutation.isPending || (jobId !== null && !isDone) ? "Generazione in corso..." : "Genera"}
             generateButtonRef={generateButtonRef}
+            draftRestored={draftRestored && prompt !== ""}
+            onClearPrompt={handleClearPrompt}
             italianAlternative={
               italianTask ? { label: italianTask.label, onSwitch: () => handleSelectTask(italianTask.id) } : null
             }

@@ -61,6 +61,9 @@ interface CreateFormProps {
   generateButtonRef: RefObject<HTMLButtonElement | null>;
   /** Switches to a task that understands Italian (C7); null when none is available. */
   italianAlternative: { label: string; onSwitch: () => void } | null;
+  /** The description came back from a previous visit (C16). */
+  draftRestored: boolean;
+  onClearPrompt: () => void;
 }
 
 /** The whole creation form (prompt, references, params, submit) shown once a
@@ -103,6 +106,8 @@ export function CreateForm({
   submitLabel,
   generateButtonRef,
   italianAlternative,
+  draftRestored,
+  onClearPrompt,
 }: CreateFormProps) {
   return (
     <>
@@ -147,6 +152,14 @@ export function CreateForm({
           {promptError ? (
             <p id="prompt-error" role="alert" className="text-sm text-danger">
               {promptError}
+            </p>
+          ) : null}
+          {draftRestored ? (
+            <p className="flex flex-wrap items-center gap-x-2 text-xs text-ink-muted">
+              <span>Ripresa da dove avevi lasciato.</span>
+              <button type="button" onClick={onClearPrompt} className="min-h-11 text-accent-text underline">
+                Svuota la descrizione
+              </button>
             </p>
           ) : null}
           <PromptExamples examples={selectedTask.prompt_examples} onUseExample={onPromptChange} />

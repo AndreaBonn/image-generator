@@ -14,6 +14,7 @@ describe("CreatePage validation and task list", () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
+    window.sessionStorage.clear();
   });
 
   it("puts a larger description field before the examples (C5)", async () => {
@@ -26,6 +27,23 @@ describe("CreatePage validation and task list", () => {
     const example = screen.getByRole("button", { name: "portrait of an old fisherman, golden hour" });
     expect(textarea).toHaveAttribute("rows", "5");
     expect(textarea.compareDocumentPosition(example) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it("keeps the description when the user leaves Crea and comes back (C16)", async () => {
+    vi.spyOn(queries, "fetchTasks").mockResolvedValue([buildTask()]);
+    const first = renderCreatePage();
+    await userEvent.type(await screen.findByLabelText("Descrivi l'immagine che vuoi"), "a red fox");
+    first.unmount();
+
+    renderCreatePage();
+
+    const textarea = await screen.findByLabelText("Descrivi l'immagine che vuoi");
+    await waitFor(() => expect(textarea).toHaveValue("a red fox"));
+    expect(screen.getByText("Ripresa da dove avevi lasciato.")).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole("button", { name: "Svuota la descrizione" }));
+    expect(textarea).toHaveValue("");
+    expect(screen.queryByText("Ripresa da dove avevi lasciato.")).not.toBeInTheDocument();
   });
 
   it("keeps Genera in a sticky bar that sums up what will start (C2)", async () => {
