@@ -84,3 +84,11 @@ def test_unexpected_error_hides_internal_information() -> None:
             "details": [],
         }
     }
+
+
+def test_engine_unavailable_message_names_the_menu_restart() -> None:
+    message = errors.EngineUnavailableError().message
+
+    assert "non risponde" in message
+    assert '"Chiudi Image Generator"' in message
+    assert "scripts/start.sh" in message

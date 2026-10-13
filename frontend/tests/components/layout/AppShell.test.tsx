@@ -41,7 +41,7 @@ describe("AppShell", () => {
 
     renderShell();
 
-    expect(await screen.findByRole("alert")).toHaveTextContent("Il motore non risponde.");
+    expect(await screen.findByRole("alert")).toHaveTextContent("Il motore che crea le immagini si è fermato.");
     expect(screen.getByRole("navigation", { name: "Navigazione principale" })).toBeInTheDocument();
   });
 });

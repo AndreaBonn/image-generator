@@ -33,13 +33,24 @@ describe("EngineBanner", () => {
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });
 
-  it("warns with the start command when the engine is unreachable", async () => {
+  it("tells how to restart from the applications menu when the engine is unreachable (N2)", async () => {
     vi.spyOn(queries, "fetchHealth").mockResolvedValue({ backend: "ok", engine: "unreachable" });
 
     renderBanner();
 
     const alert = await screen.findByRole("alert");
-    expect(alert).toHaveTextContent("Il motore non risponde.");
+    expect(alert).toHaveTextContent("Il motore che crea le immagini si è fermato.");
+    expect(alert).toHaveTextContent('scegli "Chiudi Image Generator", poi riapri "Image Generator"');
+    expect(alert).toHaveTextContent("Questo avviso sparisce da solo quando il motore riparte.");
+  });
+
+  it("keeps the terminal commands as a secondary route (N2)", async () => {
+    vi.spyOn(queries, "fetchHealth").mockResolvedValue({ backend: "ok", engine: "unreachable" });
+
+    renderBanner();
+
+    await screen.findByRole("alert");
+    expect(screen.getByText("./scripts/stop.sh")).toBeInTheDocument();
     expect(screen.getByText("./scripts/start.sh")).toBeInTheDocument();
   });
 

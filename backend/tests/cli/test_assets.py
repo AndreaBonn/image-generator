@@ -54,7 +54,7 @@ def test_run_exits_1_with_message_when_engine_is_down(capsys: pytest.CaptureFixt
     exit_code = run(["styles"], engine_factory=_fake_factory(DownEngine(step_delay_s=0)))
 
     assert exit_code == 1
-    assert "motore non risponde" in capsys.readouterr().err
+    assert "non risponde" in capsys.readouterr().err
 
 
 def test_run_generates_only_the_missing_styles() -> None:
@@ -121,7 +121,7 @@ def test_run_examples_exits_1_with_message_when_engine_is_down(
     exit_code = run(["examples"], engine_factory=_fake_factory(DownEngine(step_delay_s=0)))
 
     assert exit_code == 1
-    assert "motore non risponde" in capsys.readouterr().err
+    assert "non risponde" in capsys.readouterr().err
 
 
 def test_run_examples_writes_two_entries_per_available_crea_task() -> None:

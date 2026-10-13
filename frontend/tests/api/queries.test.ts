@@ -379,7 +379,7 @@ describe("api/queries", () => {
 
   it("fetchGenerations propagates a backend error through the paginated envelope path", async () => {
     global.fetch = vi.fn().mockResolvedValue(
-      errorJson(503, "ENGINE_UNAVAILABLE", "Il motore non risponde. Avvialo con scripts/start.sh."),
+      errorJson(503, "ENGINE_UNAVAILABLE", 'Il motore che crea le immagini non risponde: dal menu delle applicazioni scegli "Chiudi Image Generator" e poi riaprilo, oppure avvialo con scripts/start.sh.'),
     );
     const error = await fetchGenerations({}).catch((e: unknown) => e);
     expect(error).toBeInstanceOf(ApiError);

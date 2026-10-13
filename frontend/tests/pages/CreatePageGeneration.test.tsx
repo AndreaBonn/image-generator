@@ -26,12 +26,12 @@ describe("CreatePage generation error", () => {
     const source = await waitFor(() => latestEventSource());
     source.emit("failed", {
       code: "ENGINE_UNAVAILABLE",
-      message: "Il motore non risponde. Avvialo con scripts/start.sh.",
+      message: 'Il motore che crea le immagini non risponde: dal menu delle applicazioni scegli "Chiudi Image Generator" e poi riaprilo, oppure avvialo con scripts/start.sh.',
     });
 
     await waitFor(() =>
       expect(
-        screen.getByText("Il motore non risponde. Avvialo con scripts/start.sh."),
+        screen.getByText('Il motore che crea le immagini non risponde: dal menu delle applicazioni scegli "Chiudi Image Generator" e poi riaprilo, oppure avvialo con scripts/start.sh.'),
       ).toBeInTheDocument(),
     );
     expect(textarea).toHaveValue("portrait of an old fisherman");

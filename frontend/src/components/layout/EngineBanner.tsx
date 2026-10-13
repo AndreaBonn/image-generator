@@ -20,14 +20,16 @@ export function EngineBanner() {
   }
 
   return (
-    <div
-      role="alert"
-      className="flex flex-wrap items-center gap-2 bg-danger px-4 py-2 text-sm font-medium text-paper"
-    >
-      <span>Il motore non risponde.</span>
-      <span>
-        Avvialo da terminale con <code className="rounded bg-paper/20 px-1">./scripts/start.sh</code>.
-      </span>
+    <div role="alert" className="flex flex-col gap-1 bg-danger px-4 py-2 text-sm text-paper">
+      <p className="font-semibold">Il motore che crea le immagini si è fermato.</p>
+      <p>
+        Per riavviarlo, dal menu delle applicazioni scegli "Chiudi Image Generator", poi riapri
+        "Image Generator". Questo avviso sparisce da solo quando il motore riparte.
+      </p>
+      <p className="text-xs">
+        Da terminale: <code className="rounded bg-paper/20 px-1">./scripts/stop.sh</code>, poi{" "}
+        <code className="rounded bg-paper/20 px-1">./scripts/start.sh</code>.
+      </p>
     </div>
   );
 }

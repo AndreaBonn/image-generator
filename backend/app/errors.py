@@ -42,7 +42,10 @@ class ModelNotInstalledError(AppError):
 class EngineUnavailableError(AppError):
     code = "ENGINE_UNAVAILABLE"
     http_status = 503
-    default_message = "Il motore non risponde. Avvialo con scripts/start.sh."
+    default_message = (
+        "Il motore che crea le immagini non risponde: dal menu delle applicazioni scegli "
+        '"Chiudi Image Generator" e poi riaprilo, oppure avvialo con scripts/start.sh.'
+    )
 
 
 class EngineRejectedError(AppError):
