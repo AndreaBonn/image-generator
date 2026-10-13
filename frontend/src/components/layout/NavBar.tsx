@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { useTheme } from "@/hooks/useTheme";
 import { CreateIcon, EditIcon, GalleryIcon, ImproveIcon, SettingsIcon } from "@/components/layout/NavIcons";
@@ -18,7 +19,8 @@ function linkClassName({ isActive }: { isActive: boolean }): string {
     : `${base} text-ink-muted hover:bg-paper-2 hover:text-ink`;
 }
 
-export function NavBar() {
+/** `status` is a slot for app-wide state such as running jobs (N1), filled by AppShell. */
+export function NavBar({ status = null }: { status?: ReactNode }) {
   const { theme, toggleTheme } = useTheme();
 
   return (
@@ -37,6 +39,7 @@ export function NavBar() {
           </li>
         ))}
       </ul>
+      {status}
       <Link
         to="/guida"
         aria-label="Come funziona"

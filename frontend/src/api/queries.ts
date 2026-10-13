@@ -16,7 +16,13 @@ import type {
   TrashSummary,
   UploadKind,
   UploadResponse,
+  ActiveJob,
 } from "@/api/types";
+
+/** Jobs the backend is running now, from any page (N1). */
+export function fetchActiveJobs(signal?: AbortSignal): Promise<ActiveJob[]> {
+  return apiClient.get<ActiveJob[]>("/jobs/active", signal);
+}
 
 export function fetchHealth(signal?: AbortSignal): Promise<HealthStatus> {
   return apiClient.get<HealthStatus>("/health", signal);

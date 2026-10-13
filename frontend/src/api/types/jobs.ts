@@ -55,3 +55,10 @@ export type JobEvent =
   | { type: "completed"; generation_ids: string[] }
   | { type: "failed"; code: string; message: string }
   | { type: "cancelled" };
+
+/** One entry of GET /jobs/active: a job this backend process is running now (N1). */
+export interface ActiveJob {
+  job_id: string;
+  task_id: string;
+  status: string;
+}
