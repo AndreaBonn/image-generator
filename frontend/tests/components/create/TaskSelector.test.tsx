@@ -5,6 +5,12 @@ import { TaskSelector } from "@/components/create/TaskSelector";
 import { buildTask } from "../../fixtures/task";
 
 describe("TaskSelector", () => {
+  it("relies on the card descriptions, without a ? button (S3)", () => {
+    render(<TaskSelector tasks={[buildTask({})]} selectedTaskId={null} onSelect={vi.fn()} />);
+
+    expect(screen.queryByRole("button", { name: /^Informazioni/ })).not.toBeInTheDocument();
+  });
+
   it("asks what to create instead of naming a 'compito'", () => {
     render(<TaskSelector tasks={[buildTask({})]} selectedTaskId={null} onSelect={vi.fn()} />);
 

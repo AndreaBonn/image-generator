@@ -8,8 +8,7 @@ import { RecipeImport } from "@/components/create/RecipeImport";
 import { ReferencesSection } from "@/components/create/ReferencesSection";
 import type { ReferenceItem } from "@/components/create/ReferencePicker";
 import { GpuWarning } from "@/components/layout/GpuWarning";
-import { InfoTip } from "@/components/ui/InfoTip";
-import { HELP_TEXTS } from "@/lib/helpTexts";
+import { FIELD_HINTS } from "@/lib/helpTexts";
 import { MAX_PROMPT_LENGTH, MIN_BATCH, MAX_BATCH } from "@/lib/createFormLimits";
 import type { RecipeImportPatch } from "@/lib/recipeImport";
 import type { Task } from "@/api/types";
@@ -142,15 +141,18 @@ export function CreateForm({
       <AspectRatioPicker ratios={selectedTask.aspect_ratios} value={aspectRatio} onChange={onAspectRatioChange} />
 
       <div className="flex flex-col gap-1 text-sm text-ink">
-        <span className="flex items-center gap-1">
-          <label htmlFor="batch-input">Numero di immagini</label>
-          <InfoTip text={HELP_TEXTS.batch} label="Informazioni: Numero di immagini" />
-        </span>
+        <label htmlFor="batch-input" className="font-semibold">
+          Numero di immagini
+        </label>
+        <p id="batch-hint" className="text-xs text-ink-muted">
+          {FIELD_HINTS.batch}
+        </p>
         <input
           id="batch-input"
           type="number"
           min={MIN_BATCH}
           max={MAX_BATCH}
+          aria-describedby="batch-hint"
           value={batch}
           onChange={(event) => onBatchChange(Math.min(MAX_BATCH, Math.max(MIN_BATCH, Number(event.target.value))))}
           className="min-h-11 w-24 rounded-md border border-border bg-paper-2 px-2 py-1"

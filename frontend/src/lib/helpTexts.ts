@@ -12,14 +12,6 @@
  */
 export const HELP_TEXTS = {
   // Crea / Modifica / Migliora: condiviso
-  taskSelector:
-    "Il tipo di immagine che vuoi creare o modificare. Ogni compito usa un modello diverso, pensato per quel risultato.",
-  batch:
-    "Quante immagini generare insieme con la stessa descrizione. Più immagini danno più scelta, ma la generazione richiede più tempo.",
-  aspectRatio:
-    "La forma dell'immagine finale: quadrata, verticale o orizzontale. Scegli il formato più adatto a dove la userai.",
-  styles:
-    "Applica uno stile visivo predefinito al risultato, come acquerello, foto o fumetto. Puoi scegliere al massimo 5 stili insieme.",
   seed: "Il numero che determina la parte casuale del risultato. Con lo stesso codice e la stessa descrizione ottieni un'immagine quasi identica; lascialo su Casuale per avere ogni volta un risultato diverso.",
   seedLock:
     "Tiene il codice attuale anche nella prossima generazione: utile per confrontare piccole modifiche alla descrizione partendo dallo stesso punto.",
@@ -89,3 +81,13 @@ export const HELP_TEXTS = {
 } as const;
 
 export type HelpTextKey = keyof typeof HELP_TEXTS;
+
+/**
+ * One-line hints shown in plain sight under the main Crea fields, where every
+ * user needs the explanation (S3): a "?" to open one by one hides it instead.
+ */
+export const FIELD_HINTS = {
+  aspectRatio: "La forma dell'immagine finale.",
+  batch: "Più immagini danno più scelta, ma richiedono più tempo.",
+  styles: "Facoltativi: danno un aspetto preciso, come acquerello o foto.",
+} as const;

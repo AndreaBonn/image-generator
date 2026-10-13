@@ -20,6 +20,15 @@ const otherRatio: AspectRatio = {
 };
 
 describe("AspectRatioPicker", () => {
+  it("explains the field in plain text instead of a ? button (S3)", () => {
+    render(<AspectRatioPicker ratios={[featuredRatio]} value={featuredRatio.value} onChange={vi.fn()} />);
+
+    expect(screen.getByRole("group", { name: "Proporzioni" })).toHaveAccessibleDescription(
+      "La forma dell'immagine finale.",
+    );
+    expect(screen.queryByRole("button", { name: /^Informazioni/ })).not.toBeInTheDocument();
+  });
+
   it("shows only the featured ratios up front (SPEC.md § 3.4)", () => {
     render(
       <AspectRatioPicker ratios={[featuredRatio, otherRatio]} value={featuredRatio.value} onChange={vi.fn()} />,

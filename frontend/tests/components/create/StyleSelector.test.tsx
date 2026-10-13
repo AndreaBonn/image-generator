@@ -35,6 +35,14 @@ describe("StyleSelector", () => {
     vi.useRealTimers();
   });
 
+  it("explains the styles in plain text instead of a ? button (S3)", async () => {
+    vi.spyOn(queries, "fetchStyles").mockResolvedValue([]);
+    renderStyleSelector([]);
+
+    expect(await screen.findByText("Facoltativi: danno un aspetto preciso, come acquerello o foto.")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /^Informazioni/ })).not.toBeInTheDocument();
+  });
+
   it("shows the placeholder when no style is selected", async () => {
     vi.spyOn(queries, "fetchStyles").mockResolvedValue([]);
     renderStyleSelector([]);

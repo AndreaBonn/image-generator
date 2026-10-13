@@ -3,8 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchStyles } from "@/api/queries";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import { pickVisibleStyles } from "@/lib/styles";
-import { InfoTip } from "@/components/ui/InfoTip";
-import { HELP_TEXTS } from "@/lib/helpTexts";
+import { FIELD_HINTS } from "@/lib/helpTexts";
 
 const MAX_STYLES = 5;
 const CHIP_CLASS = "flex min-h-11 items-center gap-1.5 rounded-md border px-3 py-2 text-xs font-medium";
@@ -78,11 +77,11 @@ export function StyleSelector({ selected, onChange }: StyleSelectorProps) {
   const styleById = useMemo(() => new Map(styles.map((style) => [style.id, style])), [styles]);
 
   return (
-    <fieldset className="flex flex-col gap-2">
-      <legend className="flex items-center gap-1 text-sm font-semibold text-ink">
-        Stili (massimo {MAX_STYLES})
-        <InfoTip text={HELP_TEXTS.styles} label="Informazioni: Stili" />
-      </legend>
+    <fieldset className="flex flex-col gap-2" aria-describedby="styles-hint">
+      <legend className="text-sm font-semibold text-ink">Stili (massimo {MAX_STYLES})</legend>
+      <p id="styles-hint" className="-mt-1 text-xs text-ink-muted">
+        {FIELD_HINTS.styles}
+      </p>
 
       {selected.length > 0 ? (
         <div className="flex flex-wrap gap-2" aria-label="Stili scelti">

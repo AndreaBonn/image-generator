@@ -16,6 +16,15 @@ describe("CreatePage validation and task list", () => {
     vi.restoreAllMocks();
   });
 
+  it("explains the number of images in plain text (S3)", async () => {
+    vi.spyOn(queries, "fetchTasks").mockResolvedValue([buildTask()]);
+    renderCreatePage();
+
+    await screen.findByRole("button", { name: "Genera" });
+    expect(screen.getByText("Più immagini danno più scelta, ma richiedono più tempo.")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Informazioni: Numero di immagini" })).not.toBeInTheDocument();
+  });
+
   it("blocks submission with an empty prompt and never calls createJob", async () => {
     vi.spyOn(queries, "fetchTasks").mockResolvedValue([buildTask()]);
     const createJobSpy = vi.spyOn(queries, "createJob");

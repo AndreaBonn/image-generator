@@ -1,7 +1,6 @@
 import { useState } from "react";
 import type { AspectRatio } from "@/api/types";
-import { InfoTip } from "@/components/ui/InfoTip";
-import { HELP_TEXTS } from "@/lib/helpTexts";
+import { FIELD_HINTS } from "@/lib/helpTexts";
 
 interface AspectRatioPickerProps {
   ratios: AspectRatio[];
@@ -16,11 +15,11 @@ export function AspectRatioPicker({ ratios, value, onChange }: AspectRatioPicker
   const others = ratios.filter((r) => !r.featured);
 
   return (
-    <fieldset className="flex flex-col gap-2">
-      <legend className="flex items-center gap-1 text-sm font-semibold text-ink">
-        Proporzioni
-        <InfoTip text={HELP_TEXTS.aspectRatio} label="Informazioni: Proporzioni" />
-      </legend>
+    <fieldset className="flex flex-col gap-2" aria-describedby="aspect-ratio-hint">
+      <legend className="text-sm font-semibold text-ink">Proporzioni</legend>
+      <p id="aspect-ratio-hint" className="-mt-1 text-xs text-ink-muted">
+        {FIELD_HINTS.aspectRatio}
+      </p>
       <div className="flex flex-wrap gap-2">
         {featured.map((ratio) => (
           <RatioButton key={ratio.value} ratio={ratio} selected={ratio.value === value} onChange={onChange} />
