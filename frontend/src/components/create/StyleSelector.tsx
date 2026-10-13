@@ -1,8 +1,9 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchStyles } from "@/api/queries";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import { pickVisibleStyles } from "@/lib/styles";
+import type { Style } from "@/api/types";
 import { FIELD_HINTS } from "@/lib/helpTexts";
 
 const MAX_STYLES = 5;
@@ -57,6 +58,7 @@ function StyleThumbnail({
 /** SDXL-only style picker: selected styles, search, max 5 selected (SPEC.md § 3.5). */
 export function StyleSelector({ selected, onChange }: StyleSelectorProps) {
   const [query, setQuery] = useState("");
+  const [browsing, setBrowsing] = useState(false);
   const debouncedQuery = useDebouncedValue(query, 300);
   const { data: styles = [] } = useQuery({
     queryKey: ["styles", debouncedQuery],
@@ -78,7 +80,7 @@ export function StyleSelector({ selected, onChange }: StyleSelectorProps) {
 
   return (
     <fieldset className="flex flex-col gap-2" aria-describedby="styles-hint">
-      <legend className="text-sm font-semibold text-ink">Stili (massimo {MAX_STYLES})</legend>
+      <legend className="text-sm font-semibold text-ink">Stili (facoltativi, massimo {MAX_STYLES})</legend>
       <p id="styles-hint" className="-mt-1 text-xs text-ink-muted">
         {FIELD_HINTS.styles}
       </p>
@@ -106,6 +108,48 @@ export function StyleSelector({ selected, onChange }: StyleSelectorProps) {
         <p className="text-xs text-ink-muted">Nessuno stile scelto.</p>
       )}
 
+      <button
+        type="button"
+        aria-expanded={browsing}
+        onClick={() => setBrowsing((open) => !open)}
+        className="min-h-11 w-fit rounded-md border border-border bg-paper-2 px-3 py-2 text-sm text-ink hover:bg-paper-3"
+      >
+        {browsing ? "Chiudi il catalogo" : "Sfoglia tutti gli stili"}
+      </button>
+
+      {browsing ? (
+        <StyleCatalog
+          query={query}
+          onQueryChange={setQuery}
+          visible={visible}
+          atLimit={atLimit}
+          onAdd={(styleId) => onChange([...selected, styleId])}
+          footer={
+            trimmedQuery === "" ? (
+              <p className="text-xs text-ink-muted">{unselectedStyles.length} stili</p>
+            ) : hiddenCount > 0 ? (
+              <p className="text-xs text-ink-muted">Altri {hiddenCount} risultati: affina la ricerca.</p>
+            ) : null
+          }
+        />
+      ) : null}
+    </fieldset>
+  );
+}
+
+interface StyleCatalogProps {
+  query: string;
+  onQueryChange: (query: string) => void;
+  visible: Style[];
+  atLimit: boolean;
+  onAdd: (styleId: string) => void;
+  footer: ReactNode;
+}
+
+/** Search box and thumbnail grid, opened on demand (C9) instead of always taking half the page. */
+function StyleCatalog({ query, onQueryChange, visible, atLimit, onAdd, footer }: StyleCatalogProps) {
+  return (
+    <>
       <label htmlFor="style-search" className="sr-only">
         Cerca uno stile
       </label>
@@ -113,7 +157,7 @@ export function StyleSelector({ selected, onChange }: StyleSelectorProps) {
         id="style-search"
         type="search"
         value={query}
-        onChange={(event) => setQuery(event.target.value)}
+        onChange={(event) => onQueryChange(event.target.value)}
         placeholder="Cerca fra tutti gli stili (es. watercolor, anime, photo)..."
         className="min-h-11 rounded-md border border-border bg-paper-2 px-2 py-1 text-sm text-ink"
       />
@@ -125,7 +169,7 @@ export function StyleSelector({ selected, onChange }: StyleSelectorProps) {
             type="button"
             aria-pressed="false"
             disabled={atLimit}
-            onClick={() => onChange([...selected, style.id])}
+            onClick={() => onAdd(style.id)}
             className={CARD_CLASS}
           >
             <StyleThumbnail previewUrl={style.preview_url} label={style.name} size="lg" />
@@ -133,11 +177,7 @@ export function StyleSelector({ selected, onChange }: StyleSelectorProps) {
           </button>
         ))}
       </div>
-      {trimmedQuery === "" ? (
-        <p className="text-xs text-ink-muted">{unselectedStyles.length} stili</p>
-      ) : hiddenCount > 0 ? (
-        <p className="text-xs text-ink-muted">Altri {hiddenCount} risultati: affina la ricerca.</p>
-      ) : null}
-    </fieldset>
+      {footer}
+    </>
   );
 }

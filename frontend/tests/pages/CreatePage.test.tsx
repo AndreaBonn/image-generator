@@ -164,7 +164,7 @@ describe("CreatePage validation and task list", () => {
     renderCreatePage();
 
     await screen.findByLabelText("Descrivi l'immagine che vuoi");
-    expect(screen.queryByText(/Stili \(massimo/)).not.toBeInTheDocument();
+    expect(screen.queryByRole("group", { name: /^Stili/ })).not.toBeInTheDocument();
   });
 
   it("offers the number of images as four buttons and sends the chosen one (C11)", async () => {

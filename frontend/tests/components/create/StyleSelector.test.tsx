@@ -26,6 +26,10 @@ function renderStyleSelector(selected: string[], onChange = vi.fn()) {
   return onChange;
 }
 
+async function openCatalog() {
+  await userEvent.click(screen.getByRole("button", { name: "Sfoglia tutti gli stili" }));
+}
+
 describe("StyleSelector", () => {
   beforeEach(() => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
@@ -71,6 +75,23 @@ describe("StyleSelector", () => {
     expect(onChange).toHaveBeenCalledWith(["fooocus-sharp"]);
   });
 
+  it("keeps the catalog closed until the user asks to browse it (C9)", async () => {
+    vi.spyOn(queries, "fetchStyles").mockResolvedValue([buildStyle({ id: "watercolor", name: "SAI Watercolor" })]);
+    renderStyleSelector([]);
+    await vi.advanceTimersByTimeAsync(300);
+
+    expect(screen.getByRole("group", { name: "Stili (facoltativi, massimo 5)" })).toBeInTheDocument();
+    expect(screen.queryByLabelText("Cerca uno stile")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "SAI Watercolor" })).not.toBeInTheDocument();
+
+    await openCatalog();
+    expect(screen.getByLabelText("Cerca uno stile")).toBeInTheDocument();
+    expect(await screen.findByRole("button", { name: "SAI Watercolor" })).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole("button", { name: "Chiudi il catalogo" }));
+    expect(screen.queryByLabelText("Cerca uno stile")).not.toBeInTheDocument();
+  });
+
   it("fetches styles on mount with an empty query and lists every unselected style, browsable without a query (SPEC.md § O9)", async () => {
     const fetchStyles = vi
       .spyOn(queries, "fetchStyles")
@@ -79,6 +100,7 @@ describe("StyleSelector", () => {
         buildStyle({ id: "watercolor", name: "SAI Watercolor" }),
       ]);
     renderStyleSelector([]);
+    await openCatalog();
     await vi.advanceTimersByTimeAsync(300);
 
     await waitFor(() => expect(fetchStyles).toHaveBeenCalledWith("", expect.anything()));
@@ -89,6 +111,7 @@ describe("StyleSelector", () => {
   it("adds a style to the selection when an unselected style is clicked", async () => {
     vi.spyOn(queries, "fetchStyles").mockResolvedValue([buildStyle({ id: "fooocus-enhance", name: "Fooocus Enhance" })]);
     const onChange = renderStyleSelector(["fooocus-sharp"]);
+    await openCatalog();
     await vi.advanceTimersByTimeAsync(300);
 
     await userEvent.click(await screen.findByRole("button", { name: "Fooocus Enhance" }));
@@ -98,6 +121,7 @@ describe("StyleSelector", () => {
   it("disables unselected style buttons once 5 styles are selected (SPEC.md § 3.5 max)", async () => {
     vi.spyOn(queries, "fetchStyles").mockResolvedValue([buildStyle({ id: "fooocus-enhance", name: "Fooocus Enhance" })]);
     renderStyleSelector(["s1", "s2", "s3", "s4", "s5"]);
+    await openCatalog();
     await vi.advanceTimersByTimeAsync(300);
 
     expect(await screen.findByRole("button", { name: "Fooocus Enhance" })).toBeDisabled();
@@ -106,6 +130,7 @@ describe("StyleSelector", () => {
   it("debounces the search and refetches with the trimmed query", async () => {
     const fetchStyles = vi.spyOn(queries, "fetchStyles").mockResolvedValue([]);
     renderStyleSelector([]);
+    await openCatalog();
     await vi.advanceTimersByTimeAsync(300);
     fetchStyles.mockClear();
 
@@ -119,6 +144,7 @@ describe("StyleSelector", () => {
     const manyStyles = Array.from({ length: 30 }, (_, i) => buildStyle({ id: `anime-${i}`, name: `Anime ${i}` }));
     vi.spyOn(queries, "fetchStyles").mockResolvedValue(manyStyles);
     renderStyleSelector([]);
+    await openCatalog();
     await vi.advanceTimersByTimeAsync(300);
 
     fireEvent.change(screen.getByLabelText("Cerca uno stile"), { target: { value: "anime" } });
@@ -131,6 +157,7 @@ describe("StyleSelector", () => {
     const manyStyles = Array.from({ length: 30 }, (_, i) => buildStyle({ id: `style-${i}`, name: `Style ${i}` }));
     vi.spyOn(queries, "fetchStyles").mockResolvedValue(manyStyles);
     renderStyleSelector([]);
+    await openCatalog();
     await vi.advanceTimersByTimeAsync(300);
 
     expect(await screen.findByText("30 stili")).toBeInTheDocument();
@@ -143,6 +170,7 @@ describe("StyleSelector", () => {
       buildStyle({ id: "fooocus-enhance", name: "Fooocus Enhance", preview_url: "/api/v1/styles/previews/abc123" }),
     ]);
     renderStyleSelector([]);
+    await openCatalog();
     await vi.advanceTimersByTimeAsync(300);
 
     const button = await screen.findByRole("button", { name: "Fooocus Enhance" });
@@ -159,6 +187,7 @@ describe("StyleSelector", () => {
       buildStyle({ id: "fooocus-enhance", name: "Fooocus Enhance", preview_url: null }),
     ]);
     renderStyleSelector([]);
+    await openCatalog();
     await vi.advanceTimersByTimeAsync(300);
 
     const button = await screen.findByRole("button", { name: "Fooocus Enhance" });
@@ -171,6 +200,7 @@ describe("StyleSelector", () => {
       buildStyle({ id: "fooocus-enhance", name: "Fooocus Enhance", preview_url: "/api/v1/styles/previews/abc123" }),
     ]);
     const onChange = renderStyleSelector([]);
+    await openCatalog();
     await vi.advanceTimersByTimeAsync(300);
 
     await userEvent.click(await screen.findByRole("button", { name: "Fooocus Enhance" }));
