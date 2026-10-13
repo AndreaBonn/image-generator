@@ -49,8 +49,9 @@ async def _wait_terminal(client: httpx.AsyncClient) -> dict[str, Any]:
     async with asyncio.timeout(delay=10):
         while True:
             status: dict[str, Any] = (await client.get(url="/api/v1/assets/generation")).json()
-            if status["data"]["status"] in TERMINAL:
-                return status["data"]
+            data: dict[str, Any] = status["data"]
+            if data["status"] in TERMINAL:
+                return data
             await asyncio.sleep(delay=0.01)
 
 
