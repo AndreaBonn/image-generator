@@ -31,6 +31,24 @@ describe("NavBar", () => {
     );
   });
 
+  it("gives every nav item a decorative icon, keeping the text as its name (S5)", () => {
+    renderNavBar();
+
+    for (const name of ["Crea", "Modifica", "Migliora", "Galleria", "Impostazioni"]) {
+      const icon = screen.getByRole("link", { name }).querySelector("svg");
+      expect(icon).not.toBeNull();
+      expect(icon).toHaveAttribute("aria-hidden", "true");
+    }
+  });
+
+  it("lays the five items out as an evenly split row on phones instead of a scroller (S5)", () => {
+    renderNavBar();
+
+    const list = screen.getByRole("list");
+    expect(list).toHaveClass("grid", "grid-cols-5");
+    expect(list).not.toHaveClass("overflow-x-auto");
+  });
+
   it("marks only the link matching the current route as active", () => {
     renderNavBar("/modifica");
 
