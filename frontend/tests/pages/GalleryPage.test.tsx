@@ -128,7 +128,7 @@ describe("GalleryPage", () => {
     renderGalleryPage();
     await screen.findByText(/Non hai ancora generato nessuna immagine/);
 
-    await userEvent.click(screen.getByLabelText("Solo preferiti"));
+    await userEvent.click(screen.getByRole("button", { name: "★ Preferite" }));
 
     await waitFor(() =>
       expect(fetchGenerationsSpy).toHaveBeenLastCalledWith(
@@ -161,7 +161,11 @@ describe("GalleryPage", () => {
     expect(await screen.findByRole("img")).toBeInTheDocument();
   });
 
-  it("re-queries with the chosen task filter", async () => {
+  it("re-queries with the task ids of the chosen kind of work (G3)", async () => {
+    vi.spyOn(queries, "fetchTasks").mockResolvedValue([
+      buildTask(),
+      buildTask({ id: "upscale", group: "migliora", label: "Ingrandisci" }),
+    ]);
     const fetchGenerationsSpy = vi
       .spyOn(queries, "fetchGenerations")
       .mockResolvedValue({ items: [], meta: meta() });
@@ -169,11 +173,11 @@ describe("GalleryPage", () => {
     renderGalleryPage();
     await screen.findByText(/Non hai ancora generato nessuna immagine/);
 
-    await userEvent.selectOptions(screen.getByLabelText("Compito"), "qualita");
+    await userEvent.click(screen.getByRole("button", { name: "Migliorate" }));
 
     await waitFor(() =>
       expect(fetchGenerationsSpy).toHaveBeenLastCalledWith(
-        expect.objectContaining({ taskId: "qualita" }),
+        expect.objectContaining({ taskIds: ["upscale"] }),
       ),
     );
   });

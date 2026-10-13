@@ -1,17 +1,12 @@
 import { describe, expect, it, vi } from "vitest";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { GalleryFilters } from "@/components/gallery/GalleryFilters";
-import { buildTask } from "../../fixtures/task";
 
 function baseProps() {
   return {
-    tasks: [
-      buildTask({ id: "qualita", label: "Immagine di qualità" }),
-      buildTask({ id: "veloce", label: "Immagine veloce" }),
-    ],
-    taskId: "",
-    onTaskIdChange: vi.fn(),
+    kind: "" as const,
+    onKindChange: vi.fn(),
     favoriteOnly: false,
     onFavoriteOnlyChange: vi.fn(),
     searchInput: "",
@@ -26,70 +21,61 @@ describe("GalleryFilters", () => {
     expect(screen.getByLabelText("Cerca nella descrizione")).toBeInTheDocument();
   });
 
-  it("lists every task plus the all-tasks default option", () => {
+  it("offers quick filters by kind of work instead of a task menu (G3)", () => {
     render(<GalleryFilters {...baseProps()} />);
 
-    expect(screen.getByRole("option", { name: "Tutti i compiti" })).toBeInTheDocument();
-    expect(screen.getByRole("option", { name: "Immagine di qualità" })).toBeInTheDocument();
-    expect(screen.getByRole("option", { name: "Immagine veloce" })).toBeInTheDocument();
+    const group = screen.getByRole("group", { name: "Tipo di lavoro" });
+    const names = within(group)
+      .getAllByRole("button")
+      .map((button) => button.textContent);
+    expect(names).toEqual(["Tutte", "Create", "Modificate", "Migliorate"]);
+    expect(within(group).getByRole("button", { name: "Tutte" })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.queryByRole("combobox")).not.toBeInTheDocument();
   });
 
-  it("reflects the current taskId in the select value", () => {
-    render(<GalleryFilters {...baseProps()} taskId="veloce" />);
+  it("marks the current kind as pressed", () => {
+    render(<GalleryFilters {...baseProps()} kind="modifica" />);
 
-    expect(screen.getByRole("combobox", { name: "Compito" })).toHaveValue("veloce");
+    expect(screen.getByRole("button", { name: "Modificate" })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("button", { name: "Tutte" })).toHaveAttribute("aria-pressed", "false");
   });
 
-  it("calls onTaskIdChange with the selected task id", async () => {
-    const onTaskIdChange = vi.fn();
-    render(<GalleryFilters {...baseProps()} onTaskIdChange={onTaskIdChange} />);
+  it("calls onKindChange with the chosen group", async () => {
+    const onKindChange = vi.fn();
+    render(<GalleryFilters {...baseProps()} onKindChange={onKindChange} />);
 
-    await userEvent.selectOptions(screen.getByRole("combobox", { name: "Compito" }), "veloce");
+    await userEvent.click(screen.getByRole("button", { name: "Migliorate" }));
+    await userEvent.click(screen.getByRole("button", { name: "Tutte" }));
 
-    expect(onTaskIdChange).toHaveBeenCalledWith("veloce");
+    expect(onKindChange.mock.calls).toEqual([["migliora"], [""]]);
   });
 
-  it("checks the favorite-only checkbox when favoriteOnly is true", () => {
+  it("shows the favorites filter as a pressed toggle when active", () => {
     render(<GalleryFilters {...baseProps()} favoriteOnly={true} />);
 
-    expect(screen.getByLabelText("Solo preferiti")).toBeChecked();
+    expect(screen.getByRole("button", { name: "★ Preferite" })).toHaveAttribute("aria-pressed", "true");
   });
 
-  it("leaves the favorite-only checkbox unchecked when favoriteOnly is false", () => {
-    render(<GalleryFilters {...baseProps()} favoriteOnly={false} />);
-
-    expect(screen.getByLabelText("Solo preferiti")).not.toBeChecked();
-  });
-
-  it("calls onFavoriteOnlyChange with true when the unchecked box is clicked", async () => {
+  it("toggles the favorites filter", async () => {
     const onFavoriteOnlyChange = vi.fn();
     render(<GalleryFilters {...baseProps()} favoriteOnly={false} onFavoriteOnlyChange={onFavoriteOnlyChange} />);
 
-    await userEvent.click(screen.getByLabelText("Solo preferiti"));
+    await userEvent.click(screen.getByRole("button", { name: "★ Preferite" }));
 
     expect(onFavoriteOnlyChange).toHaveBeenCalledWith(true);
-  });
-
-  it("calls onFavoriteOnlyChange with false when the checked box is clicked", async () => {
-    const onFavoriteOnlyChange = vi.fn();
-    render(<GalleryFilters {...baseProps()} favoriteOnly={true} onFavoriteOnlyChange={onFavoriteOnlyChange} />);
-
-    await userEvent.click(screen.getByLabelText("Solo preferiti"));
-
-    expect(onFavoriteOnlyChange).toHaveBeenCalledWith(false);
   });
 
   it("shows the current search text in the search input", () => {
     render(<GalleryFilters {...baseProps()} searchInput="tramonto" />);
 
-    expect(screen.getByPlaceholderText("Cerca...")).toHaveValue("tramonto");
+    expect(screen.getByLabelText("Cerca nella descrizione")).toHaveValue("tramonto");
   });
 
   it("calls onSearchInputChange with the new search text", () => {
     const onSearchInputChange = vi.fn();
     render(<GalleryFilters {...baseProps()} onSearchInputChange={onSearchInputChange} />);
 
-    fireEvent.change(screen.getByPlaceholderText("Cerca..."), { target: { value: "tramonto" } });
+    fireEvent.change(screen.getByLabelText("Cerca nella descrizione"), { target: { value: "tramonto" } });
 
     expect(onSearchInputChange).toHaveBeenCalledWith("tramonto");
   });

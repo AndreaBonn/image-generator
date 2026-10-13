@@ -214,6 +214,14 @@ describe("api/queries", () => {
     expect(result).toEqual({ items: [], meta: { page: 1, per_page: 24, total: 0, total_pages: 0 } });
   });
 
+  it("fetchGenerations: repeats task_ids for a kind filter (G3)", async () => {
+    global.fetch = vi.fn().mockResolvedValue(
+      okJson([], { page: 1, per_page: 24, total: 0, total_pages: 0 }),
+    );
+    await fetchGenerations({ taskIds: ["upscale", "rimuovi_sfondo"] });
+    expect(lastCall().url).toBe("/api/v1/generations?task_ids=upscale&task_ids=rimuovi_sfondo");
+  });
+
   it("fetchGenerations: serializes page, per_page, task_id, q and favorite", async () => {
     global.fetch = vi.fn().mockResolvedValue(
       okJson([], { page: 2, per_page: 12, total: 50, total_pages: 5 }),

@@ -45,8 +45,6 @@ export const HELP_TEXTS = {
     "Quante volte aumentare la risoluzione dell'immagine. ×4 produce un'immagine più grande e dettagliata, ma richiede più tempo di ×2.",
 
   // Galleria
-  gallerySearch:
-    "Cerca fra le immagini generate in base al testo della descrizione usata per crearle.",
 
   // Impostazioni
   engineStatus:

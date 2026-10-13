@@ -79,6 +79,8 @@ export async function fetchGenerations(params: {
   page?: number;
   perPage?: number;
   taskId?: string;
+  /** Any of these tasks (G3 kind filters); sent as repeated task_ids. */
+  taskIds?: string[];
   query?: string;
   favorite?: boolean;
   /** A4 trash: lists trashed items (newest deleted first) instead of active ones. */
@@ -88,6 +90,7 @@ export async function fetchGenerations(params: {
   if (params.page) search.set("page", String(params.page));
   if (params.perPage) search.set("per_page", String(params.perPage));
   if (params.taskId) search.set("task_id", params.taskId);
+  for (const id of params.taskIds ?? []) search.append("task_ids", id);
   if (params.query) search.set("q", params.query);
   if (params.favorite !== undefined) search.set("favorite", String(params.favorite));
   if (params.trashed) search.set("trashed", "true");

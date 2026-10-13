@@ -3,7 +3,7 @@ import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { Link, useSearchParams } from "react-router-dom";
 import { fetchGenerations, fetchTasks } from "@/api/queries";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
-import { GalleryFilters } from "@/components/gallery/GalleryFilters";
+import { GalleryFilters, type GalleryKind } from "@/components/gallery/GalleryFilters";
 import { GenerationGrid } from "@/components/gallery/GenerationGrid";
 import { GenerationDetailDialog } from "@/components/gallery/GenerationDetailDialog";
 import { TrashView } from "@/components/gallery/TrashView";
@@ -21,21 +21,23 @@ const SEARCH_DEBOUNCE_MS = 300;
 export function GalleryPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const isTrashView = searchParams.get("view") === "cestino";
-  const [taskId, setTaskId] = useState("");
+  const [kind, setKind] = useState<GalleryKind>("");
   const [favoriteOnly, setFavoriteOnly] = useState(false);
   const [searchInput, setSearchInput] = useState("");
   const [selectedGenerationId, setSelectedGenerationId] = useState<string | null>(null);
   const debouncedQuery = useDebouncedValue(searchInput, SEARCH_DEBOUNCE_MS).trim();
 
   const tasksQuery = useQuery({ queryKey: ["tasks"], queryFn: ({ signal }) => fetchTasks(signal) });
+  const kindTaskIds =
+    kind === "" ? undefined : (tasksQuery.data ?? []).filter((task) => task.group === kind).map((task) => task.id);
 
   const generationsQuery = useInfiniteQuery({
-    queryKey: ["generations", taskId, debouncedQuery, favoriteOnly],
+    queryKey: ["generations", kind, kindTaskIds, debouncedQuery, favoriteOnly],
     queryFn: ({ pageParam }) =>
       fetchGenerations({
         page: pageParam,
         perPage: PER_PAGE,
-        taskId: taskId || undefined,
+        taskIds: kindTaskIds,
         query: debouncedQuery || undefined,
         favorite: favoriteOnly || undefined,
       }),
@@ -46,7 +48,7 @@ export function GalleryPage() {
 
   const items = generationsQuery.data?.pages.flatMap((page) => page.items) ?? [];
   const taskLabels = new Map((tasksQuery.data ?? []).map((task) => [task.id, task.label]));
-  const hasFilters = taskId !== "" || favoriteOnly || debouncedQuery !== "";
+  const hasFilters = kind !== "" || favoriteOnly || debouncedQuery !== "";
 
   return (
     <div className="flex flex-col gap-4">
@@ -65,9 +67,8 @@ export function GalleryPage() {
       ) : (
         <>
           <GalleryFilters
-            tasks={tasksQuery.data ?? []}
-            taskId={taskId}
-            onTaskIdChange={setTaskId}
+            kind={kind}
+            onKindChange={setKind}
             favoriteOnly={favoriteOnly}
             onFavoriteOnlyChange={setFavoriteOnly}
             searchInput={searchInput}
