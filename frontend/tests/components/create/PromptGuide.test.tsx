@@ -15,6 +15,27 @@ describe("PromptGuide language warning", () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
   });
 
+  it("offers a task that understands Italian next to the warning (C7)", async () => {
+    vi.spyOn(queries, "checkPromptLanguage").mockResolvedValue({ looks_italian: true });
+    const onSwitch = vi.fn();
+
+    render(
+      <PromptGuide
+        promptLanguage={basePromptLanguage}
+        tips={[]}
+        examples={[]}
+        prompt="un ritratto di un vecchio pescatore con la luce dorata"
+        onUseExample={vi.fn()}
+        italianAlternative={{ label: "Foto realistica", onSwitch }}
+      />,
+    );
+
+    await vi.advanceTimersByTimeAsync(400);
+    const button = await screen.findByRole("button", { name: "Passa a Foto realistica, che capisce l'italiano" });
+    await userEvent.click(button);
+    expect(onSwitch).toHaveBeenCalledTimes(1);
+  });
+
   it("shows the warning when the backend reports looks_italian: true", async () => {
     vi.spyOn(queries, "checkPromptLanguage").mockResolvedValue({ looks_italian: true });
 

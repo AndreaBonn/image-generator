@@ -59,6 +59,8 @@ interface CreateFormProps {
   submitDisabled: boolean;
   submitLabel: string;
   generateButtonRef: RefObject<HTMLButtonElement | null>;
+  /** Switches to a task that understands Italian (C7); null when none is available. */
+  italianAlternative: { label: string; onSwitch: () => void } | null;
 }
 
 /** The whole creation form (prompt, references, params, submit) shown once a
@@ -100,6 +102,7 @@ export function CreateForm({
   submitDisabled,
   submitLabel,
   generateButtonRef,
+  italianAlternative,
 }: CreateFormProps) {
   return (
     <>
@@ -109,6 +112,7 @@ export function CreateForm({
         examples={[]}
         prompt={prompt}
         onUseExample={onPromptChange}
+        italianAlternative={italianAlternative}
       />
 
       {requiresReferences ? (

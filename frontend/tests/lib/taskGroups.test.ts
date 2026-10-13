@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { groupTasksBySource } from "@/lib/taskGroups";
+import { groupTasksBySource, italianFriendlyTask } from "@/lib/taskGroups";
 import { buildTask } from "../fixtures/task";
 
 describe("groupTasksBySource (C3)", () => {
@@ -26,5 +26,24 @@ describe("groupTasksBySource (C3)", () => {
 
   it("returns no groups for an empty catalog", () => {
     expect(groupTasksBySource([])).toEqual([]);
+  });
+});
+
+describe("italianFriendlyTask (C7)", () => {
+  const italian = { required: "any" as const, label: "Italiano o inglese", reason: "Capisce entrambe." };
+
+  it("picks the first available text-only task that understands Italian", () => {
+    const tasks = [
+      buildTask({ id: "bozza" }),
+      buildTask({ id: "in_posa", min_references: 2, prompt_language: italian }),
+      buildTask({ id: "testo", available: false, prompt_language: italian }),
+      buildTask({ id: "foto", prompt_language: italian }),
+    ];
+
+    expect(italianFriendlyTask(tasks)?.id).toBe("foto");
+  });
+
+  it("returns undefined when no task fits", () => {
+    expect(italianFriendlyTask([buildTask({ id: "bozza" })])).toBeUndefined();
   });
 });

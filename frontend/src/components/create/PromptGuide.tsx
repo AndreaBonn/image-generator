@@ -17,6 +17,8 @@ interface PromptGuideProps {
   examples: string[];
   prompt: string;
   onUseExample: (text: string) => void;
+  /** Task to offer next to the "Sembra italiano" warning (C7); omitted where there is none. */
+  italianAlternative?: { label: string; onSwitch: () => void } | null;
 }
 
 /**
@@ -30,6 +32,7 @@ export function PromptGuide({
   examples,
   prompt,
   onUseExample,
+  italianAlternative = null,
 }: PromptGuideProps) {
   const [tipsOpen, setTipsOpen] = useState(false);
   const [looksItalian, setLooksItalian] = useState(false);
@@ -89,9 +92,20 @@ export function PromptGuide({
       <PromptExamples examples={examples} onUseExample={onUseExample} />
 
       {looksItalian ? (
-        <p role="status" className="text-warning">
-          Sembra italiano: questo modello capisce bene solo l'inglese.
-        </p>
+        <div className="flex flex-wrap items-center gap-2">
+          <p role="status" className="text-warning">
+            Sembra italiano: questo modello capisce bene solo l'inglese.
+          </p>
+          {italianAlternative ? (
+            <button
+              type="button"
+              onClick={italianAlternative.onSwitch}
+              className="min-h-11 rounded-md border border-border bg-paper-2 px-3 py-1 text-xs text-ink hover:bg-paper-3"
+            >
+              Passa a {italianAlternative.label}, che capisce l&apos;italiano
+            </button>
+          ) : null}
+        </div>
       ) : null}
     </div>
   );

@@ -12,6 +12,7 @@ import type { RecipeImportPatch } from "@/lib/recipeImport";
 import type { Task } from "@/api/types";
 import { useReferences } from "@/hooks/useReferences";
 import { PageTitle } from "@/components/layout/PageTitle";
+import { italianFriendlyTask } from "@/lib/taskGroups";
 
 export function CreatePage() {
   const tasksQuery = useQuery({ queryKey: ["tasks"], queryFn: ({ signal }) => fetchTasks(signal) });
@@ -43,6 +44,7 @@ export function CreatePage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const selectedTask: Task | undefined = creationTasks.find((t) => t.id === taskId);
+  const italianTask = italianFriendlyTask(creationTasks);
   const {
     references,
     setReferences,
@@ -251,6 +253,9 @@ export function CreatePage() {
             submitDisabled={jobMutation.isPending || jobId !== null || missingReferences}
             submitLabel={jobMutation.isPending || (jobId !== null && !isDone) ? "Generazione in corso..." : "Genera"}
             generateButtonRef={generateButtonRef}
+            italianAlternative={
+              italianTask ? { label: italianTask.label, onSwitch: () => handleSelectTask(italianTask.id) } : null
+            }
           />
         ) : null}
       </div>

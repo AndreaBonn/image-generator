@@ -17,3 +17,13 @@ export function groupTasksBySource(tasks: Task[]): TaskGroup[] {
   ];
   return groups.filter((group) => group.tasks.length > 0);
 }
+
+/**
+ * A creation task to suggest when the description looks Italian on an English-only
+ * task (C7): available, needs no user images, understands Italian.
+ */
+export function italianFriendlyTask(tasks: Task[]): Task | undefined {
+  return tasks.find(
+    (task) => task.available && task.min_references === 0 && task.prompt_language.required !== "en",
+  );
+}
