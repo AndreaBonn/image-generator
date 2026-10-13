@@ -136,7 +136,11 @@ export function GalleryPage() {
               onClose={() => setSelectedGenerationId(null)}
               onOpenGeneration={setSelectedGenerationId}
               taskLabels={taskLabels}
-              onRerunStarted={setVariantJobId}
+              onRerunStarted={(jobId) => {
+                // Close the modal so the variant's outcome, shown on the page, is not hidden behind it (R11).
+                setVariantJobId(jobId);
+                setSelectedGenerationId(null);
+              }}
             />
           ) : null}
         </>

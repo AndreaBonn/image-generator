@@ -251,9 +251,19 @@ describe("GenerationDetailDialog", () => {
 
     expect(rerunGeneration).toHaveBeenCalledWith("gen-3", true);
     expect(await screen.findByRole("status")).toHaveTextContent(
-      "Nuova variante in preparazione: comparirà in cima alla Galleria appena pronta.",
+      "Nuova variante in preparazione: la trovi nella Galleria appena pronta.",
     );
     expect(onRerunStarted).toHaveBeenCalledWith("job-99");
+  });
+
+  it("says when a new variant could not be started (R10)", async () => {
+    vi.spyOn(queries, "fetchGeneration").mockResolvedValue(buildGeneration({ id: "gen-3" }));
+    vi.spyOn(queries, "rerunGeneration").mockRejectedValue(new Error("boom"));
+
+    renderDialog({ generationId: "gen-3" });
+    await userEvent.click(await screen.findByRole("button", { name: "Un'altra variante" }));
+
+    expect(await screen.findByText("Impossibile avviare una nuova variante.")).toBeInTheDocument();
   });
 
   it("asks for confirmation before deleting, and does not delete on Annulla", async () => {

@@ -248,8 +248,11 @@ export function GenerationDetailDialog({
 
             {rerunDone ? (
               <p role="status" className="text-sm text-accent-text">
-                Nuova variante in preparazione: comparirà in cima alla Galleria appena pronta.
+                Nuova variante in preparazione: la trovi nella Galleria appena pronta.
               </p>
+            ) : null}
+            {rerunMutation.isError ? (
+              <p className="text-sm text-danger">Impossibile avviare una nuova variante.</p>
             ) : null}
             {deleteMutation.isError ? (
               <p className="text-sm text-danger">Impossibile eliminare l'immagine.</p>

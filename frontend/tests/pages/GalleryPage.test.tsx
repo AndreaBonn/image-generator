@@ -228,13 +228,14 @@ describe("GalleryPage", () => {
     renderGalleryPage();
     await userEvent.click(await screen.findByRole("button", { name: /portrait of an old fisherman/ }));
     await userEvent.click(await screen.findByRole("button", { name: "Un'altra variante" }));
-    await userEvent.click(screen.getByRole("button", { name: "Chiudi" }));
 
+    // R11: the detail closes so the outcome below is not hidden behind a modal.
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
     expect(await screen.findByText("Nuova variante in preparazione...")).toBeInTheDocument();
     const callsBefore = fetchGenerationsSpy.mock.calls.length;
     latestEventSource().emit("completed", { generation_ids: ["gen-8"] });
 
-    expect(await screen.findByText("Nuova variante pronta: è in cima alla Galleria.")).toBeInTheDocument();
+    expect(await screen.findByText("Nuova variante pronta nella Galleria.")).toBeInTheDocument();
     await waitFor(() => expect(fetchGenerationsSpy.mock.calls.length).toBeGreaterThan(callsBefore));
   });
 

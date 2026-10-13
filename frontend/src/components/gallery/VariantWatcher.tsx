@@ -19,7 +19,7 @@ export function VariantWatcher({ jobId }: VariantWatcherProps) {
   }, [isDone, queryClient]);
 
   let message = "Nuova variante in preparazione...";
-  if (latest?.type === "completed") message = "Nuova variante pronta: è in cima alla Galleria.";
+  if (latest?.type === "completed") message = "Nuova variante pronta nella Galleria.";
   else if (latest?.type === "failed") message = `La nuova variante non è riuscita: ${latest.message}`;
   else if (latest?.type === "cancelled") message = "La nuova variante è stata annullata.";
 
