@@ -74,8 +74,6 @@ export const HELP_TEXTS = {
     "Mantiene il soggetto principale dell'immagine e rimuove tutto il resto, producendo un file PNG con sfondo trasparente.",
   ingrandisciRifinito:
     "Raddoppia la risoluzione dell'immagine e rifinisce i dettagli più piccoli. Più lento di un ingrandimento semplice: circa 1-2 minuti.",
-  intensitaRifinitura:
-    "Quanto il motore può modificare i dettagli fini durante la rifinitura, da 0.1 a 0.5. Valori più alti aggiungono più dettaglio inventato, valori più bassi restano più fedeli all'originale.",
 } as const;
 
 export type HelpTextKey = keyof typeof HELP_TEXTS;

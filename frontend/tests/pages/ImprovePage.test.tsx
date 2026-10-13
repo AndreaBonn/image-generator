@@ -463,7 +463,12 @@ describe("ImprovePage - rimuovi lo sfondo e ingrandisci con rifinitura", () => {
     expect(screen.getByText("Tempo stimato: circa 1-2 minuti.")).toBeInTheDocument();
 
     await userEvent.type(screen.getByLabelText("Descrizione per la rifinitura (facoltativa)"), "sharp fabric texture");
-    fireEvent.change(screen.getByLabelText(/Intensità rifinitura/), { target: { value: "0.4" } });
+    const slider = screen.getByLabelText("Quanto può cambiare i dettagli");
+    expect(slider).toHaveAttribute("aria-valuetext", "abbastanza");
+    expect(screen.getByText("Fedele all'originale")).toBeInTheDocument();
+    expect(screen.getByText("Più inventiva")).toBeInTheDocument();
+    fireEvent.change(slider, { target: { value: "0.4" } });
+    expect(slider).toHaveAttribute("aria-valuetext", "molto");
     await userEvent.click(screen.getByRole("button", { name: "Ingrandisci con rifinitura" }));
 
     await waitFor(() => expect(createJob).toHaveBeenCalledTimes(1));

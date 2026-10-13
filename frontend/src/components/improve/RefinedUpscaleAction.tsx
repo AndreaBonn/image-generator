@@ -3,6 +3,7 @@ import { PromptGuide } from "@/components/create/PromptGuide";
 import { InfoTip } from "@/components/ui/InfoTip";
 import { HELP_TEXTS } from "@/lib/helpTexts";
 import type { Task } from "@/api/types";
+import { refinementLevel } from "@/lib/refinementLevel";
 
 const MAX_PROMPT_LENGTH = 2000;
 const DEFAULT_DENOISE = 0.3;
@@ -83,22 +84,25 @@ export function RefinedUpscaleAction({
 
       {denoiseLimit ? (
         <div className="flex flex-col gap-1 text-sm text-ink">
-          <span className="flex items-center gap-1">
-            <label htmlFor="refined-upscale-denoise-input">
-              Intensità rifinitura: {denoiseValue.toFixed(2)}
-            </label>
-            <InfoTip text={HELP_TEXTS.intensitaRifinitura} label="Informazioni: Intensità rifinitura" />
-          </span>
-          <input
-            id="refined-upscale-denoise-input"
-            type="range"
-            min={denoiseLimit.min}
-            max={denoiseLimit.max}
-            step={0.05}
-            value={denoiseValue}
-            onChange={(event) => onDenoiseChange(Number(event.target.value))}
-            className="min-h-11 w-full max-w-xs"
-          />
+          <p>
+            <label htmlFor="refined-upscale-denoise-input">Quanto può cambiare i dettagli</label>:{" "}
+            <strong aria-hidden="true">{refinementLevel(denoiseValue)}</strong>
+          </p>
+          <div className="flex max-w-sm items-center gap-2 text-xs text-ink-muted">
+            <span>Fedele all&apos;originale</span>
+            <input
+              id="refined-upscale-denoise-input"
+              type="range"
+              min={denoiseLimit.min}
+              max={denoiseLimit.max}
+              step={0.05}
+              value={denoiseValue}
+              aria-valuetext={refinementLevel(denoiseValue)}
+              onChange={(event) => onDenoiseChange(Number(event.target.value))}
+              className="min-h-11 min-w-0 flex-1"
+            />
+            <span>Più inventiva</span>
+          </div>
         </div>
       ) : null}
 
