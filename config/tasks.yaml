@@ -3,6 +3,7 @@ tasks:
     id: bozza
     label: Bozza veloce
     description: Prova rapidamente un'idea prima di rifinire i dettagli.
+    duration_hint: circa 4 s
     group: crea
     family: sdxl
     workflow: sdxl_lightning_txt2img.json
@@ -76,6 +77,7 @@ tasks:
     id: qualita
     label: Immagine di qualità
     description: Crea immagini curate con dettagli e stili personalizzabili.
+    duration_hint: circa 30 s
     workflow: sdxl_txt2img.json
     model_ids: [juggernaut_xl_v8, sdxl_offset_lora]
     defaults: &quality_defaults
@@ -99,6 +101,7 @@ tasks:
     id: testo
     label: Scritte nell'immagine e scene complesse
     description: Componi scene articolate e immagini con brevi scritte.
+    duration_hint: circa 9 s
     family: flux2_klein
     workflow: flux2_klein_txt2img.json
     model_ids: [flux2_klein_4b, qwen3_4b_fp4, flux2_vae]
@@ -132,6 +135,7 @@ tasks:
     id: foto
     label: Foto realistica
     description: Realizza fotografie naturali e credibili, anche di persone.
+    duration_hint: circa 17 s
     family: zimage
     workflow: zimage_txt2img.json
     model_ids: [zimage_turbo, zimage_vae, qwen3_4b_fp4]
@@ -169,6 +173,7 @@ tasks:
     description: >-
       Trasforma uno schizzo in un'immagine finita, con un secondo riferimento
       opzionale per lo stile o il soggetto.
+    duration_hint: circa 15 s
     workflow: null
     workflow_by_reference_count:
       1: flux2_klein_refs_1.json
@@ -207,6 +212,7 @@ tasks:
     id: in_posa
     label: In posa
     description: "Applica la posa del primo riferimento al personaggio del secondo."
+    duration_hint: circa 25 s
     workflow: null
     workflow_by_reference_count:
       1: flux2_klein_refs_1.json
@@ -246,6 +252,7 @@ tasks:
     id: crea_da_riferimenti
     label: Crea dai riferimenti
     description: "Mantieni lo stesso soggetto o personaggio in una scena nuova, da 1 a 3 immagini di riferimento."
+    duration_hint: 17-52 s
     workflow: null
     workflow_by_reference_count:
       1: flux2_klein_refs_1.json
@@ -281,6 +288,7 @@ tasks:
     id: inpaint
     label: Modifica una parte
     description: Ridisegna la zona selezionata mantenendo il resto dell'immagine.
+    duration_hint: circa 30 s
     group: modifica
     workflow: sdxl_inpaint.json
     model_ids: &inpaint_models [juggernaut_xl_v8, sdxl_offset_lora, fooocus_inpaint_head, fooocus_inpaint_patch]
@@ -305,6 +313,7 @@ tasks:
     id: outpaint
     label: Allarga l'immagine
     description: Estendi la scena oltre i bordi dell'immagine originale.
+    duration_hint: circa 30 s
     group: modifica
     workflow: sdxl_outpaint.json
     model_ids: *inpaint_models
@@ -333,6 +342,7 @@ tasks:
     id: variazione_sottile
     label: Variazione leggera
     description: Introduci piccoli cambiamenti conservando la composizione.
+    duration_hint: 15-30 s
     group: migliora
     workflow: sdxl_img2img.json
     model_ids: [juggernaut_xl_v8, sdxl_offset_lora]
@@ -359,6 +369,7 @@ tasks:
     id: variazione_forte
     label: Variazione forte
     description: Reinterpreta l'immagine con cambiamenti più marcati.
+    duration_hint: 15-30 s
     defaults: {<<: *quality_defaults, denoise: 0.85}
     prompt_tips:
       - Descrivi l'atmosfera, lo stile o l'ambiente nuovi da provare.
@@ -370,6 +381,7 @@ tasks:
     id: upscale
     label: Ingrandisci
     description: Aumenta la risoluzione dell'immagine di due o quattro volte.
+    duration_hint: pochi secondi
     group: migliora
     family: upscale
     workflow: upscale.json
@@ -399,6 +411,7 @@ tasks:
     label: Modifica con le parole
     group: modifica
     description: "Descrivi come cambiare l'immagine, anche in italiano."
+    duration_hint: null
     workflow: flux2_klein_edit.json
     bindings:
       prompt: ['@prompt_pos.text']
@@ -420,6 +433,7 @@ tasks:
     id: rimuovi_sfondo
     label: Rimuovi lo sfondo
     description: Isola il soggetto e salva un PNG con lo sfondo trasparente.
+    duration_hint: null
     family: background
     workflow: background_removal.json
     model_ids: [birefnet]
@@ -443,6 +457,7 @@ tasks:
     id: ingrandisci_rifinito
     label: Ingrandisci con rifinitura
     description: "Raddoppia le dimensioni di lavoro e rifinisce i dettagli dell'immagine."
+    duration_hint: 1-2 minuti
     workflow: sdxl_upscale_refine.json
     model_ids: [juggernaut_xl_v8, sdxl_offset_lora, ultrasharp_4x]
     bindings:

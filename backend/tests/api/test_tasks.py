@@ -76,3 +76,27 @@ def test_list_tasks_exposes_reference_labels_for_in_posa(tmp_path: Path) -> None
     assert (da_schizzo["min_references"], da_schizzo["max_references"]) == (1, 2)
     bozza = next(task for task in tasks if task["id"] == "bozza")
     assert (bozza["min_references"], bozza["max_references"]) == (0, 0)
+
+
+def test_list_tasks_exposes_a_typical_duration_for_creation_tasks(tmp_path: Path) -> None:
+    settings = Settings(
+        config_dir=REPO_ROOT / "config",
+        workflows_dir=REPO_ROOT / "workflows",
+        models_dir=tmp_path / "models",
+        styles_dir=tmp_path / "styles",
+    )
+    app = FastAPI()
+    app.state.task_catalog = load_catalog(settings=settings)
+    app.include_router(router=router, prefix="/api/v1")
+    with TestClient(app=app) as client:
+        tasks = client.get(url="/api/v1/tasks").json()["data"]
+    hints = {task["id"]: task["duration_hint"] for task in tasks if task["group"] == "crea"}
+    assert hints == {
+        "bozza": "circa 4 s",
+        "qualita": "circa 30 s",
+        "testo": "circa 9 s",
+        "foto": "circa 17 s",
+        "da_schizzo": "circa 15 s",
+        "in_posa": "circa 25 s",
+        "crea_da_riferimenti": "17-52 s",
+    }

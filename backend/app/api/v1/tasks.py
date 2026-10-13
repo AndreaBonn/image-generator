@@ -24,6 +24,7 @@ class TaskOut(BaseModel):
     id: str
     label: str
     description: str
+    duration_hint: str | None
     group: str
     family: str
     available: bool

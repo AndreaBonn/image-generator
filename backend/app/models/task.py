@@ -65,6 +65,8 @@ class TaskDefinition(CatalogModel):
     min_references: int | None = Field(default=None, ge=1)
     reference_labels: list[NonEmptyText] | None = None
     prompt_prefix: NonEmptyText | None = None
+    # Measured time on the reference GPU (README), shown on the task card; None when unmeasured.
+    duration_hint: NonEmptyText | None = None
     model_ids: list[NonEmptyText] = Field(min_length=1)
     bindings: dict[str, list[BindingReference]]
     defaults: dict[str, Scalar]

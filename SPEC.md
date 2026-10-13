@@ -524,7 +524,7 @@ Regole di validazione (errore `422` con dettaglio per campo):
 
 ### 7.4 `config/tasks.yaml`
 
-Un compito dichiara: `id`, `label`, `description` (una riga, italiano), `group` (`crea` | `modifica` | `migliora`), `model_ids` richiesti, `family`, `workflow` (file template), `bindings` (titolo `@` → campo input → sorgente del valore), `defaults`, `limits`, `aspect_ratios`, `supports_styles`, `prompt_language`, `prompt_tips`, `prompt_examples`. Il file si valida all'avvio con un modello pydantic: un errore ferma l'avvio e nomina il campo.
+Un compito dichiara: `id`, `label`, `description` (una riga, italiano), `duration_hint` (tempo misurato sulla GPU di riferimento, es. "circa 4 s", mostrato sulla scheda del compito; `null` se non misurato), `group` (`crea` | `modifica` | `migliora`), `model_ids` richiesti, `family`, `workflow` (file template), `bindings` (titolo `@` → campo input → sorgente del valore), `defaults`, `limits`, `aspect_ratios`, `supports_styles`, `prompt_language`, `prompt_tips`, `prompt_examples`. Il file si valida all'avvio con un modello pydantic: un errore ferma l'avvio e nomina il campo.
 
 ### 7.5 Errori
 
