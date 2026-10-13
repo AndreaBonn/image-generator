@@ -74,6 +74,8 @@ class TaskDefinition(CatalogModel):
     aspect_ratios: list[AspectRatio]
     supports_styles: bool
     free_on_family_switch: bool = False
+    # False keeps the task out of the generated examples shown on Home and in the Guida.
+    in_examples: bool = True
     supports_negative: bool
     default_styles: list[str] = Field(default_factory=list)
     prompt_language: PromptLanguage

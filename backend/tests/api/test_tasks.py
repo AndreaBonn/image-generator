@@ -94,7 +94,7 @@ def test_list_tasks_exposes_a_typical_duration_for_creation_tasks(tmp_path: Path
     assert hints == {
         "bozza": "circa 4 s",
         "qualita": "circa 30 s",
-        "libero": None,
+        "libero": "circa 30 s",
         "testo": "circa 9 s",
         "foto": "circa 17 s",
         "da_schizzo": "circa 15 s",

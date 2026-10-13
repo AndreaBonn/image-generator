@@ -104,6 +104,24 @@ def test_plan_examples_excludes_tasks_with_workflow_by_reference_count(
     assert {entry.task_id for entry in plan}.isdisjoint(REFERENCE_TASK_IDS)
 
 
+def test_plan_examples_leaves_out_libero_even_when_lustify_is_installed(tmp_path: Path) -> None:
+    # Examples show up on Home and in the Guida: an unrestricted checkpoint stays out.
+    settings = Settings(
+        config_dir=_copy_catalog_config(tmp_path),
+        workflows_dir=REPO_ROOT / "workflows",
+        styles_dir=tmp_path / "styles",
+        models_dir=tmp_path / "models",
+    )
+    _touch_models(settings=settings, model_ids=EXAMPLE_MODEL_IDS | {"lustify_sdxl"})
+    tasks = load_catalog(settings=settings).list_tasks()
+    assert next(task for task in tasks if task.id == "libero").available is True
+
+    plan = plan_examples(tasks=tasks)
+
+    assert "libero" not in {entry.task_id for entry in plan}
+    assert "qualita" in {entry.task_id for entry in plan}
+
+
 def test_plan_examples_excludes_unavailable_tasks(unavailable_example_tasks: list[Any]) -> None:
     plan = plan_examples(tasks=unavailable_example_tasks)
 

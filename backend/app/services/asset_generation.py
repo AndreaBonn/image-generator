@@ -80,7 +80,12 @@ def _example_id(task_id: str, prompt: str, seed: int) -> str:
 
 
 def _is_example_candidate(task: TaskView) -> bool:
-    return task.group == "crea" and task.workflow_by_reference_count is None and task.available
+    return (
+        task.group == "crea"
+        and task.workflow_by_reference_count is None
+        and task.available
+        and task.in_examples
+    )
 
 
 def _default_aspect_ratio(task: TaskDefinition) -> tuple[str, int, int]:

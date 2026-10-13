@@ -100,8 +100,9 @@ tasks:
     id: libero
     label: Creazione libera
     description: Qualsiasi soggetto, la descrizione viene eseguita così com'è senza filtri aggiunti.
-    duration_hint: null
+    duration_hint: circa 30 s
     family: sdxl_libero
+    in_examples: false
     workflow: sdxl_libero_txt2img.json
     model_ids: [lustify_sdxl, sdxl_offset_lora]
     defaults: *quality_defaults
