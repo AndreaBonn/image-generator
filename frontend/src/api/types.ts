@@ -17,4 +17,5 @@ export * from "@/api/types/uploads";
 export * from "@/api/types/models";
 export * from "@/api/types/system";
 export * from "@/api/types/examples";
+export * from "@/api/types/assets";
 export * from "@/api/types/common";

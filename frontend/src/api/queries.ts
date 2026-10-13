@@ -17,6 +17,8 @@ import type {
   UploadKind,
   UploadResponse,
   ActiveJob,
+  AssetGeneration,
+  AssetKind,
 } from "@/api/types";
 
 /** Jobs the backend is running now, from any page (N1). */
@@ -149,6 +151,19 @@ export function startModelDownload(modelId: string): Promise<void> {
 
 export function cancelModelDownload(modelId: string): Promise<void> {
   return apiClient.post<void>(`/models/${modelId}/install/cancel`);
+}
+
+/** Creates the missing examples or style previews in the background (I4); 409 if one already runs. */
+export function startAssetGeneration(kind: AssetKind): Promise<AssetGeneration> {
+  return apiClient.post<AssetGeneration>(`/assets/${kind}/generate`);
+}
+
+export function fetchAssetGeneration(signal?: AbortSignal): Promise<AssetGeneration> {
+  return apiClient.get<AssetGeneration>("/assets/generation", signal);
+}
+
+export function cancelAssetGeneration(): Promise<AssetGeneration> {
+  return apiClient.post<AssetGeneration>("/assets/generation/cancel");
 }
 
 export function imageUrl(generationId: string): string {
