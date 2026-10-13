@@ -14,6 +14,7 @@ def make_source(**overrides):
     return install.StylesSource(**base)
 
 
+@pytest.mark.local_install
 def test_load_styles_source_reads_the_pinned_registry():
     source = install.load_styles_source()
     assert source.repo == "lllyasviel/Fooocus"
@@ -89,6 +90,7 @@ def test_sync_style_file_rejects_downloaded_content_with_wrong_hash(tmp_path, mo
     assert not (tmp_path / "a.json").exists()
 
 
+@pytest.mark.local_install
 def test_sync_styles_installs_all_six_real_style_files(tmp_path, monkeypatch):
     source = install.load_styles_source()
     real_bytes = {path.name: path.read_bytes() for path in REAL_STYLES_DIR.glob("*.json")}
@@ -104,6 +106,7 @@ def test_sync_styles_installs_all_six_real_style_files(tmp_path, monkeypatch):
     assert {p.name for p in tmp_path.glob("*.json")} == set(real_bytes)
 
 
+@pytest.mark.local_install
 def test_main_only_styles_creates_six_files(tmp_path, monkeypatch):
     source = install.load_styles_source()
     real_bytes = {path.name: path.read_bytes() for path in REAL_STYLES_DIR.glob("*.json")}

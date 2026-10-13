@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import pytest
 from install_support import install, install_models
 
 
@@ -129,6 +130,7 @@ def test_execute_step_rejects_unknown_step_name():
         raise AssertionError("expected ValueError for an unknown step name")
 
 
+@pytest.mark.local_install
 def test_main_dry_run_on_this_machine_reports_nothing_pending(capsys):
     """This repo's engine/backend/frontend/styles/models are already in place."""
     exit_code = install.main(["--dry-run"])
@@ -172,6 +174,7 @@ def test_main_real_run_rejects_with_disk_budget_before_downloading_anything(
     assert "GB" in captured.out
 
 
+@pytest.mark.local_install
 def test_main_only_models_skips_when_nothing_is_missing(capsys):
     """On this machine every enabled model is already installed."""
     exit_code = install.main(["--only", "models"])
