@@ -66,8 +66,8 @@ tasks:
         Questo modello è stato addestrato su testi inglesi:
         in italiano coglie il soggetto ma perde molti dettagli.
     prompt_tips:
-      - Describe the subject, setting, lighting and style, in that order.
-      - Use short phrases separated by commas to explore an idea quickly.
+      - Descrivi soggetto, ambiente, luce e stile, in quest'ordine.
+      - Frasi brevi separate da virgole bastano per provare un'idea.
     prompt_examples:
       - 'red bicycle beside a stone wall, watercolor'
       - 'a small wooden cabin beside a mountain lake, morning mist, soft golden light, wide landscape photograph'
@@ -88,8 +88,8 @@ tasks:
       cfg: {min: 1, max: 10}
     default_styles: [Fooocus Enhance, Fooocus Sharp]
     prompt_tips:
-      - Specify the subject, material, lighting and composition.
-      - Add a photographic lens or an illustration style when useful.
+      - Indica soggetto, materiali, luce e inquadratura.
+      - Se serve, aggiungi un obiettivo fotografico o uno stile di illustrazione.
     prompt_examples:
       - 'portrait of an old fisherman, weathered face, golden hour, 85mm photo'
       - 'cozy reading corner, wooden shelves, rain on the window, soft warm light, detailed illustration'
@@ -122,8 +122,8 @@ tasks:
       label: Italiano o inglese
       reason: Questo modello capisce bene sia l'italiano sia l'inglese.
     prompt_tips:
-      - Put the exact text to render in quotation marks.
-      - Describe where each object sits and how the objects relate to each other.
+      - Metti fra virgolette il testo esatto da scrivere nell'immagine.
+      - Descrivi dove si trova ogni oggetto e come si collegano fra loro.
     prompt_examples:
       - 'A bakery sign reading "FRESH BREAD", clean bold lettering.'
       - 'A red mug to the left of a blue book on a wooden desk, a small plant behind the book, soft window light.'
@@ -155,8 +155,8 @@ tasks:
       label: Italiano o inglese
       reason: Questo modello capisce bene sia l'italiano sia l'inglese.
     prompt_tips:
-      - Describe natural light, camera distance and the main subject.
-      - Use concrete details about materials and surroundings.
+      - Descrivi la luce, la distanza dal soggetto e il soggetto principale.
+      - Usa dettagli concreti su materiali e ambiente.
     prompt_examples:
       - 'a ceramic cup on a linen tablecloth, natural window light, photograph'
       - >-
@@ -295,8 +295,8 @@ tasks:
     defaults: {<<: *quality_defaults, denoise: 1.0, mask_expansion: 8}
     limits: {<<: *quality_limits, denoise: {min: 0, max: 1}, mask_expansion: {min: 0, max: 64}}
     prompt_tips:
-      - Describe only what should appear inside the selected area.
-      - Match the lighting and style of the surrounding image.
+      - Descrivi solo ciò che deve comparire nella zona colorata.
+      - Richiama la luce e lo stile del resto dell'immagine.
     prompt_examples:
       - 'a red wool scarf'
       - 'a small vase of white daisies on the table, soft light from the left, realistic photograph'
@@ -322,8 +322,8 @@ tasks:
     defaults: {<<: *quality_defaults, denoise: 1.0, expansion: 0.3}
     limits: {<<: *quality_limits, denoise: {min: 0, max: 1}, expansion: {min: 0.1, max: 1}}
     prompt_tips:
-      - Describe the scenery that should continue beyond the image edges.
-      - Leave the prompt empty to let the existing scene guide the extension.
+      - Descrivi come deve continuare la scena oltre i bordi.
+      - "Puoi lasciare vuota la descrizione: la scena esistente guida l'allargamento."
     prompt_examples:
       - 'rolling hills and a clear blue sky'
       - 'the forest path continues between tall pine trees, scattered autumn leaves, matching warm evening light'
@@ -349,8 +349,8 @@ tasks:
     defaults: {<<: *quality_defaults, denoise: 0.5}
     limits: {<<: *quality_limits, denoise: {min: 0, max: 1}}
     prompt_tips:
-      - Mention only the details you want to adjust.
-      - Leave the prompt empty for a variation guided by the original image.
+      - Indica solo i dettagli da cambiare.
+      - "Puoi lasciare vuota la descrizione: la variazione segue l'immagine originale."
     prompt_examples:
       - 'slightly warmer afternoon light'
       - 'the same quiet garden, a few more yellow flowers, gentle sunlight, natural colors'
@@ -361,8 +361,8 @@ tasks:
     description: Reinterpreta l'immagine con cambiamenti più marcati.
     defaults: {<<: *quality_defaults, denoise: 0.85}
     prompt_tips:
-      - Describe the new mood, style or setting you want to explore.
-      - Keep a few key subject details to preserve a connection with the original.
+      - Descrivi l'atmosfera, lo stile o l'ambiente nuovi da provare.
+      - Ripeti qualche dettaglio del soggetto per restare vicino all'originale.
     prompt_examples:
       - 'the city at night, neon lights, cinematic mood'
       - 'reinterpret the stone cottage as a colorful storybook illustration, oversized flowers, bright morning sky'
@@ -388,8 +388,8 @@ tasks:
       label: Nessun prompt necessario
       reason: Questo compito ingrandisce l'immagine senza usare un prompt.
     prompt_tips:
-      - No prompt is needed; choose an input image and a scale factor.
-      - Use two times for a smaller output or four times for a larger output.
+      - "Non serve una descrizione: scegli l'immagine e quanto ingrandirla."
+      - ×2 dà un'immagine più leggera, ×4 una più grande.
     prompt_examples:
       - 'Upscale a portrait to twice its original size.'
       - 'Enlarge a detailed landscape illustration to four times its original size.'
