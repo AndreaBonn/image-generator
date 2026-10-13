@@ -5,9 +5,9 @@
 Un'applicazione web locale, in italiano, per creare e modificare immagini con modelli di intelligenza artificiale sulla propria scheda video NVIDIA.
 
 [![CI](https://github.com/AndreaBonn/image-generator/actions/workflows/ci.yml/badge.svg)](https://github.com/AndreaBonn/image-generator/actions/workflows/ci.yml)
-[![Tests](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/AndreaBonn/image-generator/main/badges/test-badge.json)](https://github.com/AndreaBonn/image-generator/actions/workflows/ci.yml)
-[![Backend coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/AndreaBonn/image-generator/main/badges/coverage-backend-badge.json)](https://github.com/AndreaBonn/image-generator/actions/workflows/ci.yml)
-[![Frontend coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/AndreaBonn/image-generator/main/badges/coverage-frontend-badge.json)](https://github.com/AndreaBonn/image-generator/actions/workflows/ci.yml)
+[![Tests](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/AndreaBonn/image-generator/badges/test-badge.json)](https://github.com/AndreaBonn/image-generator/actions/workflows/ci.yml)
+[![Backend coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/AndreaBonn/image-generator/badges/coverage-backend-badge.json)](https://github.com/AndreaBonn/image-generator/actions/workflows/ci.yml)
+[![Frontend coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/AndreaBonn/image-generator/badges/coverage-frontend-badge.json)](https://github.com/AndreaBonn/image-generator/actions/workflows/ci.yml)
 [![License: GPL-3.0](https://img.shields.io/badge/license-GPL--3.0-blue)](./LICENSE)
 [![Python](https://img.shields.io/badge/python-3.12-3776ab)](./backend/pyproject.toml)
 
@@ -224,7 +224,7 @@ I test del backend sono in `backend/tests`, quelli unitari del frontend in `fron
 
 ## CI
 
-`.github/workflows/ci.yml` gira a ogni push e pull request: test del backend con ruff, mypy e coverage, lint, typecheck e test del frontend con coverage, test degli script di installazione. Non girano in CI i test di contratto con la GPU, gli end-to-end e i test dell'installatore marcati `local_install` (controllano una macchina dove l'app è già installata). Sui push a `main` aggiorna i badge di test e coverage in `badges/`.
+`.github/workflows/ci.yml` gira a ogni push e pull request: test del backend con ruff, mypy e coverage, lint, typecheck e test del frontend con coverage, test degli script di installazione. Non girano in CI i test di contratto con la GPU, gli end-to-end e i test dell'installatore marcati `local_install` (controllano una macchina dove l'app è già installata). Sui push a `main` pubblica i badge di test e coverage sul branch `badges`, così su `main` non arrivano commit del bot.
 
 ## Licenze dei modelli
 

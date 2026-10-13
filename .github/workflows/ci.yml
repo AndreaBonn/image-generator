@@ -1,0 +1,126 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884  # v10.3.0
+      - run: uv sync --frozen
+      - run: uv run ruff check .
+      - run: uv run mypy app
+      # GPU contract tests (-m engine) are excluded by the pytest addopts.
+      - run: >-
+          uv run pytest
+          --junitxml=../reports/backend-junit.xml
+          --cov=app --cov-report=json:../reports/backend-coverage.json
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
+        if: always()
+        with:
+          name: backend-reports
+          path: reports/
+          if-no-files-found: ignore
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: >-
+          npx vitest run
+          --reporter=default --reporter=junit
+          --outputFile.junit=../reports/frontend-junit.xml
+          --coverage --coverage.reporter=json-summary
+          --coverage.reportsDirectory=../reports/frontend-coverage
+      - if: always()
+        run: |
+          if [ -f ../reports/frontend-coverage/coverage-summary.json ]; then
+            mv ../reports/frontend-coverage/coverage-summary.json ../reports/frontend-coverage-summary.json
+          fi
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
+        if: always()
+        with:
+          name: frontend-reports
+          path: |
+            reports/frontend-junit.xml
+            reports/frontend-coverage-summary.json
+          if-no-files-found: ignore
+
+  scripts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884  # v10.3.0
+      - run: >-
+          uv run --python 3.12 --no-project
+          --with pytest --with pyyaml --with huggingface_hub
+          pytest scripts/tests -m "not local_install"
+          --junitxml=reports/scripts-junit.xml
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
+        if: always()
+        with:
+          name: scripts-reports
+          path: reports/
+          if-no-files-found: ignore
+
+  badges:
+    needs: [backend, frontend, scripts]
+    # !cancelled() rather than always(): a run superseded by a newer push must
+    # not publish badges from partial reports.
+    if: ${{ !cancelled() && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    concurrency:
+      group: badges
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
+        with:
+          path: reports
+          merge-multiple: true
+      - run: python3 .github/scripts/update_badges.py reports "$RUNNER_TEMP/badges"
+      # Published to the `badges` branch, so main never gets bot commits.
+      - name: Publish badges
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Copied out first: switching to the badges branch removes it from the tree.
+          cp .github/scripts/publish_badges.sh "$RUNNER_TEMP/"
+          bash "$RUNNER_TEMP/publish_badges.sh" \
+            "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" \
+            "$RUNNER_TEMP/badges"
