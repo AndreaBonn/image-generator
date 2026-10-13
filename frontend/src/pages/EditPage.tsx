@@ -17,6 +17,7 @@ import { exportMaskPng } from "@/lib/maskExport";
 import { isMaskEmpty } from "@/lib/mask";
 import { toggleDirection, type OutpaintDirection } from "@/lib/outpaint";
 import type { CreateJobBody, Task } from "@/api/types";
+import { PageTitle } from "@/components/layout/PageTitle";
 
 const MAX_PROMPT_LENGTH = 2000;
 const INPAINT_REQUIRED_MESSAGE = "Descrivi cosa deve apparire nella zona scelta.";
@@ -194,7 +195,7 @@ function EditWorkspace() {
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
       <div className="flex flex-col gap-4">
-        <h1 className="text-xl font-semibold text-ink">Modifica</h1>
+        <PageTitle>Modifica</PageTitle>
 
         <EditModeTabs mode={mode} onSelect={handleModeChange} />
 

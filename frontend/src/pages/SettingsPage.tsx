@@ -8,6 +8,7 @@ import { ModelsTable } from "@/components/settings/ModelsTable";
 import { ExamplesCard } from "@/components/settings/ExamplesCard";
 import { ClearOutputCard } from "@/components/settings/ClearOutputCard";
 import { ThemeCard } from "@/components/settings/ThemeCard";
+import { PageTitle } from "@/components/layout/PageTitle";
 
 const POLL_INTERVAL_MS = 10_000;
 
@@ -27,7 +28,7 @@ export function SettingsPage() {
   if (systemQuery.isLoading) {
     return (
       <div className="flex flex-col gap-2">
-        <h1 className="text-xl font-semibold text-ink">Impostazioni</h1>
+        <PageTitle>Impostazioni</PageTitle>
         <p className="text-ink-muted">Caricamento stato del motore...</p>
       </div>
     );
@@ -36,7 +37,7 @@ export function SettingsPage() {
   if (systemQuery.isError || !systemQuery.data) {
     return (
       <div className="flex flex-col gap-2">
-        <h1 className="text-xl font-semibold text-ink">Impostazioni</h1>
+        <PageTitle>Impostazioni</PageTitle>
         <p className="text-danger">Impossibile leggere lo stato del motore.</p>
         <button
           type="button"
@@ -53,7 +54,7 @@ export function SettingsPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-xl font-semibold text-ink">Impostazioni</h1>
+      <PageTitle>Impostazioni</PageTitle>
 
       <EngineStatusCard engine={system.engine} />
       {system.gpu ? <GpuCard gpu={system.gpu} /> : null}

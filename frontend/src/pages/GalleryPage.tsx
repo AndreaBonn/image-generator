@@ -8,6 +8,7 @@ import { GenerationGrid } from "@/components/gallery/GenerationGrid";
 import { GenerationDetailDialog } from "@/components/gallery/GenerationDetailDialog";
 import { TrashView } from "@/components/gallery/TrashView";
 import { TabList, type TabItem } from "@/components/ui/TabList";
+import { PageTitle } from "@/components/layout/PageTitle";
 
 const PER_PAGE = 24;
 const GALLERY_VIEWS: TabItem<"galleria" | "cestino">[] = [
@@ -49,7 +50,7 @@ export function GalleryPage() {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h1 className="text-xl font-semibold text-ink">Galleria</h1>
+        <PageTitle>Galleria</PageTitle>
         <TabList
           label="Vista galleria"
           items={GALLERY_VIEWS}

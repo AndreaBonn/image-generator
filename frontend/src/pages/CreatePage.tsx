@@ -11,6 +11,7 @@ import { MAX_PROMPT_LENGTH } from "@/lib/createFormLimits";
 import type { RecipeImportPatch } from "@/lib/recipeImport";
 import type { Task } from "@/api/types";
 import { useReferences } from "@/hooks/useReferences";
+import { PageTitle } from "@/components/layout/PageTitle";
 
 export function CreatePage() {
   const tasksQuery = useQuery({ queryKey: ["tasks"], queryFn: ({ signal }) => fetchTasks(signal) });
@@ -203,6 +204,7 @@ export function CreatePage() {
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
       <div className="flex flex-col gap-4">
+        <PageTitle>Crea</PageTitle>
         <TaskSelector tasks={creationTasks} selectedTaskId={taskId} onSelect={handleSelectTask} />
 
         {selectedTask ? (

@@ -16,6 +16,7 @@ import { RemoveBackgroundAction } from "@/components/improve/RemoveBackgroundAct
 import { RefinedUpscaleAction } from "@/components/improve/RefinedUpscaleAction";
 import { ImproveResultCard } from "@/components/improve/ImproveResultCard";
 import type { CreateJobBody, Task } from "@/api/types";
+import { PageTitle } from "@/components/layout/PageTitle";
 
 type ImproveActionId =
   | "variazione_sottile"
@@ -140,7 +141,7 @@ export function ImprovePage() {
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
       <div className="flex flex-col gap-4">
-        <h1 className="text-xl font-semibold text-ink">Migliora</h1>
+        <PageTitle>Migliora</PageTitle>
 
         {isLoadingSource ? <p className="text-sm text-ink-muted">Caricamento immagine...</p> : null}
 
