@@ -12,9 +12,7 @@ from app.config import REPO_ROOT
 read_yaml = cast(Callable[[str], Any], yaml.safe_load)
 
 # Words that occur in English prose but never in Italian ("a", "in" are shared).
-ENGLISH_ONLY_WORDS = frozenset(
-    "the and of to with you your should for is are only that".split()
-)
+ENGLISH_ONLY_WORDS = frozenset("the and of to with you your should for is are only that".split())
 WORD_PATTERN = re.compile(pattern=r"[^\W\d_]+", flags=re.UNICODE)
 
 
@@ -40,7 +38,6 @@ def test_is_english_accepts_italian_sentence() -> None:
 def test_task_prompt_tips_are_italian(task: dict[str, Any]) -> None:
     english_tips = [tip for tip in task.get("prompt_tips", []) if is_english(tip)]
     assert english_tips == []
-
 
 
 @pytest.mark.parametrize("task", load_tasks(), ids=lambda task: task["id"])
