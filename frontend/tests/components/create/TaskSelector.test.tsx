@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { TaskSelector } from "@/components/create/TaskSelector";
 import { buildTask } from "../../fixtures/task";
@@ -16,6 +16,20 @@ describe("TaskSelector", () => {
 
     expect(screen.getByRole("group", { name: /Cosa vuoi creare\?/ })).toBeInTheDocument();
     expect(screen.queryByText("Compito")).not.toBeInTheDocument();
+  });
+
+  it("splits tasks into text-only and from-your-images groups (C3)", () => {
+    const tasks = [
+      buildTask({ id: "bozza", label: "Bozza veloce", min_references: 0 }),
+      buildTask({ id: "in_posa", label: "In posa", min_references: 2 }),
+    ];
+
+    render(<TaskSelector tasks={tasks} selectedTaskId={null} onSelect={vi.fn()} />);
+
+    const fromText = screen.getByRole("group", { name: "Da una descrizione" });
+    const fromImages = screen.getByRole("group", { name: "Partendo da tue immagini" });
+    expect(within(fromText).getByRole("button", { name: /Bozza veloce/ })).toBeInTheDocument();
+    expect(within(fromImages).getByRole("button", { name: /In posa/ })).toBeInTheDocument();
   });
 
   it("shows the unavailable reason and disables the card", () => {
