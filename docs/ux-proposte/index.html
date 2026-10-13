@@ -1,0 +1,983 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Proposte UX</title>
+<style>
+/* ===== 1. Token del prodotto: SOSTITUISCI con quelli del design system del progetto ===== */
+:root{
+  --brand:oklch(68% 0.14 200);--brand-hover:oklch(74% 0.14 200);--brand-soft:oklch(30% 0.05 200);--brand-ink:oklch(14% 0.02 200);--brand-text:oklch(75% 0.17 200);
+  --n-0:oklch(20% 0.012 250);--n-50:oklch(16% 0.01 250);--n-100:oklch(26% 0.014 250);--n-200:oklch(30% 0.012 250);--n-300:oklch(40% 0.012 250);--n-500:oklch(60% 0.01 250);--n-600:oklch(70% 0.01 250);--n-700:oklch(80% 0.01 250);--n-900:oklch(92% 0.01 250);
+  --ok:oklch(70% 0.14 150);--ok-soft:oklch(28% 0.05 150);--warn:oklch(78% 0.15 80);--warn-soft:oklch(30% 0.05 80);--bad:oklch(72% 0.16 25);--bad-soft:oklch(30% 0.06 25);--info:oklch(75% 0.17 200);
+  --app-font:'Inter',-apple-system,"Segoe UI",sans-serif;
+  --shadow-sm:0 1px 2px rgba(0,0,0,.3);--shadow-lg:0 12px 28px rgba(20,15,10,.3);
+}
+/* ===== 2. Strumento di scelta (cornice esterna): di norma non va toccato ===== */
+:root{--tool-bg:#EEE8E1;--tool-ink:#1E1915;--tool-muted:#6B5D4E;--tool-line:#D9CFC3;--tool-card:#FFFFFF;--tool-accent:#2F5F7A;--tool-on-accent:#FFFFFF;--tool-accent-bg:#E3EDF2}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--tool-bg:#1B1714;--tool-ink:#F1EBE4;--tool-muted:#B3A08A;--tool-line:#3A322B;--tool-card:#241E1A;--tool-accent:#8FBCD6;--tool-on-accent:#10202A;--tool-accent-bg:#22323B}}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{font:400 14px/1.5 -apple-system,"Segoe UI",Inter,sans-serif;background:var(--tool-bg);color:var(--tool-ink)}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--tool-accent);outline-offset:2px}
+.tool-bar{position:sticky;top:0;z-index:200;background:var(--tool-card);border-bottom:1px solid var(--tool-line);padding:10px 16px;display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center}
+.tool-bar h1{font-size:15px;font-weight:700;margin:0}
+.tool-bar h1 span{font-weight:500;color:var(--tool-muted)}
+.tabs{display:flex;gap:2px;background:var(--tool-bg);padding:3px;border-radius:9px;flex-wrap:wrap}
+.tabs button{border:0;background:transparent;padding:6px 12px;border-radius:7px;cursor:pointer;font-weight:500;color:var(--tool-muted)}
+.tabs button[aria-selected="true"]{background:var(--tool-card);color:var(--tool-ink);box-shadow:var(--shadow-sm)}
+.seg{display:inline-flex;flex-wrap:wrap;border:1px solid var(--tool-line);border-radius:8px;overflow:hidden}
+.seg button{border:0;background:transparent;padding:5px 10px;cursor:pointer;color:var(--tool-muted);font-size:13px}
+.seg button[aria-pressed="true"]{background:var(--tool-accent-bg);color:var(--tool-ink);font-weight:600}
+.spacer{flex:1}
+.ctrl{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.ctrl-label{font-size:12px;color:var(--tool-muted)}
+.tool-btn{border:1px solid var(--tool-accent);background:var(--tool-accent);color:var(--tool-on-accent);border-radius:8px;padding:6px 12px;cursor:pointer;font-weight:600;font-size:13px}
+.tool-btn--ghost{background:var(--tool-card);color:var(--tool-ink);border-color:var(--tool-line)}
+.layout{display:grid;grid-template-columns:minmax(300px,360px) 1fr;min-height:calc(100vh - 56px)}
+.panel{border-right:1px solid var(--tool-line);background:var(--tool-card);padding:16px;overflow:auto;max-height:calc(100vh - 56px);position:sticky;top:56px}
+.stage{padding:20px;overflow:hidden}
+@media (max-width:900px){.layout{grid-template-columns:1fr}.panel{position:static;max-height:52vh;border-right:0;border-bottom:1px solid var(--tool-line)}.stage{padding:12px 0}.tool-bar{position:static}}
+.panel__count{display:flex;align-items:baseline;gap:8px;margin:0 0 4px}
+.panel__count strong{font-size:22px;font-variant-numeric:tabular-nums}
+.panel__intro{font-size:13px;color:var(--tool-muted);margin:0 0 12px}
+.legend{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 14px}
+.group{margin:0 0 18px}
+.group__head{display:flex;justify-content:space-between;align-items:center;margin:0 0 6px}
+.group__title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--tool-muted);margin:0}
+.group__all{border:0;background:none;color:var(--tool-accent);cursor:pointer;font-size:12px;font-weight:600}
+.prop{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;padding:10px;border:1px solid var(--tool-line);border-radius:10px;margin-bottom:6px;transition:border-color .2s,background-color .2s}
+.prop.is-flash{border-color:var(--tool-accent);background:var(--tool-accent-bg)}
+.prop input{margin:3px 0 0;width:18px;height:18px;accent-color:var(--tool-accent);cursor:pointer}
+.prop__head{display:flex;gap:6px;align-items:baseline;flex-wrap:wrap}
+.prop__code{font-weight:700;color:var(--tool-accent);cursor:pointer;border:0;background:none;padding:0;font-size:13px;text-decoration:underline;text-underline-offset:2px}
+.prop__title{font-weight:600;font-size:13.5px;cursor:pointer}
+.prop__why,.prop__tags{grid-column:2}
+.prop__why{margin:0;font-size:12.5px;color:var(--tool-muted)}
+.prop__tags{display:flex;gap:4px;flex-wrap:wrap}
+.chip{font-size:11px;font-weight:600;padding:1px 7px;border-radius:99px;border:1px solid var(--tool-line);color:var(--tool-muted);white-space:nowrap}
+.chip--rapida{border-color:#9CC5A6;color:#2C5A38;background:#E8F3EA}
+.chip--media{border-color:#D8BD79;color:#6E5C2B;background:#FBF6E9}
+.chip--ampia{border-color:#E0A79F;color:#941811;background:#FCEDEB}
+.chip--nota{border-style:dashed}
+.chip--fatta{border-color:var(--tool-accent);color:var(--tool-accent)}
+.frame{margin:0 auto;background:var(--n-50);color:var(--n-900);border-radius:12px;box-shadow:var(--shadow-lg);overflow:hidden;container-type:inline-size;max-width:1280px;position:relative;transition:max-width .25s ease}
+.frame.is-mobile{max-width:390px}
+@media (max-width:900px){.frame{border-radius:0}}
+.screen{display:none}
+.screen.is-active{display:block}
+[data-mark]{position:relative}
+.pin{position:absolute;top:-12px;left:-12px;z-index:40;min-width:26px;min-height:26px;display:inline-grid;place-items:center;font:700 11px/1 -apple-system,"Segoe UI",sans-serif;background:var(--tool-accent);color:var(--tool-on-accent);border:2px solid #fff;border-radius:99px;padding:3px 6px;cursor:pointer}
+.pins-off .pin{display:none}
+.flash-target{animation:flash 1.4s ease}
+@keyframes flash{0%,60%{box-shadow:0 0 0 4px rgba(47,95,122,.55)}100%{box-shadow:0 0 0 4px rgba(47,95,122,0)}}
+@media (prefers-reduced-motion:reduce){.flash-target{animation:none;outline:3px solid var(--tool-accent)}}
+.mock-note{font-size:12px;color:var(--n-600);background:repeating-linear-gradient(-45deg,var(--n-100),var(--n-100) 6px,var(--n-50) 6px,var(--n-50) 12px);border:1px dashed var(--n-300);border-radius:8px;padding:6px 10px;margin:0 0 10px}
+.placeholder{background:#FBF6E9;border:1px dashed #9C833E;color:#6E5C2B;border-radius:6px;padding:0 6px;font-weight:600}
+dialog{border:1px solid var(--tool-line);border-radius:14px;padding:20px;max-width:560px;width:calc(100% - 32px);background:var(--tool-card);color:var(--tool-ink)}
+dialog::backdrop{background:rgba(20,15,10,.5)}
+dialog textarea{width:100%;min-height:220px;border:1px solid var(--tool-line);border-radius:8px;padding:10px;background:var(--tool-bg);font:13px/1.5 ui-monospace,Menlo,monospace}
+dialog h2{margin:0 0 6px;font-size:17px}
+dialog p{margin:0 0 10px;color:var(--tool-muted);font-size:13px}
+.dialog-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:12px}
+
+/* ===== 3. Stile dell'app ricostruita: scrivilo qui, prefissando con .app ===== */
+.app{font:400 14px/1.5 var(--app-font);color:var(--n-900);background:var(--n-50)}
+.app *{min-width:0}
+.app h1,.app h2,.app h3,.app p{margin:0}
+.app button{font:inherit}
+/* header */
+.app-header{display:flex;align-items:center;gap:8px;padding:8px 16px;border-bottom:1px solid var(--n-200);background:var(--n-0)}
+.brandname{font-weight:600;white-space:nowrap;margin-right:8px}
+.appnav{display:flex;gap:2px;overflow-x:auto;flex:1}
+.appnav a{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;border-radius:8px;color:var(--n-600);text-decoration:none;white-space:nowrap;font-weight:500}
+.appnav a.is-on{background:var(--n-100);color:var(--n-900)}
+.appnav .ico{display:none;width:18px;height:18px}
+.hdr-right{display:flex;align-items:center;gap:8px;margin-left:auto}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:40px;padding:8px 12px;border:1px solid var(--n-200);border-radius:8px;background:var(--n-0);color:var(--n-900);cursor:pointer;text-decoration:none;font-size:13.5px}
+.btn--pri{background:var(--brand);border-color:var(--brand);color:var(--brand-ink);font-weight:600}
+.btn--dis{background:var(--n-100);color:var(--n-500);border-color:var(--n-100);cursor:not-allowed}
+.btn--danger{border-color:var(--bad);color:var(--bad)}
+.btn--sel{border-color:var(--brand);background:var(--brand-soft)}
+.btn--sm{min-height:32px;padding:4px 10px;font-size:12.5px}
+.jobpill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:99px;background:var(--brand-soft);color:var(--brand-text);font-size:12.5px;font-weight:600;white-space:nowrap}
+.dot{width:8px;height:8px;border-radius:99px;background:var(--brand-text)}
+.helplink{color:var(--n-700);font-size:13px;white-space:nowrap;text-decoration:underline}
+/* page */
+.page{padding:16px}
+.pagetitle{font-size:20px;font-weight:600;margin-bottom:12px}
+.lbl{display:flex;align-items:center;gap:8px;font-weight:600;margin:16px 0 8px}
+.q{display:inline-grid;place-items:center;width:20px;height:20px;border:1px solid var(--n-200);border-radius:99px;font-size:11px;color:var(--n-600);font-weight:500}
+.hint{font-size:12.5px;color:var(--n-600)}
+.inline-hint{display:block;font-size:12.5px;color:var(--n-600);font-weight:400;margin:-4px 0 8px}
+.muted{color:var(--n-600)}
+.small{font-size:12px}
+.lnk{color:var(--brand-text);text-decoration:underline;cursor:pointer}
+.card{background:var(--n-0);border:1px solid var(--n-200);border-radius:8px;padding:12px}
+.box{border:1px dashed var(--n-200);border-radius:8px;background:var(--n-0)}
+.grid2{display:grid;grid-template-columns:minmax(0,46%) minmax(0,22%);gap:24px;align-items:start}
+.f-C1 .grid2{grid-template-columns:minmax(0,42%) minmax(0,1fr)}
+.grid2--eq,.f-C1 .grid2--eq{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.f-C1 .resultcol{position:sticky;top:8px}
+.ta{width:100%;min-height:64px;border:1px solid var(--n-200);border-radius:8px;background:var(--n-0);padding:8px;color:var(--n-900);resize:vertical}
+.ta--big{min-height:110px;font-size:15px}
+.inp{border:1px solid var(--n-200);border-radius:8px;background:var(--n-0);padding:8px 10px;color:var(--n-900);width:100%}
+/* task cards */
+.tasks{display:flex;flex-direction:column;gap:8px}
+.task{display:block;text-align:left;border:1px solid var(--n-200);border-radius:8px;background:var(--n-0);padding:8px 12px}
+.task.is-on{border-color:var(--brand);background:var(--brand-soft)}
+.task b{display:block;font-weight:600}
+.task span.d{font-size:12px;color:var(--n-600)}
+.tasktags{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.tag{font-size:11px;padding:1px 7px;border-radius:99px;border:1px solid var(--n-200);color:var(--n-700);white-space:nowrap}
+.tag--ready{border-color:var(--ok);color:var(--ok)}
+.tag--lang{border-color:var(--brand);color:var(--brand-text)}
+.taskgroup{font-size:12px;font-weight:600;color:var(--n-600);margin:10px 0 6px;text-transform:uppercase;letter-spacing:.04em}
+.taskgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.taskgrid .task{padding:8px 10px}
+.badge{display:inline-block;font-size:12px;padding:1px 8px;border-radius:99px;background:var(--brand-soft);color:var(--brand-text)}
+.examples{display:flex;flex-direction:column;gap:6px}
+.example{border:1px solid var(--n-200);border-radius:8px;padding:8px;font-size:12.5px;color:var(--n-700);background:var(--n-0)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chipx{border:1px solid var(--n-200);border-radius:99px;padding:4px 10px;font-size:12.5px;color:var(--n-700);background:var(--n-0);white-space:nowrap}
+.chipx.is-on{border-color:var(--brand);background:var(--brand-soft);color:var(--n-900)}
+.warnline{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:13px;color:var(--warn);margin-top:6px}
+/* ratios */
+.ratios{display:flex;flex-wrap:wrap;gap:8px}
+.ratio{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--n-200);border-radius:8px;padding:8px 12px;background:var(--n-0);font-size:12.5px}
+.ratio.is-on{border-color:var(--brand);background:var(--brand-soft)}
+.shape{display:none;border:1.5px solid var(--n-700);border-radius:2px}
+.f-C10 .shape{display:inline-block}
+.f-C10 .r-px{display:none}
+.r-use{display:none;color:var(--n-600)}
+.f-C10 .r-use{display:inline}
+.stepper{display:inline-flex;border:1px solid var(--n-200);border-radius:8px;overflow:hidden}
+.stepper span{padding:8px 14px;border-right:1px solid var(--n-200)}
+.stepper span:last-child{border-right:0}
+.stepper .is-on{background:var(--brand-soft);font-weight:600}
+/* styles */
+.stylegrid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;max-height:280px;overflow:hidden}
+.sty{border:1px solid var(--n-200);border-radius:8px;padding:6px;text-align:center;font-size:12px;color:var(--n-700);background:var(--n-0)}
+.sty i{display:block;aspect-ratio:3/4;border-radius:4px;margin-bottom:4px}
+.stylegrid--few{grid-template-columns:repeat(6,minmax(0,1fr));max-height:none}
+/* placeholder images */
+.ph1{background:linear-gradient(180deg,oklch(70% .15 50),oklch(55% .17 30) 55%,oklch(60% .1 70))}
+.ph2{background:linear-gradient(180deg,oklch(85% .03 230),oklch(65% .08 220) 50%,oklch(80% .05 80))}
+.ph3{background:linear-gradient(180deg,oklch(90% .01 250),oklch(80% .02 250) 60%,oklch(60% .08 50))}
+.ph4{background:linear-gradient(180deg,oklch(60% .12 20),oklch(45% .1 340) 60%,oklch(35% .05 260))}
+.ph5{background:linear-gradient(180deg,oklch(55% .05 280),oklch(40% .04 260))}
+.ph6{background:radial-gradient(circle at 50% 50%,oklch(90% .02 80) 0 30%,oklch(50% .08 50) 31%)}
+.ph7{background:linear-gradient(160deg,oklch(75% .12 60),oklch(60% .1 50) 60%,oklch(80% .02 250))}
+.ph8{background:linear-gradient(180deg,oklch(70% .05 240),oklch(55% .06 30))}
+/* result */
+.resultbox{display:grid;place-items:center;min-height:220px;padding:16px;text-align:center;color:var(--n-600)}
+.thumbs4{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:8px}
+.thumbs4 i{display:block;aspect-ratio:4/3;border-radius:6px}
+.resimg{display:block;aspect-ratio:9/7;border-radius:6px}
+.actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.progress{height:8px;border-radius:99px;background:var(--n-100);overflow:hidden;margin:8px 0}
+.progress i{display:block;height:100%;width:72%;background:var(--brand)}
+.statehead{font-size:12px;font-weight:600;color:var(--n-600);margin:16px 0 6px}
+.genbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:16px;padding:10px 0}
+.f-C2 [data-screen=crea] .genbar{position:sticky;bottom:0;z-index:5;background:var(--n-0);border:1px solid var(--n-200);border-radius:10px;padding:10px 12px;box-shadow:0 -6px 16px rgba(0,0,0,.35)}
+details.adv summary{cursor:pointer;font-weight:600;margin:16px 0 4px}
+.seedrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.seedrow .inp{width:140px}
+/* edit */
+.modetabs{display:flex;flex-wrap:wrap;gap:8px}
+.mode{border:1px solid var(--n-200);border-radius:8px;padding:8px 12px;background:var(--n-0);text-align:left}
+.mode.is-on{border-color:var(--brand);background:var(--brand-soft)}
+.mode small{display:block;font-size:12px;color:var(--n-600);font-weight:400}
+.drop{display:flex;flex-direction:column;align-items:center;gap:8px;padding:20px;text-align:center}
+.drop .row{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.stepnum{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:99px;background:var(--brand);color:var(--brand-ink);font-size:12px;font-weight:700}
+.canvas{position:relative;display:block;aspect-ratio:16/9;border-radius:8px;margin-top:8px}
+.canvas .mask{position:absolute;left:30%;top:40%;width:22%;height:30%;border-radius:40%;background:oklch(70% .2 330 / .45)}
+.canvas .coach{position:absolute;left:50%;top:12px;transform:translateX(-50%);background:var(--n-0);border:1px solid var(--n-200);border-radius:8px;padding:6px 10px;font-size:12.5px;white-space:nowrap}
+.toolbar{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+/* improve */
+.acards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.acard{display:flex;flex-direction:column;gap:8px}
+.acard h3{font-size:15px;font-weight:600}
+.slider{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;font-size:12.5px;color:var(--n-600)}
+.slider .track{height:6px;border-radius:99px;background:linear-gradient(90deg,var(--brand) 50%,var(--n-300) 50%)}
+.stack{display:flex;flex-direction:column;gap:8px;align-items:flex-start}
+/* gallery */
+.gtop{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.gfilters{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,2fr);gap:12px;align-items:end;margin:12px 0}
+.ggrid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}
+.gitem{position:relative;border:1px solid var(--n-200);border-radius:8px;padding:4px;background:var(--n-0)}
+.gitem i{display:block;aspect-ratio:1;border-radius:5px}
+.gitem p{font-size:12px;color:var(--n-700);padding:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.gmeta{display:block;font-size:11px;color:var(--n-600);padding:0 4px 4px}
+.fav{color:var(--brand-text);font-size:11.5px;padding:0 4px}
+.qa{position:absolute;top:8px;right:8px;display:flex;gap:4px}
+.qa span{display:grid;place-items:center;width:28px;height:28px;border-radius:6px;background:oklch(16% .01 250 / .85);color:var(--n-900);font-size:13px}
+.detail{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+.dl{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;font-size:13px}
+.dl dt{font-size:11.5px;color:var(--n-600)}
+.dl dd{margin:0}
+.techsum{cursor:pointer;color:var(--n-700);font-size:13px;margin-top:8px}
+.sep{flex-basis:100%;height:0}
+.okline{font-size:13px;color:var(--brand-text);margin-top:8px}
+/* settings */
+.cards{display:flex;flex-direction:column;gap:12px}
+.vbar{height:10px;border-radius:99px;background:var(--n-100);overflow:hidden;margin:8px 0 4px}
+.vbar i{display:block;height:100%;width:68%;background:var(--brand)}
+.mtable{width:100%;border-collapse:collapse;font-size:13px}
+.mtable th{text-align:left;color:var(--n-600);font-weight:500;padding:6px 8px;border-bottom:1px solid var(--n-200)}
+.mtable td{padding:6px 8px;border-bottom:1px solid var(--n-100)}
+.code{font:12px ui-monospace,Menlo,monospace;background:var(--n-100);padding:4px 8px;border-radius:6px}
+.summary{display:flex;flex-wrap:wrap;gap:16px;align-items:center}
+.sumitem{display:flex;align-items:center;gap:8px}
+.ok{color:var(--ok);font-weight:600}
+.miss{color:var(--warn);font-weight:600}
+.banner{background:var(--bad);color:oklch(16% .01 250);padding:8px 16px;font-weight:500;font-size:13.5px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.banner code{background:oklch(100% 0 0 / .25);padding:0 4px;border-radius:4px}
+.feat{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--n-100)}
+/* S3: fewer question marks */
+.f-S3 .q.minor{display:none}
+
+@container (max-width:760px){
+  .page{padding:12px}
+  .grid2,.f-C1 .grid2,.grid2--eq,.f-C1 .grid2--eq{grid-template-columns:minmax(0,1fr)}
+  .f-C1 .resultcol{position:static}
+  .stylegrid,.stylegrid--few{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .ggrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .gfilters{grid-template-columns:minmax(0,1fr)}
+  .acards,.detail,.dl{grid-template-columns:minmax(0,1fr)}
+  .mtable .lic{display:none}
+  .brandname{display:none}
+  .f-S5 .appnav{position:sticky;bottom:0;order:9}
+  .f-S5 .app-header{flex-wrap:wrap}
+  .f-S5 .appnav{flex-basis:100%;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));overflow:visible}
+  .f-S5 .appnav a{flex-direction:column;gap:2px;padding:6px 2px;font-size:11px}
+  .f-S5 .appnav .ico{display:block}
+  .canvas .coach{white-space:normal;width:80%}
+}
+[data-screen=modifica] .def-old{border-color:var(--brand);background:var(--brand-soft)}
+.f-M5 [data-screen=modifica] .def-old{border-color:var(--n-200);background:var(--n-0)}
+.f-M5 [data-screen=modifica] .def-new{border-color:var(--brand);background:var(--brand-soft)}
+.f-C5 [data-screen=crea] .ta{min-height:110px;font-size:15px}
+</style>
+</head>
+<body>
+
+<header class="tool-bar">
+  <h1>Proposte UX <span>· Image Generator</span></h1>
+  <div class="tabs" role="tablist" aria-label="Schermata">
+    <!-- Una scheda per schermata; data-tab = data-screen della sezione -->
+    <button role="tab" data-tab="crea" aria-selected="true">Crea</button>
+    <button role="tab" data-tab="modifica" aria-selected="false">Modifica</button>
+    <button role="tab" data-tab="migliora" aria-selected="false">Migliora</button>
+    <button role="tab" data-tab="galleria" aria-selected="false">Galleria</button>
+    <button role="tab" data-tab="impostazioni" aria-selected="false">Impostazioni</button>
+  </div>
+  <div class="spacer"></div>
+  <div class="ctrl"><span class="ctrl-label">Mostra</span>
+    <div class="seg" id="mode">
+      <button data-mode="sel" aria-pressed="true">La mia selezione</button>
+      <button data-mode="all" aria-pressed="false">Tutte le proposte</button>
+      <button data-mode="none" aria-pressed="false">Com'è oggi</button>
+    </div>
+  </div>
+  <div class="ctrl"><span class="ctrl-label">Vista</span>
+    <div class="seg" id="view">
+      <button data-view="desktop" aria-pressed="true">Desktop</button>
+      <button data-view="mobile" aria-pressed="false">Mobile</button>
+    </div>
+  </div>
+  <label class="ctrl"><input type="checkbox" id="pins" checked><span class="ctrl-label">Etichette</span></label>
+  <button class="tool-btn" id="copy">Copia la selezione</button>
+</header>
+
+<div class="layout">
+  <aside class="panel" aria-label="Proposte">
+    <p class="panel__count"><strong id="sel-count">0</strong><span>proposte tenute</span></p>
+    <p class="panel__intro">Spunta ciò che vuoi tenere: la schermata cambia subito. "Com'è oggi" mostra l'interfaccia attuale, "Tutte le proposte" l'insieme completo. Le etichette blu portano alla proposta. La scelta resta salvata in questo browser.</p>
+    <div class="legend">
+      <span class="chip chip--rapida">Rapida: template, CSS, testi</span>
+      <span class="chip chip--media">Media: anche query o logica</span>
+      <span class="chip chip--ampia">Ampia: funzione nuova</span>
+    </div>
+    <div id="groups"></div>
+  </aside>
+  <main class="stage">
+    <div class="frame" id="frame">
+
+<!-- ===== 4. Schermate: una <section class="screen app" data-screen="..."> per scheda =====
+     Varianti nello stesso markup:
+       data-on="H3"       visibile solo se H3 è attiva (più codici separati da spazio: tutti attivi)
+       data-off="H3"      visibile solo se H3 è spenta (più codici: nascosto se uno qualsiasi è attivo)
+       data-swap="L1|Testo nuovo"   sostituisce il testo dell'elemento quando L1 è attiva
+       data-mark="H3"     mette l'etichetta H3 sulla zona (almeno una per proposta)
+       data-goto="detail" link interno che cambia scheda -->
+<section class="screen app is-active" data-screen="crea" aria-label="Crea">
+<header class="app-header">
+  <span class="brandname">Image Generator</span>
+  <div style="flex:1;min-width:0;display:flex" data-mark="S5">
+    <nav class="appnav" aria-label="Navigazione principale">
+      <a href="#" data-goto="crea" class="is-on"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Crea</a>
+      <a href="#" data-goto="modifica" class=""><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20l4-1 11-11-3-3L5 16z"/></svg>Modifica</a>
+      <a href="#" data-goto="migliora" class=""><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/></svg>Migliora</a>
+      <a href="#" data-goto="galleria" class=""><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Galleria</a>
+      <a href="#" data-goto="impostazioni" class=""><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>Impostazioni</a>
+    </nav>
+  </div>
+  <div class="hdr-right">
+    <span data-on="N1" data-mark="N1"><span class="jobpill"><span class="dot"></span>1 in corso · 75%</span></span>
+    <span data-on="N3" data-mark="N3"><a href="#" class="helplink">Come funziona</a></span>
+    <button class="btn btn--sm">Tema chiaro</button>
+  </div>
+</header>
+
+<div class="page">
+<div class="grid2">
+<div class="formcol">
+  <div class="lbl"><span data-mark="L3"><span data-swap="L3|Cosa vuoi creare?">Compito</span></span><span class="q minor">?</span></div>
+
+  <div class="tasks" data-off="C3" data-mark="C3">
+    <div class="task is-on"><b>Bozza veloce</b><span class="d">Prova rapidamente un'idea prima di rifinire i dettagli.</span>
+      <div class="tasktags" data-on="C4" data-mark="C4"><span class="tag">circa 4 s</span><span class="tag tag--lang">inglese</span></div></div>
+    <div class="task"><b>Immagine di qualità</b><span class="d">Crea immagini curate con dettagli e stili personalizzabili.</span>
+      <div class="tasktags" data-on="C4"><span class="tag">circa 30 s</span><span class="tag tag--lang">inglese</span></div></div>
+    <div class="task"><b data-mark="L2"><span data-swap="L2|Scritte nell'immagine e scene complesse">Testo nell'immagine e prompt complessi</span></b><span class="d">Componi scene articolate e immagini con brevi scritte.</span>
+      <div class="tasktags" data-on="C4"><span class="tag">circa 9 s</span><span class="tag tag--ready">pronto subito</span><span class="tag tag--lang">inglese consigliato</span></div></div>
+    <div class="task"><b>Foto realistica</b><span class="d">Realizza fotografie naturali e credibili, anche di persone.</span>
+      <div class="tasktags" data-on="C4"><span class="tag">circa 17 s</span><span class="tag tag--lang">italiano o inglese</span></div></div>
+    <div class="task"><b>Dallo schizzo</b><span class="d">Trasforma uno schizzo in un'immagine finita, con un secondo riferimento opzionale per lo stile o il soggetto.</span>
+      <div class="tasktags" data-on="C4"><span class="tag">circa 15 s</span><span class="tag tag--ready">pronto subito</span><span class="tag tag--lang">italiano o inglese</span></div></div>
+    <div class="task"><b>In posa</b><span class="d">Applica la posa del primo riferimento al personaggio del secondo.</span>
+      <div class="tasktags" data-on="C4"><span class="tag">circa 25 s</span><span class="tag tag--ready">pronto subito</span><span class="tag tag--lang">italiano o inglese</span></div></div>
+    <div class="task"><b>Crea dai riferimenti</b><span class="d">Mantieni lo stesso soggetto o personaggio in una scena nuova, da 1 a 3 immagini di riferimento.</span>
+      <div class="tasktags" data-on="C4"><span class="tag">17-52 s</span><span class="tag tag--ready">pronto subito</span><span class="tag tag--lang">italiano o inglese</span></div></div>
+  </div>
+
+  <div data-on="C3" data-mark="C3">
+    <p class="taskgroup">Da una descrizione</p>
+    <div class="taskgrid">
+      <div class="task is-on"><b>Bozza veloce</b><span class="d">Prova un'idea in pochi secondi.</span>
+        <div class="tasktags" data-on="C4" data-mark="C4"><span class="tag">circa 4 s</span><span class="tag tag--lang">inglese</span></div></div>
+      <div class="task"><b>Immagine di qualità</b><span class="d">Più curata, con gli stili.</span>
+        <div class="tasktags" data-on="C4"><span class="tag">circa 30 s</span><span class="tag tag--lang">inglese</span></div></div>
+      <div class="task"><b><span data-swap="L2|Scritte nell'immagine e scene complesse">Testo nell'immagine e prompt complessi</span></b><span class="d">Scritte leggibili, scene articolate.</span>
+        <div class="tasktags" data-on="C4"><span class="tag">circa 9 s</span><span class="tag tag--ready">pronto subito</span></div></div>
+      <div class="task"><b>Foto realistica</b><span class="d">Foto credibili, anche di persone.</span>
+        <div class="tasktags" data-on="C4"><span class="tag">circa 17 s</span><span class="tag tag--lang">capisce l'italiano</span></div></div>
+    </div>
+    <p class="taskgroup">Partendo da tue immagini</p>
+    <div class="taskgrid">
+      <div class="task"><b>Dallo schizzo</b><span class="d">Un disegno diventa un'immagine finita.</span>
+        <div class="tasktags" data-on="C4"><span class="tag">circa 15 s</span><span class="tag tag--ready">pronto subito</span></div></div>
+      <div class="task"><b>In posa</b><span class="d">La posa di una foto, il personaggio di un'altra.</span>
+        <div class="tasktags" data-on="C4"><span class="tag">circa 25 s</span><span class="tag tag--ready">pronto subito</span></div></div>
+      <div class="task"><b>Crea dai riferimenti</b><span class="d">Lo stesso soggetto in una scena nuova.</span>
+        <div class="tasktags" data-on="C4"><span class="tag">17-52 s</span><span class="tag tag--ready">pronto subito</span></div></div>
+    </div>
+  </div>
+
+  <div style="margin-top:14px" data-off="C6" data-mark="C6">
+    <span class="badge">Scrivi in: inglese</span>
+    <p class="muted" style="margin:6px 0">Questo modello è stato addestrato su testi inglesi: in italiano coglie il soggetto ma perde molti dettagli.</p>
+    <a href="#" class="lnk">Mostra consigli</a>
+  </div>
+  <div style="margin-top:14px" data-on="C6" data-mark="C6">
+    <span class="badge">Scrivi in inglese</span> <span class="hint">in italiano perde dettagli</span> · <a href="#" class="lnk">Consigli</a>
+  </div>
+
+  <div data-off="C5">
+    <p class="small muted" style="margin:12px 0 6px">Esempi (clicca per usarli)</p>
+    <div class="examples"><div class="example">red bicycle beside a stone wall, watercolor</div><div class="example">a small wooden cabin beside a mountain lake, morning mist, soft golden light, wide landscape photograph</div></div>
+    <div class="lbl"><span class="btn">Importa da immagine</span><span class="q minor">?</span></div>
+  </div>
+
+  <div class="lbl" data-mark="C5"><span data-swap="C5|Descrivi l'immagine che vuoi">Descrizione</span></div>
+  <p class="mock-note">Stato mostrato: descrizione scritta in italiano su Bozza veloce.</p>
+  <textarea class="ta" aria-label="Descrizione">una coppia sotto un ombrellone rosso al mare, luce del tramonto</textarea>
+  <p class="hint" data-on="C16" data-mark="C16">Ripresa da dove avevi lasciato. <a href="#" class="lnk">Svuota</a></p>
+  <div class="warnline"><span>Sembra italiano: questo modello capisce bene solo l'inglese.</span>
+    <span data-on="C7" data-mark="C7"><span class="btn btn--sm">Passa a Foto realistica, che capisce l'italiano</span></span>
+    <span data-on="C8" data-mark="C8"><span class="btn btn--sm">Traduci in inglese</span></span>
+  </div>
+
+  <div data-on="C5">
+    <div class="chips" style="margin-top:8px"><span class="small muted">Esempi:</span><span class="chipx">red bicycle beside a stone wall, watercolor</span><span class="chipx">a small wooden cabin beside a mountain lake…</span></div>
+    <p class="hint" style="margin-top:6px"><a href="#" class="lnk">Riprendi le impostazioni da un'immagine creata qui</a></p>
+  </div>
+
+  <div class="lbl">Proporzioni <span class="q minor">?</span></div>
+  <span class="inline-hint" data-on="S3" data-mark="S3">La forma dell'immagine finale.</span>
+  <div class="ratios" data-mark="C10">
+    <span class="ratio"><span class="shape" style="width:9px;height:16px"></span><span class="r-name">Verticale 9:16</span><span class="r-px"> · 768×1344</span><span class="r-use"> · storie, telefono</span></span>
+    <span class="ratio"><span class="shape" style="width:12px;height:15px"></span><span class="r-name">Verticale 4:5</span><span class="r-px"> · 896×1152</span><span class="r-use"> · post social</span></span>
+    <span class="ratio"><span class="shape" style="width:14px;height:14px"></span><span class="r-name">Quadrato 1:1</span><span class="r-px"> · 1024×1024</span><span class="r-use"> · profilo, post</span></span>
+    <span class="ratio is-on"><span class="shape" style="width:15px;height:12px"></span><span class="r-name">Orizzontale 5:4</span><span class="r-px"> · 1152×896</span><span class="r-use"> · foto classica</span></span>
+    <span class="ratio"><span class="shape" style="width:16px;height:11px"></span><span class="r-name">Orizzontale 3:2</span><span class="r-px"> · 1216×832</span><span class="r-use"> · fotografia</span></span>
+    <span class="ratio"><span class="shape" style="width:18px;height:10px"></span><span class="r-name">Orizzontale 16:9</span><span class="r-px"> · 1344×768</span><span class="r-use"> · schermo, video</span></span>
+  </div>
+  <p style="margin-top:8px"><a href="#" class="lnk">Altri formati</a></p>
+
+  <div class="lbl">Numero di immagini <span class="q minor">?</span></div>
+  <div data-off="C11"><input class="inp" style="width:90px" value="1" aria-label="Numero di immagini"></div>
+  <div data-on="C11" data-mark="C11"><span class="stepper"><span class="is-on">1</span><span>2</span><span>3</span><span>4</span></span> <span class="hint">più immagini, più tempo</span></div>
+
+  <div data-off="C9" data-mark="C9">
+    <div class="lbl">Stili (massimo 5) <span class="q minor">?</span></div>
+    <p class="small muted" style="margin-bottom:8px">Nessuno stile scelto.</p>
+    <input class="inp" placeholder="Cerca fra tutti gli stili (es. watercolor, anime, photo)..." aria-label="Cerca stili">
+    <div class="stylegrid" style="margin-top:8px">
+      <div class="sty"><i class="ph5"></i>cinematic-diva</div><div class="sty"><i class="ph7"></i>Abstract Expressionism</div><div class="sty"><i class="ph3"></i>Academia</div><div class="sty"><i class="ph2"></i>Action Figure</div><div class="sty"><i class="ph8"></i>Adorable 3D Character</div><div class="sty"><i class="ph1"></i>Adorable Kawaii</div>
+      <div class="sty"><i class="ph7"></i>Art Deco</div><div class="sty"><i class="ph3"></i>Art Nouveau</div><div class="sty"><i class="ph4"></i>Astral Aura</div><div class="sty"><i class="ph2"></i>Avant-garde</div><div class="sty"><i class="ph5"></i>Baroque</div><div class="sty"><i class="ph1"></i>Bauhaus-Style Poster</div>
+    </div>
+    <p class="small muted">277 stili</p>
+  </div>
+  <div data-on="C9" data-mark="C9">
+    <div class="lbl">Stile <span class="muted" style="font-weight:400">(facoltativo)</span></div>
+    <p class="small muted" style="margin-bottom:8px">Nessuno: l'immagine segue solo la descrizione. Una prima scelta di 6 stili, da definire insieme:</p>
+    <div class="stylegrid stylegrid--few">
+      <div class="sty"><i class="ph3"></i>Art Nouveau</div><div class="sty"><i class="ph7"></i>Art Deco</div><div class="sty"><i class="ph8"></i>Adorable 3D Character</div><div class="sty"><i class="ph2"></i>Action Figure</div><div class="sty"><i class="ph5"></i>Baroque</div><div class="sty"><i class="ph1"></i>Bauhaus-Style Poster</div>
+    </div>
+    <p style="margin-top:8px"><span class="btn btn--sm">Sfoglia tutti i 277 stili</span></p>
+  </div>
+
+  <div data-off="C12">
+    <div class="lbl"><span data-mark="L1"><span data-swap="L1|Codice del risultato">Seed</span></span> <span class="q minor">?</span></div>
+    <div class="seedrow"><input class="inp" aria-label="Seed"><label><input type="checkbox" checked> Casuale</label><span class="btn btn--sm">Fissa seed</span><span class="q minor">?</span></div>
+  </div>
+  <details class="adv"><summary>Opzioni avanzate</summary><p class="hint">Passi di generazione, aderenza, prompt negativo.</p></details>
+  <p class="hint" data-on="C12" data-mark="C12">Dentro le opzioni avanzate trovi anche il <span data-mark="L1"><span data-swap="L1|codice del risultato">seed</span></span>, per rifare un risultato uguale.</p>
+
+  <div class="genbar" data-mark="C2">
+    <span class="btn btn--pri">Genera</span>
+    <span class="hint" data-on="C2">Bozza veloce · 1 immagine · circa 4 secondi</span>
+  </div>
+</div>
+
+<div class="resultcol" data-mark="C1">
+  <div class="box resultbox" data-off="C14">Le immagini generate appariranno qui.</div>
+  <div class="box" style="padding:14px" data-on="C14" data-mark="C14">
+    <p>Scrivi cosa vuoi vedere e premi <b>Genera</b>.</p>
+    <p class="statehead">Le tue ultime immagini</p>
+    <div class="thumbs4"><i class="ph1"></i><i class="ph2"></i><i class="ph4"></i><i class="ph6"></i></div>
+    <p style="margin-top:8px"><a href="#" data-goto="galleria" class="lnk">Apri la Galleria</a></p>
+  </div>
+
+  <p class="statehead">Durante la generazione</p>
+  <div class="card" data-off="C15" data-mark="C15">
+    <p>Generazione in corso...</p><p class="hint">Passo 3 di 4.</p>
+    <div class="actions"><span class="btn btn--sm">Annulla</span></div>
+  </div>
+  <div class="card" data-on="C15" data-mark="C15">
+    <p><b>Quasi pronta</b> <span class="hint">75%</span></p>
+    <div class="progress"><i></i></div>
+    <p class="hint">Con un modello diverso dall'ultimo usato, la prima immagine richiede qualche secondo in più.</p>
+    <div class="actions"><span class="btn btn--sm">Annulla</span></div>
+  </div>
+
+  <p class="statehead">Dopo la generazione</p>
+  <div class="card">
+    <i class="resimg ph1"></i>
+    <div class="actions" data-off="C13" data-mark="C13"><span class="btn btn--sm">Scarica</span><span class="btn btn--sm">Preferito</span><span class="btn btn--sm">Rigenera</span><span class="btn btn--sm">Modifica con le parole</span></div>
+    <div data-on="C13" data-mark="C13">
+      <div class="actions"><span class="btn btn--sm btn--sel">★ Nei preferiti</span><span class="btn btn--sm">Scarica</span><span class="btn btn--sm">Un'altra variante</span><span class="btn btn--sm">Modifica</span><span class="btn btn--sm">Migliora</span></div>
+      <p class="okline">Aggiunta ai preferiti.</p>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+</section>
+
+<section class="screen app" data-screen="modifica" aria-label="Modifica">
+<header class="app-header">
+  <span class="brandname">Image Generator</span>
+  <div style="flex:1;min-width:0;display:flex" data-mark="S5">
+    <nav class="appnav" aria-label="Navigazione principale">
+      <a href="#" data-goto="crea" class=""><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Crea</a>
+      <a href="#" data-goto="modifica" class="is-on"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20l4-1 11-11-3-3L5 16z"/></svg>Modifica</a>
+      <a href="#" data-goto="migliora" class=""><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/></svg>Migliora</a>
+      <a href="#" data-goto="galleria" class=""><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Galleria</a>
+      <a href="#" data-goto="impostazioni" class=""><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>Impostazioni</a>
+    </nav>
+  </div>
+  <div class="hdr-right">
+    <span data-on="N1" data-mark="N1"><span class="jobpill"><span class="dot"></span>1 in corso · 75%</span></span>
+    <span data-on="N3" data-mark="N3"><a href="#" class="helplink">Come funziona</a></span>
+    <button class="btn btn--sm">Tema chiaro</button>
+  </div>
+</header>
+
+<div class="page">
+  <div data-mark="S1"><h1 class="pagetitle" data-off="S1">Modifica</h1></div>
+  <div class="grid2 grid2--eq">
+  <div>
+    <p class="lbl" data-on="M3" data-mark="M3"><span class="stepnum">1</span> Cosa vuoi fare?</p>
+    <div class="modetabs" data-mark="M1">
+      <span class="mode def-new" data-mark="M5">Modifica con le parole<small data-on="M1">Scrivi cosa cambiare, anche in italiano</small></span>
+      <span class="mode def-old">Modifica una parte<small data-on="M1">Colora la zona da rifare</small></span>
+      <span class="mode">Allarga l'immagine<small data-on="M1">Aggiungi spazio ai lati</small></span>
+    </div>
+    <p class="lbl" data-on="M3"><span class="stepnum">2</span> L'immagine</p>
+    <div class="box drop" style="margin-top:12px">
+      <p class="muted">Trascina un'immagine qui, oppure</p>
+      <div class="row"><span class="btn">Scegli un file</span><span data-on="M2" data-mark="M2"><span class="btn">Scegli dalla Galleria</span></span></div>
+      <p class="small muted">PNG, JPEG o WebP, massimo 20 MB e 4096 px per lato.</p>
+    </div>
+    <p class="lbl" data-on="M3"><span class="stepnum">3</span> Descrivi la modifica</p>
+    <div style="margin-top:12px"><span class="badge" data-swap="M5|Scrivi in: italiano o inglese">Scrivi in: inglese</span>
+      <p class="muted" style="margin:6px 0" data-off="M5">Questo modello è stato addestrato su testi inglesi: in italiano coglie il soggetto ma perde molti dettagli.</p>
+      <a href="#" class="lnk">Mostra consigli</a></div>
+    <p class="small muted" style="margin:12px 0 6px">Esempi (clicca per usarli)</p>
+    <div class="examples"><div class="example" data-swap="M5|rendi il cielo un tramonto arancione">a red wool scarf</div><div class="example" data-swap="M5|aggiungi un vaso di margherite bianche sul tavolo">a small vase of white daisies on the table, soft light from the left, realistic photograph</div></div>
+    <div class="lbl">Descrizione</div>
+    <textarea class="ta" aria-label="Descrizione"></textarea>
+    <div class="genbar"><span class="btn btn--dis">Genera</span><span class="hint" data-swap="M3|Manca l'immagine: aggiungila al punto 2.">Carica un'immagine prima di generare.</span></div>
+  </div>
+  <div class="box resultbox">Le immagini generate appariranno qui.</div>
+  </div>
+  <p class="statehead">Dopo aver caricato l'immagine, in "Modifica una parte"</p>
+  <div class="canvas ph2" data-mark="M4"><span class="mask"></span><span class="coach" data-on="M4">Colora con il pennello la zona da cambiare</span></div>
+  <div class="toolbar"><span class="btn btn--sm btn--sel">Pennello</span><span class="btn btn--sm">Gomma</span><span class="btn btn--sm">Dimensione</span><span class="btn btn--sm">Inverti</span><span class="btn btn--sm">Cancella tutto</span><span class="btn btn--sm">Annulla</span><span class="btn btn--sm">Ripeti</span><span class="btn btn--sm">Adatta</span><span class="btn btn--sm">100%</span></div>
+</div>
+</section>
+
+<section class="screen app" data-screen="migliora" aria-label="Migliora">
+<header class="app-header">
+  <span class="brandname">Image Generator</span>
+  <div style="flex:1;min-width:0;display:flex" data-mark="S5">
+    <nav class="appnav" aria-label="Navigazione principale">
+      <a href="#" data-goto="crea" class=""><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Crea</a>
+      <a href="#" data-goto="modifica" class=""><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20l4-1 11-11-3-3L5 16z"/></svg>Modifica</a>
+      <a href="#" data-goto="migliora" class="is-on"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/></svg>Migliora</a>
+      <a href="#" data-goto="galleria" class=""><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Galleria</a>
+      <a href="#" data-goto="impostazioni" class=""><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>Impostazioni</a>
+    </nav>
+  </div>
+  <div class="hdr-right">
+    <span data-on="N1" data-mark="N1"><span class="jobpill"><span class="dot"></span>1 in corso · 75%</span></span>
+    <span data-on="N3" data-mark="N3"><a href="#" class="helplink">Come funziona</a></span>
+    <button class="btn btn--sm">Tema chiaro</button>
+  </div>
+</header>
+
+<div class="page">
+  <div data-mark="S1"><h1 class="pagetitle" data-off="S1">Migliora</h1></div>
+  <p class="muted" style="margin-bottom:10px">Carica un'immagine per creare una variazione o ingrandirla. Puoi anche scegliere "Migliora" dal dettaglio di un'immagine in Galleria.</p>
+  <div class="box drop"><p class="muted">Trascina un'immagine qui, oppure</p><span class="btn">Scegli un file</span><p class="small muted">PNG, JPEG o WebP, massimo 20 MB e 4096 px per lato.</p></div>
+  <p class="warnline" style="color:var(--n-700)" data-on="P2" data-mark="P2">Carica un'immagine per attivare le azioni qui sotto.</p>
+
+  <div data-off="P1" data-mark="P1" style="max-width:620px">
+    <div style="margin-top:14px"><span class="badge">Scrivi in: inglese</span><p class="muted" style="margin:6px 0">Questo modello è stato addestrato su testi inglesi: in italiano coglie il soggetto ma perde molti dettagli.</p><a href="#" class="lnk">Mostra consigli</a></div>
+    <div class="lbl">Descrizione (facoltativa)</div><textarea class="ta" aria-label="Descrizione facoltativa"></textarea>
+    <div class="lbl">Seed <span class="q minor">?</span></div>
+    <div class="seedrow"><input class="inp" aria-label="Seed"><label><input type="checkbox" checked> Casuale</label><span class="btn btn--sm">Fissa seed</span></div>
+    <div class="stack" style="margin-top:12px">
+      <span class="btn btn--dis">Variazione leggera</span><span class="hint" data-off="P2">Carica un'immagine prima di generare.</span>
+      <span class="btn btn--dis">Variazione forte</span><span class="hint" data-off="P2">Carica un'immagine prima di generare.</span>
+    </div>
+    <div class="lbl">Ingrandisci <span class="q minor">?</span></div>
+    <div class="seedrow"><span class="btn btn--sm btn--sel">×2</span><span class="btn btn--sm">×4</span><span class="hint" data-on="P4" data-mark="P4">diventa 2304×1792 px</span></div>
+    <div class="stack" style="margin-top:8px"><span class="btn btn--dis">Ingrandisci</span><span class="hint" data-off="P2">Carica un'immagine prima di generare.</span>
+      <span class="btn btn--dis">Rimuovi lo sfondo</span><span class="hint" data-off="P2">Carica un'immagine prima di generare.</span></div>
+    <div class="lbl">Ingrandisci con rifinitura <span class="q minor">?</span></div>
+    <span class="badge">Scrivi in: inglese</span><p class="muted" style="margin:6px 0">Questo modello è stato addestrato su testi inglesi: in italiano coglie il soggetto ma perde molti dettagli.</p>
+    <div class="lbl">Descrizione per la rifinitura (facoltativa)</div><textarea class="ta" aria-label="Descrizione rifinitura"></textarea>
+    <div data-off="P3" data-mark="P3"><p style="margin-top:10px">Intensità rifinitura: 0.30 <span class="q minor">?</span></p><div class="slider"><span></span><span class="track"></span><span></span></div></div>
+    <div data-on="P3" data-mark="P3"><p style="margin-top:10px">Quanto può cambiare i dettagli: <b>poco</b></p><div class="slider"><span>Fedele all'originale</span><span class="track"></span><span>Più inventiva</span></div></div>
+    <p class="hint" style="margin-top:6px">Tempo stimato: circa 1-2 minuti.</p>
+    <div class="stack" style="margin-top:8px"><span class="btn btn--dis">Ingrandisci con rifinitura</span><span class="hint" data-off="P2">Carica un'immagine prima di generare.</span></div>
+  </div>
+
+  <div data-on="P1" data-mark="P1" style="margin-top:14px">
+    <div class="acards">
+      <div class="card acard"><h3>Cambiala un po'</h3><p class="hint">Una nuova versione simile all'originale.</p>
+        <div class="seedrow"><span class="btn btn--dis">Variazione leggera</span><span class="btn btn--dis">Variazione forte</span></div>
+        <p class="hint" data-off="P2">Carica un'immagine prima di generare.</p>
+        <details><summary class="hint" style="cursor:pointer">Indica cosa cambiare (facoltativo, in inglese)</summary><textarea class="ta" aria-label="Descrizione facoltativa"></textarea></details></div>
+      <div class="card acard"><h3>Rendila più grande</h3>
+        <div class="seedrow"><span class="btn btn--sm btn--sel">×2</span><span class="btn btn--sm">×4</span><span class="hint" data-on="P4" data-mark="P4">diventa 2304×1792 px</span></div>
+        <span class="btn btn--dis">Ingrandisci</span><span class="hint">pochi secondi</span>
+        <p class="hint" data-off="P2">Carica un'immagine prima di generare.</p>
+        <p style="font-weight:600;margin-top:6px">Con rifinitura dei dettagli</p>
+        <div data-off="P3"><p class="small">Intensità rifinitura: 0.30</p><div class="slider"><span></span><span class="track"></span><span></span></div></div>
+        <div data-on="P3" data-mark="P3"><p class="small">Quanto può cambiare i dettagli: <b>poco</b></p><div class="slider"><span>Fedele</span><span class="track"></span><span>Inventiva</span></div></div>
+        <span class="btn btn--dis">Ingrandisci con rifinitura</span><span class="hint">circa 1-2 minuti</span></div>
+      <div class="card acard"><h3>Togli lo sfondo</h3><p class="hint">Resta solo il soggetto, su fondo trasparente (PNG).</p>
+        <span class="btn btn--dis">Rimuovi lo sfondo</span>
+        <p class="hint" data-off="P2">Carica un'immagine prima di generare.</p></div>
+    </div>
+  </div>
+  <p class="mock-note" style="margin-top:12px" data-on="P4">La dimensione d'arrivo si legge dall'immagine caricata: qui l'esempio è 1152×896.</p>
+</div>
+</section>
+
+<section class="screen app" data-screen="galleria" aria-label="Galleria">
+<header class="app-header">
+  <span class="brandname">Image Generator</span>
+  <div style="flex:1;min-width:0;display:flex" data-mark="S5">
+    <nav class="appnav" aria-label="Navigazione principale">
+      <a href="#" data-goto="crea" class=""><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Crea</a>
+      <a href="#" data-goto="modifica" class=""><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20l4-1 11-11-3-3L5 16z"/></svg>Modifica</a>
+      <a href="#" data-goto="migliora" class=""><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/></svg>Migliora</a>
+      <a href="#" data-goto="galleria" class="is-on"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Galleria</a>
+      <a href="#" data-goto="impostazioni" class=""><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>Impostazioni</a>
+    </nav>
+  </div>
+  <div class="hdr-right">
+    <span data-on="N1" data-mark="N1"><span class="jobpill"><span class="dot"></span>1 in corso · 75%</span></span>
+    <span data-on="N3" data-mark="N3"><a href="#" class="helplink">Come funziona</a></span>
+    <button class="btn btn--sm">Tema chiaro</button>
+  </div>
+</header>
+
+<div class="page">
+  <div class="gtop"><div data-mark="S1"><h1 class="pagetitle" style="margin:0" data-off="S1">Galleria</h1></div><div class="seedrow"><span class="btn btn--sel">Galleria</span><span class="btn">Cestino</span></div></div>
+  <div class="gfilters" data-off="G3" data-mark="G3">
+    <div><p class="small" style="margin-bottom:4px">Compito</p><select class="inp" aria-label="Compito"><option>Tutti i compiti</option></select></div>
+    <label class="seedrow"><input type="checkbox"> Solo preferiti</label>
+    <div><p class="small" style="margin-bottom:4px"><span data-mark="L2"><span data-swap="L2|Cerca nella descrizione">Cerca nel prompt</span></span> <span class="q minor">?</span></p><input class="inp" placeholder="Cerca..." aria-label="Cerca"></div>
+  </div>
+  <div data-on="G3" data-mark="G3" style="margin:12px 0">
+    <input class="inp" placeholder="Cerca fra le descrizioni (es. mare, faro, gatto)" aria-label="Cerca">
+    <div class="chips" style="margin-top:8px"><span class="chipx is-on">Tutte</span><span class="chipx">★ Preferite</span><span class="chipx">Create</span><span class="chipx">Modificate</span><span class="chipx">Migliorate</span></div>
+  </div>
+  <p class="mock-note">Miniature sostituite da campiture e descrizioni di esempio: il mockup non contiene le immagini della galleria. Date e compiti illustrativi.</p>
+  <div class="ggrid">
+    <div class="gitem" data-mark="G2"><i class="ph1"></i><span class="qa" data-on="G2"><span title="Preferito">☆</span><span title="Scarica">⤓</span><span title="Modifica">✎</span></span><p>add a white seashell on the sand</p><span class="gmeta" data-on="G1" data-mark="G1">Modifica con le parole · 2 ore fa</span></div>
+    <div class="gitem"><i class="ph1"></i><p>add a yellow bucket on the sand</p><span class="gmeta" data-on="G1">Modifica con le parole · 2 ore fa</span></div>
+    <div class="gitem"><i class="ph2"></i><p>una coppia sotto un ombrellone rosso al mare...</p><span class="gmeta" data-on="G1">Foto realistica · 3 ore fa</span></div>
+    <div class="gitem"><i class="ph2"></i><p>una coppia sotto un ombrellone rosso al mare...</p><span class="gmeta" data-on="G1">Foto realistica · 3 ore fa</span></div>
+    <div class="gitem"><i class="ph8"></i><p>old fisherman on the harbour at sunset, wrinkles...</p><span class="gmeta" data-on="G1">Immagine di qualità · ieri</span></div>
+    <div class="gitem"><i class="ph3"></i><p>a red fox in a snowy forest, morning light</p><span class="gmeta" data-on="G1">Bozza veloce · ieri</span></div>
+    <div class="gitem"><i class="ph4"></i><p>a lighthouse on a cliff at sunset, oil painting</p><span class="gmeta" data-on="G1">Bozza veloce · ieri</span></div>
+    <div class="gitem"><i class="ph5"></i><p>(senza prompt)</p><span class="gmeta" data-on="G1">Variazione leggera · ieri</span></div>
+    <div class="gitem"><i class="ph6"></i><p>flat vector emblem illustration, brown fur...</p><span class="gmeta" data-on="G1">Testo nell'immagine · 2 giorni fa</span></div>
+    <div class="gitem"><i class="ph7"></i><p>a red cat sleeping on a rainy window sill</p><span class="fav">★ Preferito</span><span class="gmeta" data-on="G1">Foto realistica · 2 giorni fa</span></div>
+    <div class="gitem"><i class="ph4"></i><p>(senza prompt)</p><span class="fav">★ Preferito</span><span class="gmeta" data-on="G1">Ingrandisci · 2 giorni fa</span></div>
+    <div class="gitem"><i class="ph5"></i><p>winter, snow</p><span class="gmeta" data-on="G1">Bozza veloce · 3 giorni fa</span></div>
+  </div>
+
+  <p class="statehead">Dettaglio di un'immagine (si apre con un clic)</p>
+  <div class="card detail">
+    <i class="resimg ph1"></i>
+    <div>
+      <dl class="dl" data-off="G4" data-mark="G4">
+        <div><dt>Prompt</dt><dd>add a white seashell on the sand</dd></div>
+        <div><dt>Prompt finale</dt><dd>add a white seashell on the sand</dd></div>
+        <div><dt>Seed</dt><dd>[DATO REALE]</dd></div>
+        <div><dt>Modello</dt><dd>flux2_klein_4b, qwen3_4b_fp4, flux2_vae</dd></div>
+        <div><dt>Dimensioni</dt><dd>1152×896 px</dd></div>
+        <div><dt>Durata</dt><dd>9.4 s</dd></div>
+      </dl>
+      <div data-on="G4" data-mark="G4">
+        <p class="small muted">Descrizione</p><p>add a white seashell on the sand</p>
+        <p class="small muted" style="margin-top:8px">Fatta con</p><p>Modifica con le parole · 1152×896 px · 2 ore fa</p>
+        <details><summary class="techsum">Dettagli tecnici (seed, modelli, durata)</summary><p class="hint">Seed [DATO REALE] · flux2_klein_4b, qwen3_4b_fp4, flux2_vae · 9.4 s</p></details>
+      </div>
+      <p style="margin-top:8px"><a href="#" class="lnk">Vedi immagine di origine</a></p>
+      <div class="actions" data-off="G5" data-mark="G5"><span class="btn btn--sm">Scarica</span><span class="btn btn--sm">Aggiungi ai preferiti</span><span class="btn btn--sm">Rigenera</span><span class="btn btn--sm">Modifica</span><span class="btn btn--sm">Migliora</span><span class="btn btn--sm btn--danger">Elimina</span></div>
+      <div data-on="G5" data-mark="G5">
+        <p class="small muted" style="margin-top:8px">Continua da qui</p>
+        <div class="actions" style="margin-top:4px"><span class="btn btn--pri btn--sm">Modifica</span><span class="btn btn--sm">Migliora</span><span class="btn btn--sm">Un'altra variante</span></div>
+        <div class="actions"><span class="btn btn--sm">Scarica</span><span class="btn btn--sm">☆ Aggiungi ai preferiti</span><span class="btn btn--sm btn--danger" style="margin-left:auto">Elimina</span></div>
+      </div>
+      <p class="okline" data-off="G6" data-mark="G6">Nuova generazione avviata. Segui l'avanzamento nella pagina Crea.</p>
+      <p class="okline" data-on="G6" data-mark="G6">Nuova variante in preparazione: comparirà in cima alla Galleria appena pronta.</p>
+    </div>
+  </div>
+</div>
+</section>
+
+<section class="screen app" data-screen="impostazioni" aria-label="Impostazioni">
+<header class="app-header">
+  <span class="brandname">Image Generator</span>
+  <div style="flex:1;min-width:0;display:flex" data-mark="S5">
+    <nav class="appnav" aria-label="Navigazione principale">
+      <a href="#" data-goto="crea" class=""><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Crea</a>
+      <a href="#" data-goto="modifica" class=""><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20l4-1 11-11-3-3L5 16z"/></svg>Modifica</a>
+      <a href="#" data-goto="migliora" class=""><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/></svg>Migliora</a>
+      <a href="#" data-goto="galleria" class=""><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Galleria</a>
+      <a href="#" data-goto="impostazioni" class="is-on"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>Impostazioni</a>
+    </nav>
+  </div>
+  <div class="hdr-right">
+    <span data-on="N1" data-mark="N1"><span class="jobpill"><span class="dot"></span>1 in corso · 75%</span></span>
+    <span data-on="N3" data-mark="N3"><a href="#" class="helplink">Come funziona</a></span>
+    <button class="btn btn--sm">Tema chiaro</button>
+  </div>
+</header>
+
+<p class="mock-note" style="margin:8px 16px">Stato alternativo: il banner che compare in cima a ogni pagina quando il motore è spento.</p>
+<div class="banner" data-off="N2" data-mark="N2"><span>Il motore non risponde.</span><span>Avvialo da terminale con <code>./scripts/start.sh</code>.</span></div>
+<div class="banner" data-on="N2" data-mark="N2"><span>Il motore che crea le immagini è spento.</span><span>Riapri Image Generator dal menu delle applicazioni: questo avviso sparisce da solo quando torna attivo.</span></div>
+<div class="page">
+  <div data-mark="S1"><h1 class="pagetitle" data-off="S1">Impostazioni</h1></div>
+  <div class="cards">
+    <div class="card" data-on="I1" data-mark="I1">
+      <div class="summary"><span class="sumitem ok">✓ Tutto pronto</span><span class="sumitem">15 lavori disponibili su 15</span><span class="sumitem">Disco: 17,9 GB liberi</span><span class="sumitem">Scheda video: nessun altro programma la usa</span></div>
+    </div>
+    <div class="card"><div class="lbl" style="margin-top:0">Motore <span class="q minor">?</span></div><p>Acceso, versione 0.38.2.</p></div>
+    <div class="card"><div class="lbl" style="margin-top:0">Scheda video <span class="q minor">?</span></div><p>NVIDIA GeForce RTX 4060 Laptop GPU</p><div class="vbar"><i></i></div><p class="hint">2,5 GB liberi di 7,6 GB</p></div>
+    <div class="card"><div class="lbl" style="margin-top:0">Disco <span class="q minor">?</span></div><p>17,9 GB liberi</p><p class="hint">Cestino: 1 immagine (1 MB). <a href="#" class="lnk">Vai al cestino</a></p></div>
+    <div class="card"><div class="lbl" style="margin-top:0">Modello in memoria <span class="q minor">?</span></div><p>FLUX.2 klein</p></div>
+
+    <div class="card" data-off="I2" data-mark="I2">
+      <div class="lbl" style="margin-top:0">Modelli <span class="q minor">?</span></div>
+      <table class="mtable">
+        <tr><th>Modello</th><th>Stato</th><th>Dimensione</th><th class="lic">Licenza</th></tr>
+        <tr><td>Juggernaut XL v8</td><td>Installato</td><td>6,6 GB</td><td class="lic">RunDiffusion, da verificare prima di un uso commerciale</td></tr>
+        <tr><td>SDXL offset LoRA</td><td>Installato</td><td>47 MB</td><td class="lic"><span data-swap="I3|Libera, con limiti d'uso">openrail++</span></td></tr>
+        <tr><td>Fooocus inpaint patch v2.6</td><td>Installato</td><td>1,2 GB</td><td class="lic">Fooocus, da verificare prima di un uso commerciale</td></tr>
+        <tr><td>4x-UltraSharp</td><td>Installato</td><td>64 MB</td><td class="lic" data-mark="I3"><span data-swap="I3|Solo uso non commerciale">cc-by-nc-sa-4.0</span></td></tr>
+        <tr><td>FLUX.2 [klein] 4B fp8</td><td>Installato</td><td>3,8 GB</td><td class="lic"><span data-swap="I3|Libera, anche commerciale">apache-2.0</span></td></tr>
+        <tr><td>Qwen3-4B text encoder fp4 (FLUX.2 klein)</td><td>Installato</td><td>3,6 GB</td><td class="lic"><span data-swap="I3|Libera, anche commerciale">apache-2.0</span></td></tr>
+        <tr><td>Qwen3-4B text encoder bf16 (fallback for fp4)</td><td>Mancante</td><td>7,5 GB</td><td class="lic"><span data-swap="I3|Libera, anche commerciale">apache-2.0</span></td></tr>
+        <tr><td>Z-Image Turbo int8</td><td>Installato</td><td>5,8 GB</td><td class="lic"><span data-swap="I3|Libera, anche commerciale">apache-2.0</span></td></tr>
+        <tr><td>BiRefNet (rimozione sfondo)</td><td>Installato</td><td>0,4 GB</td><td class="lic"><span data-swap="I3|Libera, anche commerciale">mit</span></td></tr>
+      </table>
+      <p class="hint" style="margin-top:6px">Elenco ridotto: l'app ne mostra 13.</p>
+    </div>
+    <div class="card" data-on="I2" data-mark="I2">
+      <div class="lbl" style="margin-top:0">Cosa puoi fare con i modelli installati</div>
+      <div class="feat"><span>Bozza veloce, Immagine di qualità, Modifica una parte, Allarga, Variazioni<br><span class="hint">Juggernaut XL · 8,3 GB · da verificare prima di un uso commerciale</span></span><span class="ok">✓ Pronto</span></div>
+      <div class="feat"><span>Testo nell'immagine, Dallo schizzo, In posa, Dai riferimenti, Modifica con le parole<br><span class="hint">FLUX.2 klein · 7,7 GB · <span data-swap="I3|libera, anche commerciale">apache-2.0</span></span></span><span class="ok">✓ Pronto</span></div>
+      <div class="feat"><span>Foto realistica<br><span class="hint">Z-Image Turbo · 6,1 GB · <span data-swap="I3|libera, anche commerciale">apache-2.0</span></span></span><span class="ok">✓ Pronto</span></div>
+      <div class="feat"><span>Ingrandisci<br><span class="hint">4x-UltraSharp · 64 MB · <span data-swap="I3|solo uso non commerciale">cc-by-nc-sa-4.0</span></span></span><span class="ok">✓ Pronto</span></div>
+      <div class="feat"><span>Rimuovi lo sfondo<br><span class="hint">BiRefNet · 0,4 GB · <span data-swap="I3|libera, anche commerciale">mit</span></span></span><span class="ok">✓ Pronto</span></div>
+      <details><summary class="techsum">Tutti i file dei modelli (13), con i nomi tecnici</summary><p class="hint">Facoltativo e non installato: Qwen3-4B bf16, 7,5 GB, alternativa più pesante a un componente già presente.</p></details>
+    </div>
+
+    <div class="card"><div class="lbl" style="margin-top:0">Esempi</div><p>8 esempi presenti.</p>
+      <div class="seedrow" style="margin-top:8px" data-off="I4"><span class="code">cd backend &amp;&amp; uv run python -m app.cli.assets examples</span><span class="btn btn--sm">Copia</span></div>
+      <div data-on="I4" data-mark="I4" style="margin-top:8px"><span class="btn btn--sm">Rigenera gli esempi</span> <span class="hint">pochi minuti, usa la scheda video</span><br><span class="btn btn--sm" style="margin-top:6px">Crea le anteprime degli stili</span> <span class="hint">circa un'ora</span></div>
+    </div>
+    <div class="card" data-off="I5" data-mark="I5"><div class="lbl" style="margin-top:0">Cartella output del motore</div><p class="muted">Le immagini generate restano anche nella cartella di output di ComfyUI. Svuotala se il disco è pieno: le tue immagini sono già salvate nella Galleria.</p><span class="btn btn--danger" style="margin-top:8px">Svuota cartella output del motore</span></div>
+    <div class="card" data-on="I5" data-mark="I5"><div class="lbl" style="margin-top:0">Copie di lavoro del motore</div><p class="muted">Il motore conserva una seconda copia di ogni immagine. Puoi cancellarle per liberare spazio: le tue immagini restano tutte nella Galleria.</p><span class="btn btn--danger" style="margin-top:8px">Cancella le copie di lavoro</span></div>
+    <div class="card"><div class="lbl" style="margin-top:0">Tema</div><div class="seedrow"><span class="btn btn--sel">Scuro</span><span class="btn">Chiaro</span></div></div>
+  </div>
+</div>
+</section>
+
+    </div>
+  </main>
+</div>
+
+<dialog id="copy-dialog" role="dialog" aria-modal="true" aria-labelledby="copy-title">
+  <h2 id="copy-title">La tua selezione</h2>
+  <p id="copy-status">Testo pronto da incollare in chat.</p>
+  <textarea id="copy-text" readonly></textarea>
+  <div class="dialog-actions"><button class="tool-btn tool-btn--ghost" id="copy-close">Chiudi</button><button class="tool-btn" id="copy-again">Copia</button></div>
+</dialog>
+
+<script>
+/* ===== 5. Dati: l'unica parte di script da compilare =====
+   id: codice stabile (lettera area + numero) · g: chiave del gruppo (data-screen, oppure "x" per le trasversali)
+   t: titolo (max 8 parole) · w: problema osservato e proposta, 1-2 frasi · e: "rapida" | "media" | "ampia"
+   src (facoltativo): fonte, es. "riunione del 12/11" · note (facoltativo): conflitto o rischio da valutare
+   done (facoltativo, Fase B): true quando la proposta è già applicata nel codice */
+const PRODUCT = "Image Generator";
+const GROUPS = {crea: "Crea", modifica: "Modifica", migliora: "Migliora", galleria: "Galleria", impostazioni: "Impostazioni", x: "Trasversali (tutte le schermate)"};
+const PROPOSALS = [
+  {id: "C1", g: "crea", t: "Risultato grande e sempre in vista", w: "Il riquadro del risultato occupa un quinto dello schermo e sparisce appena si scorre il modulo, lungo oltre 2000 px: l'immagine, che è lo scopo della pagina, si guarda piccola o non si vede.", e: "rapida"},
+  {id: "C2", g: "crea", t: "Bottone Genera sempre raggiungibile, con riepilogo", w: "Genera sta in fondo, dopo la griglia degli stili: chi ha scritto la descrizione deve scorrere tutta la pagina. Barra fissa con il riepilogo di cosa partirà e quanto ci vorrà.", e: "rapida"},
+  {id: "C3", g: "crea", t: "Compiti compatti, in due gruppi", w: "Sette schede a tutta larghezza spingono la descrizione a metà schermo. Due gruppi (da una descrizione, da tue immagini) dicono subito quali compiti chiedono una foto.", e: "rapida"},
+  {id: "C4", g: "crea", t: "Tempo, lingua e \"pronto subito\" su ogni compito", w: "Chi sceglie non sa che Bozza impiega 4 s e Qualità 30 s, né quale capisce l'italiano. La SPEC prevedeva il segno \"pronto subito\" per il modello già in memoria: il dato esiste nello stato di sistema ma il selettore non lo mostra.", e: "media", src: "SPEC § 11.2"},
+  {id: "C5", g: "crea", t: "Descrizione in primo piano, esempi sotto", w: "La casella della descrizione, il campo che si usa sempre, arriva dopo esempi e \"Importa da immagine\" ed è alta due righe. Più grande e subito dopo il compito; esempi come scelte rapide sotto.", e: "rapida"},
+  {id: "C6", g: "crea", t: "Guida alla lingua in una riga", w: "Badge, frase di due righe e link occupano quattro righe prima di poter scrivere. Basta \"Scrivi in inglese, in italiano perde dettagli\".", e: "rapida"},
+  {id: "C7", g: "crea", t: "Da \"sembra italiano\" a un'alternativa", w: "L'avviso dice cosa non va ma non cosa fare. Accanto, un bottone che passa a un compito che capisce l'italiano (Foto realistica, Testo nell'immagine).", e: "media"},
+  {id: "C8", g: "crea", t: "Traduci in inglese con un clic", w: "Chi non sa l'inglese resta bloccato sui compiti SDXL. Un bottone che traduce la descrizione toglie la barriera più alta per i meno esperti.", e: "ampia", note: "la SPEC § 2.2 esclude la traduzione automatica per scelta dell'utente; servirebbe anche un modello di traduzione locale"},
+  {id: "C9", g: "crea", t: "Stili chiusi, con una prima scelta breve", w: "277 stili con nomi inglesi (\"cinematic-diva\", \"Avant-garde\") occupano mezza pagina anche quando non servono. Sei stili in vista, il catalogo completo a richiesta.", e: "rapida", note: "i 6 stili della prima scelta vanno decisi insieme"},
+  {id: "C10", g: "crea", t: "Proporzioni con forma disegnata e uso", w: "\"Orizzontale 5:4 · 1152×896\" chiede di immaginare la forma. Un rettangolo disegnato e l'uso tipico (storie, post, schermo); i pixel restano nel dettaglio.", e: "rapida"},
+  {id: "C11", g: "crea", t: "Numero di immagini a bottoni 1-4", w: "Un campo numerico per scegliere fra 1 e 4 richiede di sapere il massimo. Quattro bottoni lo dicono da soli.", e: "rapida"},
+  {id: "C12", g: "crea", t: "Seed dentro le opzioni avanzate", w: "Il campo Seed, con Casuale e Fissa seed, è in vista come se fosse una scelta da fare ogni volta. Serve solo a rifare un risultato identico.", e: "rapida"},
+  {id: "C13", g: "crea", t: "Azioni sul risultato con conferma", w: "\"Preferito\" non cambia aspetto dopo il clic e non si può togliere; \"Rigenera\" parte senza dire niente. Stato visibile, e Migliora accanto a Modifica.", e: "media"},
+  {id: "C14", g: "crea", t: "Area vuota con le ultime immagini", w: "\"Le immagini generate appariranno qui\" occupa lo spazio migliore con una frase. Al suo posto le ultime quattro immagini e un rimando alla Galleria.", e: "media"},
+  {id: "C15", g: "crea", t: "Avanzamento come barra, senza \"passi\"", w: "\"Passo 3 di 4\" espone il meccanismo del modello. Una barra con la percentuale, e una frase chiara quando il primo lavoro con un modello richiede più tempo.", e: "rapida"},
+  {id: "C16", g: "crea", t: "La descrizione resta cambiando pagina", w: "Il modulo vive solo nella pagina: chi va in Galleria a cercare un'idea e torna su Crea trova descrizione e scelte azzerate.", e: "media"},
+
+  {id: "M1", g: "modifica", t: "Modalità spiegate in una riga", w: "\"Modifica una parte\" e \"Modifica con le parole\" sembrano la stessa cosa a chi non le ha provate. Una riga sotto ciascuna dice come si usa.", e: "rapida"},
+  {id: "M2", g: "modifica", t: "Scegli dalla Galleria, non solo dal disco", w: "Per modificare un'immagine già creata bisogna passare dal dettaglio in Galleria o cercare il file sul disco. Il selettore della Galleria esiste già per i riferimenti in Crea.", e: "media"},
+  {id: "M3", g: "modifica", t: "Passi numerati: cosa, immagine, descrizione", w: "Genera disattivato con \"Carica un'immagine prima di generare\" in piccolo: la sequenza si scopre per tentativi. Tre passi numerati la rendono visibile.", e: "rapida"},
+  {id: "M4", g: "modifica", t: "Istruzione sopra l'immagine da colorare", w: "Dopo il caricamento compare una barra di nove strumenti e nessuna indicazione: chi non conosce l'inpainting non sa che deve colorare la zona.", e: "rapida"},
+  {id: "M5", g: "modifica", t: "Parte da \"Modifica con le parole\"", w: "La pagina apre su \"Modifica una parte\", che richiede pennello e inglese. \"Modifica con le parole\" capisce l'italiano e non chiede di disegnare: è il punto d'ingresso più facile.", e: "rapida"},
+
+  {id: "P1", g: "migliora", t: "Azioni raggruppate per risultato voluto", w: "Cinque bottoni in colonna, due caselle di descrizione e due guide alla lingua sulla stessa pagina. Tre schede (cambiala un po', più grande, togli lo sfondo) ciascuna con i suoi campi.", e: "rapida"},
+  {id: "P2", g: "migliora", t: "Un solo avviso al posto di cinque", w: "\"Carica un'immagine prima di generare\" è ripetuto sotto cinque bottoni. Basta una riga sotto il punto di caricamento.", e: "rapida"},
+  {id: "P3", g: "migliora", t: "Intensità della rifinitura a parole", w: "\"Intensità rifinitura: 0.30\" è un decimale senza scala. Agli estremi \"fedele all'originale\" e \"più inventiva\", con il valore detto a parole.", e: "rapida"},
+  {id: "P4", g: "migliora", t: "Dimensione d'arrivo accanto a ×2 e ×4", w: "Chi ingrandisce non sa quanto diventerà grande l'immagine. La dimensione finale si calcola da quella caricata.", e: "rapida"},
+
+  {id: "G1", g: "galleria", t: "Didascalia con compito e quando", w: "Molte miniature hanno la stessa descrizione (\"Voglio una fotografia di una coppia al mare...\" sei volte) e non si distinguono. Compito e tempo relativo sotto la descrizione.", e: "rapida"},
+  {id: "G2", g: "galleria", t: "Azioni rapide sulla miniatura", w: "Per mettere un preferito o scaricare bisogna aprire il dettaglio. Tre icone sulla miniatura coprono le azioni più frequenti.", e: "media"},
+  {id: "G3", g: "galleria", t: "Ricerca grande e filtri a scelta rapida", w: "Un menu \"Compito\" con tutti i compiti e una casella \"Solo preferiti\". Ricerca a tutta larghezza e filtri per tipo di lavoro (create, modificate, migliorate).", e: "rapida"},
+  {id: "G4", g: "galleria", t: "Dettaglio: dati tecnici in una sezione chiusa", w: "Il dettaglio mostra Seed, Prompt finale e identificativi dei modelli (\"flux2_klein_4b, qwen3_4b_fp4\") con lo stesso peso della descrizione. In vista descrizione, compito e data.", e: "rapida"},
+  {id: "G5", g: "galleria", t: "Azioni del dettaglio ordinate, Elimina in disparte", w: "Sei bottoni uguali in fila, Elimina accanto a Migliora. In evidenza il continuare (Modifica, Migliora), Elimina separato.", e: "rapida"},
+  {id: "G6", g: "galleria", t: "Rigenera: messaggio vero e Galleria aggiornata", w: "Dopo Rigenera il messaggio dice \"segui l'avanzamento nella pagina Crea\", ma Crea segue solo i lavori avviati da lì: non mostra niente. E la Galleria non si aggiorna da sola a lavoro finito.", e: "media"},
+
+  {id: "I1", g: "impostazioni", t: "Riepilogo \"tutto pronto\" in cima", w: "Cinque riquadri tecnici (versione del motore, memoria video, modello in memoria) per rispondere a una domanda: posso lavorare? Una riga di riepilogo lo dice subito.", e: "media"},
+  {id: "I2", g: "impostazioni", t: "Modelli raggruppati per cosa permettono", w: "Tredici righe come \"Qwen3-4B text encoder bf16 (fallback for fp4)\": chi legge non capisce cosa manca né se gli serve. Raggruppare per lavoro, file tecnici in una sezione chiusa.", e: "media"},
+  {id: "I3", g: "impostazioni", t: "Licenze dette a parole", w: "\"cc-by-nc-sa-4.0\", \"openrail++\", \"apache-2.0\": la differenza che conta (si può usare per lavoro?) non si legge.", e: "rapida"},
+  {id: "I4", g: "impostazioni", t: "Esempi e anteprime con un bottone", w: "Per rigenerare esempi e anteprime degli stili l'app mostra un comando da terminale da copiare. Un bottone lo avvia dall'app.", e: "ampia", note: "serve un endpoint che lanci il lavoro in background e ne mostri l'avanzamento"},
+  {id: "I5", g: "impostazioni", t: "\"Svuota cartella output\" detto per esteso", w: "\"Cartella output del motore\" e \"ComfyUI\" sono termini da sviluppatore, su un bottone rosso che fa paura. Dire che sono copie e che le immagini restano.", e: "rapida"},
+
+  {id: "N1", g: "x", t: "Lavori in corso visibili da ogni pagina", w: "Un lavoro avviato da Galleria o lasciato andare cambiando pagina non si vede più da nessuna parte. Un indicatore nella barra in alto, con la percentuale.", e: "ampia", note: "serve uno stato dei lavori condiviso fra le pagine, oggi ognuna segue solo i propri"},
+  {id: "N2", g: "x", t: "Motore spento: cosa fare, senza terminale", w: "Il banner rosso chiede di lanciare ./scripts/start.sh da terminale. Chi usa il menu delle applicazioni deve leggere che basta riaprire Image Generator, e che l'avviso sparisce da solo.", e: "rapida"},
+  {id: "N3", g: "x", t: "Guida \"Come funziona\" sempre raggiungibile", w: "Gli esempi del primo avvio spariscono appena c'è un'immagine in Galleria. Una pagina breve: quale compito per cosa, perché l'inglese, come continuare un'immagine.", e: "media"},
+  {id: "S1", g: "x", t: "Via i titoli che ripetono la scheda", w: "\"Modifica\", \"Migliora\", \"Galleria\", \"Impostazioni\" in grande sotto la scheda con lo stesso nome rubano spazio al lavoro.", e: "rapida"},
+  {id: "S3", g: "x", t: "Meno punti di domanda, aiuti in chiaro", w: "Su Crea ci sono sette \"?\" da aprire uno per uno. Dove l'aiuto serve a tutti, una riga sotto il campo; i \"?\" restano solo sulle opzioni avanzate.", e: "rapida"},
+  {id: "S5", g: "x", t: "Menu tutto visibile sul telefono", w: "A 375 px la scheda Impostazioni è tagliata (\"Imp\") e il menu va fatto scorrere di lato. Cinque icone con etichetta su tutta la larghezza.", e: "rapida"},
+  {id: "L1", g: "x", t: "\"Seed\" diventa \"Codice del risultato\"", w: "\"Seed\" e \"Fissa seed\" sono gergo di chi conosce la generazione d'immagini. Il concetto per l'utente è rifare un risultato uguale.", e: "rapida"},
+  {id: "L2", g: "x", t: "\"Prompt\" diventa \"descrizione\" ovunque", w: "La pagina dice \"Descrizione\" ma altrove restano \"prompt complessi\", \"Cerca nel prompt\", \"Aderenza al prompt\", \"Prompt negativo\": due parole per la stessa cosa.", e: "rapida"},
+  {id: "L3", g: "x", t: "\"Compito\" diventa \"Cosa vuoi creare?\"", w: "\"Compito\" suona come un esercizio. La domanda dice cosa scegliere.", e: "rapida"}
+];
+
+/* ===== Engine: non modificare sotto questa riga ===== */
+const EFFORT = {rapida: "Rapida", media: "Media", ampia: "Ampia"};
+const KEY = "ux-improver:" + PRODUCT;
+function load(){ try { return JSON.parse(localStorage.getItem(KEY) || "null"); } catch(e){ return null; } }
+function save(){ try { localStorage.setItem(KEY, JSON.stringify(ui)); } catch(e){} }
+const saved = load();
+const ui = {
+  sel: Object.assign(Object.fromEntries(PROPOSALS.map(p => [p.id, true])), saved && saved.sel || {}),
+  mode: saved && saved.mode || "sel",
+  tab: saved && saved.tab || document.querySelector("[role=tab]").dataset.tab,
+  view: saved && saved.view || "desktop",
+  pins: saved ? saved.pins !== false : true
+};
+if (!document.querySelector(`[data-screen="${ui.tab}"]`)) ui.tab = document.querySelector("[role=tab]").dataset.tab;
+const frame = document.getElementById("frame");
+const isOn = id => ui.mode === "all" ? true : ui.mode === "none" ? false : !!ui.sel[id];
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c]));
+
+function apply(){
+  document.querySelectorAll("[data-on]").forEach(el => { el.hidden = !el.dataset.on.split(" ").every(isOn); });
+  document.querySelectorAll("[data-off]").forEach(el => { el.hidden = el.dataset.off.split(" ").some(isOn); });
+  document.querySelectorAll("[data-swap]").forEach(el => {
+    if (el.dataset.orig === undefined) el.dataset.orig = el.textContent;
+    const cut = el.dataset.swap.indexOf("|");
+    el.textContent = isOn(el.dataset.swap.slice(0, cut)) ? el.dataset.swap.slice(cut + 1) : el.dataset.orig;
+  });
+  PROPOSALS.forEach(p => frame.classList.toggle("f-" + p.id, isOn(p.id)));
+  document.getElementById("sel-count").textContent = PROPOSALS.filter(p => ui.sel[p.id]).length + " / " + PROPOSALS.length;
+  document.querySelectorAll("#mode button").forEach(b => b.setAttribute("aria-pressed", b.dataset.mode === ui.mode));
+  document.querySelectorAll("#view button").forEach(b => b.setAttribute("aria-pressed", b.dataset.view === ui.view));
+  document.querySelectorAll("[role=tab]").forEach(b => b.setAttribute("aria-selected", b.dataset.tab === ui.tab));
+  document.querySelectorAll(".screen").forEach(s => s.classList.toggle("is-active", s.dataset.screen === ui.tab));
+  frame.classList.toggle("is-mobile", ui.view === "mobile");
+  frame.classList.toggle("pins-off", !ui.pins);
+  document.getElementById("pins").checked = ui.pins;
+  renderPanel();
+  save();
+  document.dispatchEvent(new CustomEvent("ux:applied"));
+}
+
+function renderPanel(){
+  const wrap = document.getElementById("groups");
+  const order = [ui.tab, "x"].filter((g, i, a) => GROUPS[g] && a.indexOf(g) === i);
+  wrap.innerHTML = "";
+  order.forEach(g => {
+    const items = PROPOSALS.filter(p => p.g === g);
+    if (!items.length) return;
+    const sec = document.createElement("section");
+    sec.className = "group";
+    const allOn = items.every(p => ui.sel[p.id]);
+    sec.innerHTML = `<div class="group__head"><h2 class="group__title">${esc(GROUPS[g])}</h2><button class="group__all" data-group="${g}">${allOn ? "Togli tutte" : "Tieni tutte"}</button></div>`;
+    items.forEach(p => {
+      const div = document.createElement("div");
+      div.className = "prop";
+      div.id = "prop-" + p.id;
+      div.innerHTML = `<input type="checkbox" id="cb-${p.id}" ${ui.sel[p.id] ? "checked" : ""} aria-describedby="why-${p.id}">
+        <div class="prop__head"><button class="prop__code" data-show="${p.id}" title="Mostra sulla schermata">${p.id}</button><label class="prop__title" for="cb-${p.id}">${esc(p.t)}</label></div>
+        <p class="prop__why" id="why-${p.id}">${esc(p.w)}</p>
+        <div class="prop__tags"><span class="chip chip--${p.e}">${EFFORT[p.e]}</span>${p.src ? `<span class="chip chip--nota">${esc(p.src)}</span>` : ""}${p.note ? `<span class="chip chip--nota" title="${esc(p.note)}">da valutare: ${esc(p.note)}</span>` : ""}${p.done ? '<span class="chip chip--fatta">applicata</span>' : ""}</div>`;
+      sec.appendChild(div);
+    });
+    wrap.appendChild(sec);
+  });
+  const others = Object.keys(GROUPS).filter(g => !order.includes(g));
+  if (others.length){
+    const rest = document.createElement("p");
+    rest.className = "panel__intro";
+    rest.textContent = "Altre schermate: " + others.map(g => `${GROUPS[g]} ${PROPOSALS.filter(p => p.g === g && ui.sel[p.id]).length}/${PROPOSALS.filter(p => p.g === g).length}`).join(" · ");
+    wrap.appendChild(rest);
+  }
+}
+
+function show(id){
+  const p = PROPOSALS.find(x => x.id === id);
+  if (p && p.g !== "x" && p.g !== ui.tab && GROUPS[p.g]){ ui.tab = p.g; apply(); }
+  const target = [...document.querySelectorAll(`.screen.is-active [data-mark="${id}"]`)].find(el => el.offsetParent !== null);
+  if (!target) return;
+  target.scrollIntoView({behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "center"});
+  target.classList.remove("flash-target"); void target.offsetWidth; target.classList.add("flash-target");
+}
+
+function addPins(){
+  document.querySelectorAll("[data-mark]").forEach(el => {
+    const b = document.createElement("button");
+    b.className = "pin"; b.type = "button"; b.textContent = el.dataset.mark;
+    b.setAttribute("aria-label", "Proposta " + el.dataset.mark);
+    b.addEventListener("click", e => {
+      e.preventDefault(); e.stopPropagation();
+      const card = document.getElementById("prop-" + el.dataset.mark);
+      if (!card) return;
+      card.scrollIntoView({behavior: "smooth", block: "center"});
+      card.classList.add("is-flash"); setTimeout(() => card.classList.remove("is-flash"), 1400);
+    });
+    el.appendChild(b);
+  });
+}
+
+function selectionText(){
+  const line = p => `${p.id} ${p.t} [${EFFORT[p.e]}]`;
+  const keep = PROPOSALS.filter(p => ui.sel[p.id]);
+  const drop = PROPOSALS.filter(p => !ui.sel[p.id]);
+  return `Proposte UX ${PRODUCT}: ${keep.length} tenute su ${PROPOSALS.length}\n\nTENERE\n${keep.map(line).join("\n") || "-"}\n\nSCARTARE\n${drop.map(line).join("\n") || "-"}\n`;
+}
+async function copyText(){
+  const txt = selectionText();
+  document.getElementById("copy-text").value = txt;
+  const status = document.getElementById("copy-status");
+  try { await navigator.clipboard.writeText(txt); status.textContent = "Copiato negli appunti."; }
+  catch(e){ status.textContent = "Copia automatica non disponibile: seleziona il testo e copialo a mano."; }
+}
+
+document.getElementById("groups").addEventListener("change", e => {
+  if (e.target.matches("input[type=checkbox]")){ ui.sel[e.target.id.slice(3)] = e.target.checked; ui.mode = "sel"; apply(); }
+});
+document.getElementById("groups").addEventListener("click", e => {
+  const g = e.target.closest("[data-group]");
+  if (g){ const items = PROPOSALS.filter(p => p.g === g.dataset.group); const v = !items.every(p => ui.sel[p.id]); items.forEach(p => ui.sel[p.id] = v); ui.mode = "sel"; apply(); }
+  const s = e.target.closest("[data-show]");
+  if (s) show(s.dataset.show);
+});
+document.querySelectorAll("#mode button").forEach(b => b.addEventListener("click", () => { ui.mode = b.dataset.mode; apply(); }));
+document.querySelectorAll("#view button").forEach(b => b.addEventListener("click", () => { ui.view = b.dataset.view; apply(); }));
+document.querySelectorAll("[role=tab]").forEach(b => b.addEventListener("click", () => { ui.tab = b.dataset.tab; apply(); window.scrollTo({top: 0}); }));
+document.getElementById("pins").addEventListener("change", e => { ui.pins = e.target.checked; apply(); });
+frame.addEventListener("click", e => {
+  const a = e.target.closest("a, button");
+  if (!a || a.classList.contains("pin")) return;
+  if (a.matches("a")) e.preventDefault();
+  if (a.dataset.goto && document.querySelector(`[data-screen="${a.dataset.goto}"]`)){ ui.tab = a.dataset.goto; apply(); frame.scrollIntoView({block: "start"}); }
+});
+const dlg = document.getElementById("copy-dialog");
+document.getElementById("copy").addEventListener("click", () => { copyText(); dlg.showModal(); });
+document.getElementById("copy-again").addEventListener("click", copyText);
+document.getElementById("copy-close").addEventListener("click", () => dlg.close());
+dlg.addEventListener("keydown", e => {
+  if (e.key !== "Tab") return;
+  const items = [...dlg.querySelectorAll("button, textarea, a[href], input")].filter(el => !el.disabled);
+  const first = items[0], last = items[items.length - 1];
+  if (e.shiftKey && document.activeElement === first){ e.preventDefault(); last.focus(); }
+  else if (!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); }
+});
+
+window.UX = {PRODUCT, PROPOSALS, GROUPS, ui, apply, selectionText};
+document.title = "Proposte UX · " + PRODUCT;
+addPins();
+apply();
+</script>
+</body>
+</html>
