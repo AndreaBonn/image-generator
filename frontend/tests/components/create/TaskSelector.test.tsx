@@ -84,6 +84,41 @@ describe("TaskSelector", () => {
     expect(onSelect).not.toHaveBeenCalled();
   });
 
+  it("offers the download of missing models instead of selecting the task", async () => {
+    const onSelect = vi.fn();
+    const onRequestModels = vi.fn();
+    const task = buildTask({
+      id: "bozza",
+      label: "Bozza veloce",
+      available: false,
+      unavailable_reason: "Modelli non installati: Juggernaut XL v8. Esegui uv run ...",
+      missing_model_ids: ["juggernaut_xl_v8"],
+    });
+    render(
+      <TaskSelector tasks={[task]} selectedTaskId={null} onSelect={onSelect} onRequestModels={onRequestModels} />,
+    );
+
+    const card = screen.getByRole("button", { name: /Bozza veloce/ });
+    expect(card).toBeEnabled();
+    expect(card).toHaveTextContent("Mancano dei modelli: clicca per scaricarli.");
+    expect(card).not.toHaveTextContent("Esegui uv run");
+    await userEvent.click(card);
+    expect(onRequestModels).toHaveBeenCalledWith(task);
+    expect(onSelect).not.toHaveBeenCalled();
+  });
+
+  it("keeps a task with missing models disabled when no download handler is given", () => {
+    const task = buildTask({
+      label: "Bozza veloce",
+      available: false,
+      unavailable_reason: "Modelli non installati.",
+      missing_model_ids: ["juggernaut_xl_v8"],
+    });
+    render(<TaskSelector tasks={[task]} selectedTaskId={null} onSelect={vi.fn()} />);
+
+    expect(screen.getByRole("button", { name: /Bozza veloce/ })).toBeDisabled();
+  });
+
   it("calls onSelect when an available task is clicked", async () => {
     const onSelect = vi.fn();
     const tasks = [buildTask({ id: "qualita", available: true })];

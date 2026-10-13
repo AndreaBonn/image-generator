@@ -45,6 +45,9 @@ export interface Task {
   family: string;
   available: boolean;
   unavailable_reason: string | null;
+  /** Models still to install before the task can run, in task order; empty when a
+   * download would not help (task available, or its workflow is missing). */
+  missing_model_ids: string[];
   prompt_language: PromptLanguage;
   prompt_tips: string[];
   prompt_examples: string[];

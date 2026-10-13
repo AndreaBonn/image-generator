@@ -4,6 +4,7 @@ import { fetchTasks, fetchExamples, fetchSystem, createJob, cancelJob } from "@/
 import { useJobEvents } from "@/api/useJobEvents";
 import { ApiError } from "@/api/errors";
 import { TaskSelector } from "@/components/create/TaskSelector";
+import { MissingModelsDialog } from "@/components/create/MissingModelsDialog";
 import { CreateForm } from "@/components/create/CreateForm";
 import { ResultArea } from "@/components/create/ResultArea";
 import { ExamplesPanel, type TryExamplePatch } from "@/components/create/ExamplesPanel";
@@ -33,6 +34,9 @@ export function CreatePage() {
   // C16: the form survives a visit to another page (sessionStorage, this tab only).
   const [draft] = useState(loadCreateDraft);
   const [taskId, setTaskId] = useState<string | null>(draft?.taskId ?? null);
+  const [modelsTask, setModelsTask] = useState<Task | null>(null);
+  // Task whose models just finished downloading: selected only once /tasks reports it available.
+  const [installedTaskId, setInstalledTaskId] = useState<string | null>(null);
   const [prompt, setPrompt] = useState(draft?.prompt ?? "");
   const [negativePrompt, setNegativePrompt] = useState(draft?.negativePrompt ?? "");
   const [aspectRatio, setAspectRatio] = useState(draft?.aspectRatio ?? "");
@@ -81,6 +85,16 @@ export function CreatePage() {
       }
     }
   }, [creationTasks, taskId]);
+
+  useEffect(() => {
+    const installed = creationTasks.find((t) => t.id === installedTaskId);
+    if (!installed?.available) return;
+    setInstalledTaskId(null);
+    setTaskId(installed.id);
+    setAspectRatio(installed.default_aspect_ratio);
+    setStyleIds(installed.default_styles);
+    resetReferences();
+  }, [creationTasks, installedTaskId, resetReferences]);
 
   function handleClearPrompt() {
     setPrompt("");
@@ -231,7 +245,18 @@ export function CreatePage() {
           selectedTaskId={taskId}
           onSelect={handleSelectTask}
           loadedFamily={systemQuery.data?.loaded_family ?? null}
+          onRequestModels={setModelsTask}
         />
+        {modelsTask ? (
+          <MissingModelsDialog
+            task={modelsTask}
+            onClose={() => setModelsTask(null)}
+            onInstalled={(id) => {
+              setModelsTask(null);
+              setInstalledTaskId(id);
+            }}
+          />
+        ) : null}
 
         {selectedTask ? (
           <CreateForm

@@ -94,6 +94,7 @@ Gli stili vengono copiati nella cartella dati locale, senza essere versionati ne
 | FN19 | (v1.2) Anteprime visive degli stili SDXL |
 | FN20 | (v1.2) Esempi al primo avvio e "prova questo" |
 | FN21 | (v1.2) Windows e macOS negli script di avvio e installazione (non verificati) |
+| FN22 | (v1.3) Download dei modelli mancanti proposto dal compito stesso (Crea, Modifica) |
 
 ### 2.2 Fuori dalla v1 (decisioni prese, non dimenticanze)
 
@@ -458,7 +459,7 @@ Base `/api/v1`. Formato di successo `{"data": ..., "meta": {...}}`, di errore `{
 |---|---|---|
 | GET | `/health` | `{"backend": "ok", "engine": "ok" \| "unreachable"}` |
 | GET | `/system` | VRAM totale/libera, disco libero, famiglia di modello caricata, modelli installati |
-| GET | `/tasks` | Catalogo compiti con disponibilità, guida al prompt, schema parametri (default, min, max, opzioni) |
+| GET | `/tasks` | Catalogo compiti con disponibilità, guida al prompt, schema parametri (default, min, max, opzioni); (v1.3) `missing_model_ids`, i modelli ancora da installare nell'ordine del compito, vuoto se il compito è disponibile o se manca il suo workflow |
 | GET | `/styles` | Stili SDXL `{id, name, source_file}` con ricerca `?q=` |
 | POST | `/models/{id}/install` | (v1.2) Avvia il download di un modello mancante dalle Impostazioni → `202` con `{status: "started"}`; `409 DOWNLOAD_IN_PROGRESS` se un altro download è già attivo, `507 DISK_FULL` se lo spazio è insufficiente. Destinazione, repo e sha256 vengono solo dal registro (`config/models.yaml`), mai dal corpo della richiesta |
 | POST | `/models/{id}/install/cancel` | (v1.2) Annulla il download in corso per quel modello: evento `cancelled`, file parziale rimosso dalla cartella di staging dell'app |
@@ -669,6 +670,7 @@ DIAL: strumento creativo personale per un utente non tecnico, linguaggio da tool
 **Come funziona** (`/guida`): tabella dei compiti di creazione dal catalogo (a cosa serve, lingua, tempo), perché a volte in inglese, come continuare da un'immagine, il codice del risultato, cosa fare se qualcosa non va (N3).
 
 **Impostazioni**: in cima il riepilogo "Tutto pronto" / "Da sistemare" (motore, lavori disponibili, disco, scheda video condivisa) (I1); stato del motore, VRAM, disco libero (in rosso sotto `MIN_FREE_DISK_GB`), modello in memoria; "Cosa puoi fare con i modelli installati" per famiglia di modelli, con licenze a parole (I2, I3) e l'elenco tecnico dei file in una sezione che si apre da sola se manca un modello; "Copie di lavoro del motore" con "Cancella le copie di lavoro" (I5); "Esempi e anteprime" con "Crea gli esempi mancanti" e "Crea le anteprime degli stili mancanti": avanzamento "N di M" con "Annulla", esito a parole, elenchi aggiornati a fine lavoro senza ricaricare; una creazione alla volta, il comando resta sotto "Da terminale" (I4); tema. Per ogni modello mancante c'è il bottone "Installa · <dimensione>" (FN16): chiede conferma mostrando dimensione e spazio che resterà, poi mostra la barra di avanzamento con "Annulla", la verifica e l'esito ("Installato", oppure l'errore con "Riprova"). Un solo download alla volta: durante un download gli altri bottoni sono disattivati. Se dopo il download resterebbe meno di `MIN_FREE_DISK_GB`, al posto del bottone compare il conto ("Servono X più Y di margine, liberi Z"). Il comando da terminale resta disponibile sotto "Da terminale".
+(v1.3, FN22) Lo stesso download parte dal compito: in Crea la card di un compito a cui mancano solo modelli scaricabili resta cliccabile ("Mancano dei modelli: clicca per scaricarli."), in Modifica sotto il motivo compare "Scarica i modelli mancanti". La finestra elenca i modelli con dimensione, il totale e lo spazio che resterà (o il conto se non basta); i modelli si scaricano uno alla volta ("Modello N di M") con "Annulla", un errore si ferma su quel modello con "Riprova", e durante il download la finestra non si chiude con Esc o clic fuori. A download finito in Crea il compito viene selezionato. Migliora non ha ancora questo percorso: resta il bottone delle Impostazioni.
 
 ### 11.3 Stati obbligatori
 

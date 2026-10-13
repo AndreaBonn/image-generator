@@ -10,6 +10,7 @@ export function buildTask(overrides: Partial<Task> = {}): Task {
     family: "sdxl",
     available: true,
     unavailable_reason: null,
+    missing_model_ids: [],
     prompt_language: {
       required: "en",
       label: "Scrivi in inglese",

@@ -104,7 +104,7 @@ export function ModelDownloadButton({ model, disk, download }: ModelDownloadButt
   );
 }
 
-function DownloadProgress({
+export function DownloadProgress({
   model,
   state,
   onCancel,

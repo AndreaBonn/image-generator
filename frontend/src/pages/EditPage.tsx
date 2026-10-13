@@ -20,6 +20,8 @@ import type { CreateJobBody, Task } from "@/api/types";
 import { PageTitle } from "@/components/layout/PageTitle";
 import { StepHeading } from "@/components/edit/StepHeading";
 import { GalleryReferenceDialog } from "@/components/create/GalleryReferenceDialog";
+import { MissingModelsDialog } from "@/components/create/MissingModelsDialog";
+import { canOfferModelDownload } from "@/lib/missingModels";
 
 const MAX_PROMPT_LENGTH = 2000;
 const INPAINT_REQUIRED_MESSAGE = "Descrivi cosa deve apparire nella zona scelta.";
@@ -41,6 +43,7 @@ export function EditPage() {
 function EditWorkspace() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [pickingFromGallery, setPickingFromGallery] = useState(false);
+  const [showModelsDialog, setShowModelsDialog] = useState(false);
   const sourceGenerationId = searchParams.get("source");
   const [mode, setMode] = useState<EditMode>(() => parseEditMode(searchParams.get("mode")) ?? "modifica_libera");
   const [image, setImage] = useState<SourceImage | null>(null);
@@ -316,6 +319,22 @@ function EditWorkspace() {
           </button>
           {disabledReason && !isGenerating ? (
             <p className="text-xs text-ink-muted">{disabledReason}</p>
+          ) : null}
+          {selectedTask && canOfferModelDownload(selectedTask) && !isGenerating ? (
+            <button
+              type="button"
+              onClick={() => setShowModelsDialog(true)}
+              className="min-h-11 w-fit rounded-md border border-accent bg-paper-2 px-3 py-2 text-sm font-semibold text-accent-text"
+            >
+              Scarica i modelli mancanti
+            </button>
+          ) : null}
+          {showModelsDialog && selectedTask ? (
+            <MissingModelsDialog
+              task={selectedTask}
+              onClose={() => setShowModelsDialog(false)}
+              onInstalled={() => setShowModelsDialog(false)}
+            />
           ) : null}
         </div>
       </div>
