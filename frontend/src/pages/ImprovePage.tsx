@@ -228,6 +228,7 @@ export function ImprovePage() {
           isGenerating={isGenerating}
           isActive={activeAction === "upscale"}
           onClick={() => handleAction("upscale")}
+          sourceSize={image ? { width: image.width, height: image.height } : null}
         />
 
         <RemoveBackgroundAction

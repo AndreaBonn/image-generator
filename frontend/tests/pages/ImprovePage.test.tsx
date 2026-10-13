@@ -219,7 +219,9 @@ describe("ImprovePage", () => {
     await uploadImage();
 
     await userEvent.type(screen.getByLabelText("Descrizione (facoltativa)"), "ignored");
+    expect(screen.getByText("Diventa 2304×1792 pixel.")).toBeInTheDocument();
     await userEvent.click(screen.getByRole("radio", { name: "×4" }));
+    expect(screen.getByText("Diventa 4608×3584 pixel.")).toBeInTheDocument();
     await userEvent.click(screen.getByRole("button", { name: "Ingrandisci" }));
 
     await waitFor(() => expect(createJob).toHaveBeenCalledTimes(1));
