@@ -9,6 +9,7 @@ describe("familyLabel", () => {
   it("maps a known family id to its human-readable label", () => {
     expect(familyLabel("sdxl")).toBe("SDXL (Juggernaut)");
     expect(familyLabel("flux2_klein")).toBe("FLUX.2 klein");
+    expect(familyLabel("sdxl_libero")).toBe("SDXL (Lustify)");
   });
 
   it("falls back to the raw family id when it has no known label", () => {

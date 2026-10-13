@@ -27,7 +27,7 @@ def test_list_tasks_returns_groups_guidance_parameters_and_availability(tmp_path
         {"id": "modifica", "label": "Modifica"},
         {"id": "migliora", "label": "Migliora"},
     ]
-    assert len(data["data"]) == 15
+    assert len(data["data"]) == 16
     draft = data["data"][0]
     assert draft["available"] is False
     assert "Modelli non installati" in draft["unavailable_reason"]
@@ -94,6 +94,7 @@ def test_list_tasks_exposes_a_typical_duration_for_creation_tasks(tmp_path: Path
     assert hints == {
         "bozza": "circa 4 s",
         "qualita": "circa 30 s",
+        "libero": None,
         "testo": "circa 9 s",
         "foto": "circa 17 s",
         "da_schizzo": "circa 15 s",

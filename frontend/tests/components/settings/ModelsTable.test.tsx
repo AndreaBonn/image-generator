@@ -47,6 +47,24 @@ describe("ModelsTable", () => {
     expect(screen.getByRole("button", { name: "Copiato" })).toBeInTheDocument();
   });
 
+  it("shows the manual steps instead of the download button for a hand-installed model", () => {
+    const steps = "Scarica Lustify da Civitai e rinominalo lustifySDXL.safetensors.";
+    renderTable([{
+      ...buildModelInfo({ id: "lustify_sdxl", status: "missing", enabled: true }),
+      install_command: "uv run --script scripts/install_models.py --install lustify_sdxl",
+      manual_install: steps,
+    }]);
+    expect(screen.getByText(steps)).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /installa/i })).not.toBeInTheDocument();
+    expect(screen.queryByText("Da terminale")).not.toBeInTheDocument();
+  });
+
+  it("keeps the download button for a model without manual steps", () => {
+    renderTable([buildModelInfo({ id: "sdxl_lightning_lora", status: "missing", enabled: true })]);
+    expect(screen.getByRole("button", { name: /installa/i })).toBeInTheDocument();
+    expect(screen.getByText("Da terminale")).toBeInTheDocument();
+  });
+
   it("shows label, status, size and license for every model", () => {
     renderTable([
       buildModelInfo({

@@ -107,13 +107,17 @@ function ModelRow({
       {needsInstall ? (
         <tr className="border-b border-border/50">
           <td colSpan={4} className="py-1">
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-              <ModelDownloadButton model={model} disk={disk} download={download} />
-              <details className="text-sm text-ink-muted">
-                <summary className="min-h-11 cursor-pointer content-center">Da terminale</summary>
-                <CopyableCommand command={model.install_command ?? `${installCommand} ${model.id}`} />
-              </details>
-            </div>
+            {model.manual_install ? (
+              <p className="text-sm text-ink-muted">{model.manual_install}</p>
+            ) : (
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+                <ModelDownloadButton model={model} disk={disk} download={download} />
+                <details className="text-sm text-ink-muted">
+                  <summary className="min-h-11 cursor-pointer content-center">Da terminale</summary>
+                  <CopyableCommand command={model.install_command ?? `${installCommand} ${model.id}`} />
+                </details>
+              </div>
+            )}
           </td>
         </tr>
       ) : null}

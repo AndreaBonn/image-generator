@@ -19,6 +19,19 @@ models:
     sha256: aeb7e9e6897a1e58b10494bd989d001e3d4bc9b634633cd7b559838f612c2867
     license: "RunDiffusion, da verificare prima di un uso commerciale"
 
+  - id: lustify_sdxl
+    label: Lustify SDXL
+    family: sdxl
+    folder: checkpoints
+    # Downloaded by hand from the author's Civitai page and renamed to this fixed name,
+    # so a newer version replaces the file without touching the registry or the workflow.
+    filename: lustifySDXL.safetensors
+    source: local
+    license: "Civitai, verificare la licenza della versione scaricata"
+    manual_install: >-
+      Scarica Lustify dalla pagina dell'autore su Civitai, rinomina il file in
+      lustifySDXL.safetensors e mettilo in engine/models/checkpoints.
+
   - id: sdxl_offset_lora
     label: SDXL offset LoRA
     family: sdxl

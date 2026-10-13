@@ -96,6 +96,24 @@ tasks:
       - 'portrait of an old fisherman, weathered face, golden hour, 85mm photo'
       - 'cozy reading corner, wooden shelves, rain on the window, soft warm light, detailed illustration'
 
+  - <<: *sdxl
+    id: libero
+    label: Creazione libera
+    description: Qualsiasi soggetto, la descrizione viene eseguita così com'è senza filtri aggiunti.
+    duration_hint: null
+    family: sdxl_libero
+    workflow: sdxl_libero_txt2img.json
+    model_ids: [lustify_sdxl, sdxl_offset_lora]
+    defaults: *quality_defaults
+    limits: *quality_limits
+    default_styles: []
+    prompt_tips:
+      - Descrivi la scena per esteso, il modello segue il testo alla lettera.
+      - Nessuno stile è attivo di default, così il risultato dipende solo dal testo.
+    prompt_examples:
+      - 'candid photo of a woman laughing on a rooftop at night, city lights, 35mm film'
+      - 'dramatic studio portrait of a dancer mid-jump, hard rim light, black background'
+
   - &flux
     <<: *sdxl
     id: testo

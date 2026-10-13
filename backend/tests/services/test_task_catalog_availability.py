@@ -5,7 +5,7 @@ from app.services.task_catalog import load_catalog
 def test_load_catalog_real_templates_and_missing_models(catalog_settings: Settings) -> None:
     catalog = load_catalog(settings=catalog_settings)
     tasks = {task.id: task for task in catalog.list_tasks()}
-    assert len(tasks) == 15
+    assert len(tasks) == 16
     assert tasks["bozza"].available is False
     assert tasks["bozza"].unavailable_reason is not None
     assert "modelli" in tasks["bozza"].unavailable_reason.lower()

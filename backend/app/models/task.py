@@ -59,7 +59,7 @@ class TaskDefinition(CatalogModel):
     label: NonEmptyText
     description: NonEmptyText
     group: Literal["crea", "modifica", "migliora"]
-    family: Literal["sdxl", "flux2_klein", "zimage", "upscale", "background"]
+    family: Literal["sdxl", "sdxl_libero", "flux2_klein", "zimage", "upscale", "background"]
     workflow: NonEmptyText | None = None
     workflow_by_reference_count: dict[int, NonEmptyText] | None = None
     min_references: int | None = Field(default=None, ge=1)

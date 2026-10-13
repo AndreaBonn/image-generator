@@ -42,6 +42,7 @@ class ModelEntry:
     sha256: str | None = None
     enabled: bool = True
     fooocus_migratable: bool = False
+    manual_install: str | None = None
 
 
 @dataclass(frozen=True)
@@ -113,13 +114,18 @@ def print_listing(entries: list[ModelEntry], paths: Paths) -> None:
             f"{size:>6}  {enabled:<7}  {entry.license}"
         )
         if entry.source == "local" and status == "missing":
-            print(f"  Modello locale mancante. Esegui {MIGRATE_COMMAND}.")
+            print(f"  Modello locale mancante. {local_install_hint(entry)}")
+
+
+def local_install_hint(entry: ModelEntry) -> str:
+    """How to obtain a local model: its own manual steps, or the Fooocus migration."""
+    return entry.manual_install or f"Usa la migrazione: {MIGRATE_COMMAND}."
 
 
 def download(entry: ModelEntry, paths: Paths, min_free_gb: float) -> None:
     """Download one huggingface entry, verify sha256, then move it into place atomically."""
     if entry.source == "local":
-        raise SystemExit(f"{entry.id}: modello locale, usa la migrazione: {MIGRATE_COMMAND}")
+        raise SystemExit(f"{entry.id}: modello locale. {local_install_hint(entry)}")
     destination = target_path(entry, paths)
     if destination.is_file():
         print(f"{entry.id}: already installed at {destination}")

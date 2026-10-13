@@ -1,5 +1,6 @@
 const FAMILY_LABELS: Record<string, string> = {
   sdxl: "SDXL (Juggernaut)",
+  sdxl_libero: "SDXL (Lustify)",
   flux2_klein: "FLUX.2 klein",
   zimage: "Z-Image",
   upscale: "Ingrandimento",

@@ -28,6 +28,7 @@ def model_status(model: ModelEntry, catalog: TaskCatalog) -> dict[str, Any]:
         "enabled": model.enabled,
         "license": model.license,
         "install_command": model_install_hint(model=model),
+        "manual_install": model.manual_install,
     }
 
 
