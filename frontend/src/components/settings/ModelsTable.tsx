@@ -3,6 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import type { DiskInfo, ModelInfo } from "@/api/types";
 import { modelStatusLabel } from "@/lib/modelStatus";
 import { formatSizeGb } from "@/lib/format";
+import { licenseLabel } from "@/lib/modelLicense";
 import { InfoTip } from "@/components/ui/InfoTip";
 import { HELP_TEXTS } from "@/lib/helpTexts";
 import { useModelDownload, type UseModelDownloadResult } from "@/hooks/useModelDownload";
@@ -101,7 +102,7 @@ function ModelRow({
         <td className="py-1 pr-2 text-ink-muted">
           {model.size_gb !== null ? formatSizeGb(model.size_gb) : "-"}
         </td>
-        <td className="py-1 pr-2 text-ink-muted">{model.license}</td>
+        <td className="py-1 pr-2 text-ink-muted">{licenseLabel(model.license)}</td>
       </tr>
       {needsInstall ? (
         <tr className="border-b border-border/50">

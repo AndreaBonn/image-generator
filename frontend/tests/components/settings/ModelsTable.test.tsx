@@ -65,6 +65,11 @@ describe("ModelsTable", () => {
     expect(screen.getByRole("button", { name: "Informazioni: Modelli" })).toBeInTheDocument();
   });
 
+  it("says a license id in words (I3)", () => {
+    renderTable([buildModelInfo({ id: "m1", license: "cc-by-nc-sa-4.0" })]);
+    expect(screen.getByText("Solo uso non commerciale (CC BY-NC-SA 4.0)")).toBeInTheDocument();
+  });
+
   it("shows a dash for the size when it is not known", () => {
     renderTable([buildModelInfo({ id: "m1", size_gb: null })]);
     expect(screen.getByText("-")).toBeInTheDocument();
