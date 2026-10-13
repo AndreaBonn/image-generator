@@ -18,22 +18,22 @@ export function ClearOutputCard() {
 
   return (
     <section className="flex flex-col gap-2 rounded-md border border-border bg-paper-2 p-3">
-      <h2 className="text-sm font-semibold text-ink">Cartella output del motore</h2>
+      <h2 className="text-sm font-semibold text-ink">Copie di lavoro del motore</h2>
       <p className="text-sm text-ink-muted">
-        Le immagini generate restano anche nella cartella di output di ComfyUI. Svuotala se il
-        disco è pieno: le tue immagini sono già salvate nella Galleria.
+        Il motore conserva una seconda copia delle immagini che crea. Puoi cancellarle per liberare
+        spazio: le tue immagini restano tutte nella Galleria.
       </p>
 
       {confirming ? (
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-sm text-ink">Confermi lo svuotamento? Non si può annullare.</span>
+          <span className="text-sm text-ink">Confermi la cancellazione? Non si può annullare.</span>
           <button
             type="button"
             onClick={() => mutation.mutate()}
             disabled={mutation.isPending}
             className="min-h-11 rounded-md border border-danger px-3 py-2 text-sm text-danger"
           >
-            Sì, svuota
+            Sì, cancella
           </button>
           <button
             type="button"
@@ -49,12 +49,12 @@ export function ClearOutputCard() {
           onClick={() => setConfirming(true)}
           className="min-h-11 w-fit rounded-md border border-danger px-3 py-2 text-sm text-danger"
         >
-          Svuota cartella output del motore
+          Cancella le copie di lavoro
         </button>
       )}
 
       {mutation.isError ? (
-        <p className="text-sm text-danger">Impossibile svuotare la cartella.</p>
+        <p className="text-sm text-danger">Impossibile cancellare le copie di lavoro.</p>
       ) : null}
 
       {result ? (

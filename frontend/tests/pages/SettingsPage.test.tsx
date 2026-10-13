@@ -95,14 +95,14 @@ describe("SettingsPage", () => {
     renderSettingsPage();
 
     const triggerButton = await screen.findByRole("button", {
-      name: "Svuota cartella output del motore",
+      name: "Cancella le copie di lavoro",
     });
     await userEvent.click(triggerButton);
 
     expect(clearSpy).not.toHaveBeenCalled();
-    expect(screen.getByText(/Confermi lo svuotamento/)).toBeInTheDocument();
+    expect(screen.getByText(/Confermi la cancellazione/)).toBeInTheDocument();
 
-    await userEvent.click(screen.getByRole("button", { name: "Sì, svuota" }));
+    await userEvent.click(screen.getByRole("button", { name: "Sì, cancella" }));
 
     await waitFor(() => expect(clearSpy).toHaveBeenCalledTimes(1));
     expect(

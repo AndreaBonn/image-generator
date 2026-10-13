@@ -15,6 +15,16 @@ function renderCard() {
 }
 
 describe("ClearOutputCard", () => {
+  it("explains the folder as working copies, with no engine jargon (I5)", () => {
+    renderCard();
+
+    expect(screen.getByRole("heading", { name: "Copie di lavoro del motore" })).toBeInTheDocument();
+    expect(
+      screen.getByText(/le tue immagini restano tutte nella Galleria/),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/ComfyUI/)).not.toBeInTheDocument();
+  });
+
   afterEach(() => {
     vi.restoreAllMocks();
   });
@@ -24,10 +34,10 @@ describe("ClearOutputCard", () => {
 
     renderCard();
     await userEvent.click(
-      screen.getByRole("button", { name: "Svuota cartella output del motore" }),
+      screen.getByRole("button", { name: "Cancella le copie di lavoro" }),
     );
 
-    expect(screen.getByText(/Confermi lo svuotamento/)).toBeInTheDocument();
+    expect(screen.getByText(/Confermi la cancellazione/)).toBeInTheDocument();
     expect(clearEngineOutput).not.toHaveBeenCalled();
   });
 
@@ -36,13 +46,13 @@ describe("ClearOutputCard", () => {
 
     renderCard();
     await userEvent.click(
-      screen.getByRole("button", { name: "Svuota cartella output del motore" }),
+      screen.getByRole("button", { name: "Cancella le copie di lavoro" }),
     );
     await userEvent.click(screen.getByRole("button", { name: "Annulla" }));
 
-    expect(screen.queryByText(/Confermi lo svuotamento/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Confermi la cancellazione/)).not.toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: "Svuota cartella output del motore" }),
+      screen.getByRole("button", { name: "Cancella le copie di lavoro" }),
     ).toBeInTheDocument();
     expect(clearEngineOutput).not.toHaveBeenCalled();
   });
@@ -52,12 +62,12 @@ describe("ClearOutputCard", () => {
 
     renderCard();
     await userEvent.click(
-      screen.getByRole("button", { name: "Svuota cartella output del motore" }),
+      screen.getByRole("button", { name: "Cancella le copie di lavoro" }),
     );
-    await userEvent.click(screen.getByRole("button", { name: "Sì, svuota" }));
+    await userEvent.click(screen.getByRole("button", { name: "Sì, cancella" }));
 
     expect(await screen.findByText("Rimossi 12 file, liberati 340 MB.")).toBeInTheDocument();
-    expect(screen.queryByText(/Confermi lo svuotamento/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Confermi la cancellazione/)).not.toBeInTheDocument();
   });
 
   it("shows an error message when clearing the folder fails", async () => {
@@ -65,12 +75,12 @@ describe("ClearOutputCard", () => {
 
     renderCard();
     await userEvent.click(
-      screen.getByRole("button", { name: "Svuota cartella output del motore" }),
+      screen.getByRole("button", { name: "Cancella le copie di lavoro" }),
     );
-    await userEvent.click(screen.getByRole("button", { name: "Sì, svuota" }));
+    await userEvent.click(screen.getByRole("button", { name: "Sì, cancella" }));
 
     await waitFor(() =>
-      expect(screen.getByText("Impossibile svuotare la cartella.")).toBeInTheDocument(),
+      expect(screen.getByText("Impossibile cancellare le copie di lavoro.")).toBeInTheDocument(),
     );
     expect(screen.queryByText(/Rimossi/)).not.toBeInTheDocument();
   });

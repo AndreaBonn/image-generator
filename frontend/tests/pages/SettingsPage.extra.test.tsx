@@ -56,7 +56,7 @@ describe("SettingsPage error retry", () => {
     // "Impostazioni" renders during loading too; wait for a success-only
     // element so the assertion below exercises the loaded, gpu-less state
     // instead of racing the query.
-    await screen.findByRole("button", { name: "Svuota cartella output del motore" });
+    await screen.findByRole("button", { name: "Cancella le copie di lavoro" });
     expect(screen.queryByText("Scheda video")).not.toBeInTheDocument();
     expect(screen.queryByRole("progressbar", { name: "VRAM in uso" })).not.toBeInTheDocument();
   });
