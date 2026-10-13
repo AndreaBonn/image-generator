@@ -20,6 +20,12 @@ function baseProps() {
 }
 
 describe("GalleryFilters", () => {
+  it("labels the search box with the plain word descrizione", () => {
+    render(<GalleryFilters {...baseProps()} />);
+
+    expect(screen.getByLabelText("Cerca nella descrizione")).toBeInTheDocument();
+  });
+
   it("lists every task plus the all-tasks default option", () => {
     render(<GalleryFilters {...baseProps()} />);
 

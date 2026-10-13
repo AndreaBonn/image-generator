@@ -51,8 +51,8 @@ export function GalleryFilters({
 
       <div className="flex w-full flex-1 flex-col gap-1 text-sm text-ink sm:w-auto sm:min-w-48">
         <span className="flex items-center gap-1">
-          <label htmlFor="gallery-search-input">Cerca nel prompt</label>
-          <InfoTip text={HELP_TEXTS.gallerySearch} label="Informazioni: Cerca nel prompt" />
+          <label htmlFor="gallery-search-input">Cerca nella descrizione</label>
+          <InfoTip text={HELP_TEXTS.gallerySearch} label="Informazioni: Cerca nella descrizione" />
         </span>
         <input
           id="gallery-search-input"

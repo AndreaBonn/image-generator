@@ -55,10 +55,10 @@ describe("resolveRecipeImport", () => {
     expect(result.skipped).toEqual([
       "compito",
       "proporzioni",
-      "prompt negativo",
+      "cosa evitare",
       "stili",
       "passi di generazione",
-      "aderenza al prompt",
+      "aderenza alla descrizione",
     ]);
   });
 
@@ -80,7 +80,7 @@ describe("resolveRecipeImport", () => {
       [],
     );
 
-    expect(result.skipped).toEqual(["compito", "proporzioni", "passi di generazione", "aderenza al prompt"]);
+    expect(result.skipped).toEqual(["compito", "proporzioni", "passi di generazione", "aderenza alla descrizione"]);
   });
 
   it("falls back to the task's default aspect ratio when the recipe's is not in its catalog", () => {
@@ -126,7 +126,7 @@ describe("resolveRecipeImport", () => {
     const result = resolveRecipeImport(buildRecipe(), tasks, [buildStyle()]);
 
     expect(result.patch.negativePrompt).toBeUndefined();
-    expect(result.skipped).toContain("prompt negativo");
+    expect(result.skipped).toContain("cosa evitare");
   });
 
   it("does not report the negative prompt as skipped when the recipe's negative prompt is blank", () => {
@@ -135,7 +135,7 @@ describe("resolveRecipeImport", () => {
     const result = resolveRecipeImport(buildRecipe({ negative_prompt: "   " }), tasks, [buildStyle()]);
 
     expect(result.patch.negativePrompt).toBeUndefined();
-    expect(result.skipped).not.toContain("prompt negativo");
+    expect(result.skipped).not.toContain("cosa evitare");
   });
 
   it("falls back to the task's default steps and cfg when the recipe's fall outside its limits", () => {
@@ -155,7 +155,7 @@ describe("resolveRecipeImport", () => {
 
     expect(result.patch.steps).toBe(30);
     expect(result.patch.cfg).toBe(4);
-    expect(result.skipped).toEqual(["passi di generazione", "aderenza al prompt"]);
+    expect(result.skipped).toEqual(["passi di generazione", "aderenza alla descrizione"]);
   });
 
   it("keeps steps and cfg at the exact boundary values of the task's limits", () => {

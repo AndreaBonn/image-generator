@@ -153,7 +153,7 @@ function TrashCard({
         />
       </div>
       <span className="line-clamp-2 px-1 text-xs text-ink-muted">
-        {generation.prompt || "(senza prompt)"}
+        {generation.prompt || "(senza descrizione)"}
       </span>
       <button
         type="button"

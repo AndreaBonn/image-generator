@@ -97,7 +97,7 @@ tasks:
   - &flux
     <<: *sdxl
     id: testo
-    label: Testo nell'immagine e prompt complessi
+    label: Scritte nell'immagine e scene complesse
     description: Componi scene articolate e immagini con brevi scritte.
     family: flux2_klein
     workflow: flux2_klein_txt2img.json
@@ -237,7 +237,7 @@ tasks:
       reason: Questo modello capisce bene sia l'italiano sia l'inglese.
     prompt_tips:
       - "Descrivi l'ambientazione della nuova scena: dove si trova il personaggio, la luce, lo stile."
-      - "La posa arriva dal primo riferimento, l'aspetto del personaggio dal secondo: non serve ripeterli nel prompt."
+      - "La posa arriva dal primo riferimento, l'aspetto del personaggio dal secondo: non serve ripeterli nella descrizione."
     prompt_examples:
       - In una palestra illuminata al neon, stile fotografico.
       - Su un palcoscenico teatrale, controluce drammatico, illustrazione pittorica.
@@ -272,7 +272,7 @@ tasks:
       reason: Questo modello capisce bene sia l'italiano sia l'inglese.
     prompt_tips:
       - "Descrivi la scena nuova: dove si trova il soggetto, cosa fa, la luce."
-      - "I riferimenti portano già il soggetto o il personaggio: non serve ripeterne l'aspetto nel prompt."
+      - "I riferimenti portano già il soggetto o il personaggio: non serve ripeterne l'aspetto nella descrizione."
     prompt_examples:
       - La persona delle foto seduta in un caffè di Parigi, luce del mattino.
       - Il personaggio delle immagini in piedi su una scogliera al tramonto, vento tra i capelli.
@@ -385,8 +385,8 @@ tasks:
     default_styles: []
     prompt_language:
       required: any
-      label: Nessun prompt necessario
-      reason: Questo compito ingrandisce l'immagine senza usare un prompt.
+      label: Nessuna descrizione necessaria
+      reason: Questo compito ingrandisce l'immagine senza bisogno di una descrizione.
     prompt_tips:
       - "Non serve una descrizione: scegli l'immagine e quanto ingrandirla."
       - ×2 dà un'immagine più leggera, ×4 una più grande.
@@ -430,7 +430,7 @@ tasks:
       batch: {min: 1, max: 1}
     prompt_language:
       required: any
-      label: Nessun prompt necessario
+      label: Nessuna descrizione necessaria
       reason: Il modello riconosce il soggetto senza istruzioni testuali.
     prompt_tips:
       - "Scegli un'immagine con un soggetto distinguibile."
@@ -465,7 +465,7 @@ tasks:
       denoise: {min: 0.1, max: 0.5}
       batch: {min: 1, max: 1}
     prompt_tips:
-      - "Il prompt è facoltativo: scrivi in inglese i dettagli da rifinire."
+      - "La descrizione è facoltativa: scrivi in inglese i dettagli da rifinire."
       - Una rifinitura più intensa può cambiare piccoli dettagli.
     prompt_examples:
       - sharp fabric texture

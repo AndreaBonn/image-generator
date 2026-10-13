@@ -41,3 +41,11 @@ def test_task_prompt_tips_are_italian(task: dict[str, Any]) -> None:
     english_tips = [tip for tip in task.get("prompt_tips", []) if is_english(tip)]
     assert english_tips == []
 
+
+
+@pytest.mark.parametrize("task", load_tasks(), ids=lambda task: task["id"])
+def test_task_copy_says_descrizione_not_prompt(task: dict[str, Any]) -> None:
+    language = task.get("prompt_language", {})
+    visible = [task["label"], task.get("description", ""), *task.get("prompt_tips", [])]
+    visible += [language.get("label", ""), language.get("reason", "")]
+    assert [text for text in visible if "prompt" in text.casefold()] == []

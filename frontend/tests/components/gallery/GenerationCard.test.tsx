@@ -53,7 +53,7 @@ describe("GenerationCard", () => {
     render(<GenerationCard generation={generation} onOpen={vi.fn()} />);
 
     expect(screen.getByAltText("Immagine generata")).toBeInTheDocument();
-    expect(screen.getByText("(senza prompt)")).toBeInTheDocument();
+    expect(screen.getByText("(senza descrizione)")).toBeInTheDocument();
   });
 
   it("sets the image width and height from the generation", () => {

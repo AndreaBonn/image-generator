@@ -120,7 +120,7 @@ Ogni compito appartiene a una **famiglia di modello**: l'insieme dei pesi che il
 |---|---|---|---|---|
 | `bozza` | Bozza veloce | Juggernaut XL v8 + LoRA SDXL-Lightning 4-step | 4 step, CFG 1.0, sampler `euler`, scheduler `sgm_uniform` | Inglese |
 | `qualita` | Immagine di qualità | Juggernaut XL v8 + offset LoRA 0.1 | 30 step, CFG 4.0, sampler `dpmpp_2m_sde_gpu`, scheduler `karras` (default Fooocus "Speed") | Inglese |
-| `testo` | Testo nell'immagine e prompt complessi | FLUX.2 [klein] 4B distilled fp8 | 4 step, CFG 1.0, sampler `euler` con `Flux2Scheduler` (grafo del template ufficiale distilled: `CFGGuider`, negativo azzerato con `ConditioningZeroOut`, nessun prompt negativo) | Inglese consigliato; italiano **DA VERIFICARE** in Fase 0 |
+| `testo` | Scritte nell'immagine e scene complesse | FLUX.2 [klein] 4B distilled fp8 | 4 step, CFG 1.0, sampler `euler` con `Flux2Scheduler` (grafo del template ufficiale distilled: `CFGGuider`, negativo azzerato con `ConditioningZeroOut`, nessun prompt negativo) | Inglese consigliato; italiano **DA VERIFICARE** in Fase 0 |
 | `foto` | Foto realistica | Z-Image Turbo int8 (attivo da v1.1), text encoder Qwen3-4B fp4 condiviso con FLUX.2 klein (`CLIPLoader` tipo `lumina2`), grafo del template ufficiale | 8 step, CFG 1.0, sampler `res_multistep`, scheduler `simple`, `ModelSamplingAuraFlow` shift 3; misurato 21 s a freddo, 17 s a regime, 7,5 GB di picco a 1152×896 | Italiano o inglese (provato: segue un prompt italiano) |
 | `crea_da_riferimenti` (v1.2) | Crea dai riferimenti | FLUX.2 [klein] 4B distilled fp8, da 1 a 3 immagini di riferimento con `ReferenceLatent` sul positivo e sul negativo azzerato (grafo come `testo`, catena ripetuta per riferimento, template scelto per conteggio: `workflows/flux2_klein_refs_{1,2,3}.json`) | 4 step, CFG 1.0; latente vuoto alle proporzioni scelte, non eredita le dimensioni dei riferimenti; ogni riferimento portato a circa 1 MP con lati multipli di 16; misurato 17-52 s e 7,2-7,8 GB di picco con 1-3 riferimenti (§ docs/benchmark.md, Riferimenti multipli O5) | Italiano o inglese, obbligatorio |
 
@@ -632,7 +632,7 @@ DIAL: strumento creativo personale per un utente non tecnico, linguaggio da tool
 
 - Font Inter. Tema scuro di default (l'immagine si giudica meglio su fondo scuro) e tema chiaro selezionabile. Colori in OKLCH, superfici con chroma minima, mai `#000`/`#fff` puri.
 - Desktop-first nell'uso reale, ma il layout regge a 375 px (§ 10.3).
-- Tutti i testi in italiano, scritti per chi non conosce i termini tecnici: "Passi di generazione" con spiegazione in tooltip, non "steps"; "Aderenza al prompt", non "CFG".
+- Tutti i testi in italiano, scritti per chi non conosce i termini tecnici: "Passi di generazione" con spiegazione in tooltip, non "steps"; "Aderenza alla descrizione", non "CFG"; mai "prompt" nei testi visibili, sempre "descrizione" ("Cosa evitare" per il prompt negativo).
 - Usare la skill `hallmark` (o `ui-designer`) per il sistema visivo e `a11y-gate` prima di consegnare.
 
 ### 11.2 Pagine

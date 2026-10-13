@@ -51,7 +51,7 @@ describe("AdvancedOptions", () => {
     expect(stepsInput).toHaveAttribute("min", "10");
     expect(stepsInput).toHaveAttribute("max", "60");
 
-    const cfgInput = screen.getByLabelText(/Aderenza al prompt/) as HTMLInputElement;
+    const cfgInput = screen.getByLabelText(/Aderenza alla descrizione/) as HTMLInputElement;
     expect(cfgInput.value).toBe("4");
     expect(cfgInput).toHaveAttribute("min", "1");
     expect(cfgInput).toHaveAttribute("max", "12");
@@ -73,7 +73,7 @@ describe("AdvancedOptions", () => {
     await userEvent.click(screen.getByRole("button", { name: /Opzioni avanzate/ }));
 
     expect((screen.getByLabelText(/Passi di generazione/) as HTMLInputElement).value).toBe("45");
-    expect((screen.getByLabelText(/Aderenza al prompt/) as HTMLInputElement).value).toBe("7.5");
+    expect((screen.getByLabelText(/Aderenza alla descrizione/) as HTMLInputElement).value).toBe("7.5");
   });
 
   it("calls onStepsChange and onCfgChange with the parsed number on input", async () => {
@@ -96,7 +96,7 @@ describe("AdvancedOptions", () => {
     fireEvent.change(stepsInput, { target: { value: "50" } });
     expect(onStepsChange).toHaveBeenCalledWith(50);
 
-    const cfgInput = screen.getByLabelText(/Aderenza al prompt/);
+    const cfgInput = screen.getByLabelText(/Aderenza alla descrizione/);
     fireEvent.change(cfgInput, { target: { value: "8" } });
     expect(onCfgChange).toHaveBeenCalledWith(8);
   });
@@ -115,7 +115,7 @@ describe("AdvancedOptions", () => {
     );
     await userEvent.click(screen.getByRole("button", { name: /Opzioni avanzate/ }));
 
-    const infoTip = screen.getByRole("button", { name: "Informazioni: Aderenza al prompt" });
+    const infoTip = screen.getByRole("button", { name: "Informazioni: Aderenza alla descrizione" });
     await userEvent.hover(infoTip);
 
     expect(
@@ -138,7 +138,7 @@ describe("AdvancedOptions", () => {
     );
     await userEvent.click(screen.getByRole("button", { name: /Opzioni avanzate/ }));
 
-    const negativeField = screen.getByLabelText(/Prompt negativo/);
+    const negativeField = screen.getByLabelText(/Cosa evitare/);
     fireEvent.change(negativeField, { target: { value: "blurry" } });
     expect(onNegativePromptChange).toHaveBeenCalledWith("blurry");
   });
@@ -157,6 +157,6 @@ describe("AdvancedOptions", () => {
     );
     await userEvent.click(screen.getByRole("button", { name: /Opzioni avanzate/ }));
 
-    expect(screen.queryByLabelText(/Prompt negativo/)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/Cosa evitare/)).not.toBeInTheDocument();
   });
 });

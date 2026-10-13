@@ -31,7 +31,7 @@ export function GenerationCard({ generation, onOpen }: GenerationCardProps) {
         />
       </div>
       <span className="line-clamp-2 px-1 text-xs text-ink-muted">
-        {generation.prompt || "(senza prompt)"}
+        {generation.prompt || "(senza descrizione)"}
       </span>
       {generation.favorite ? (
         <span className="px-1 text-xs text-accent-text">★ Preferito</span>

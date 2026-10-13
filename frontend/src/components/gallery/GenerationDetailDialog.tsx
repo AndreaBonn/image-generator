@@ -124,8 +124,8 @@ export function GenerationDetailDialog({
             </div>
 
             <dl className="grid grid-cols-1 gap-2 text-sm sm:grid-cols-2">
-              <DetailRow label="Prompt" value={detail.prompt || "(vuoto)"} />
-              <DetailRow label="Prompt finale" value={detail.prompt_final || "(vuoto)"} />
+              <DetailRow label="Descrizione" value={detail.prompt || "(vuoto)"} />
+              <DetailRow label="Descrizione completa" value={detail.prompt_final || "(vuoto)"} />
               <DetailRow label="Seed" value={String(detail.seed)} />
               <DetailRow label="Modello" value={detail.model_ids.join(", ") || "-"} />
               <DetailRow label="Dimensioni" value={`${detail.width}×${detail.height} px`} />

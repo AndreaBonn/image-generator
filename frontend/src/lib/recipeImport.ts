@@ -29,10 +29,10 @@ function skippedWithoutTask(recipe: UploadRecipe): string[] {
   return [
     "compito",
     "proporzioni",
-    ...(recipe.negative_prompt.trim() !== "" ? ["prompt negativo"] : []),
+    ...(recipe.negative_prompt.trim() !== "" ? ["cosa evitare"] : []),
     ...(recipe.params.style_ids.length > 0 ? ["stili"] : []),
     "passi di generazione",
-    "aderenza al prompt",
+    "aderenza alla descrizione",
   ];
 }
 
@@ -56,7 +56,7 @@ const resolveNegativePrompt: FieldResolver = (recipe, task) => {
   if (recipe.negative_prompt.trim() === "") return { patch: {}, skipped: [] };
   return task.supports_negative
     ? { patch: { negativePrompt: recipe.negative_prompt }, skipped: [] }
-    : { patch: {}, skipped: ["prompt negativo"] };
+    : { patch: {}, skipped: ["cosa evitare"] };
 };
 
 const resolveStyles: FieldResolver = (recipe, task, availableStyles) => {
@@ -79,7 +79,7 @@ const resolveCfg: FieldResolver = (recipe, task) => {
   const { cfg } = recipe.params;
   return cfg >= task.limits.cfg.min && cfg <= task.limits.cfg.max
     ? { patch: { cfg }, skipped: [] }
-    : { patch: { cfg: task.defaults.cfg }, skipped: ["aderenza al prompt"] };
+    : { patch: { cfg: task.defaults.cfg }, skipped: ["aderenza alla descrizione"] };
 };
 
 /** Applied in this order, so `skipped` keeps a stable, readable sequence. */

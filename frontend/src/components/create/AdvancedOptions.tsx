@@ -55,8 +55,8 @@ export function AdvancedOptions({
           </div>
           <div className="flex flex-col gap-1 text-sm text-ink">
             <span className="flex items-center gap-1">
-              <label htmlFor="advanced-cfg-input">Aderenza al prompt</label>
-              <InfoTip text={HELP_TEXTS.cfg} label="Informazioni: Aderenza al prompt" />
+              <label htmlFor="advanced-cfg-input">Aderenza alla descrizione</label>
+              <InfoTip text={HELP_TEXTS.cfg} label="Informazioni: Aderenza alla descrizione" />
             </span>
             <input
               id="advanced-cfg-input"
@@ -73,8 +73,8 @@ export function AdvancedOptions({
           {task.supports_negative ? (
             <div className="flex flex-col gap-1 text-sm text-ink">
               <span className="flex items-center gap-1">
-                <label htmlFor="advanced-negative-prompt">Prompt negativo</label>
-                <InfoTip text={HELP_TEXTS.negativePrompt} label="Informazioni: Prompt negativo" />
+                <label htmlFor="advanced-negative-prompt">Cosa evitare</label>
+                <InfoTip text={HELP_TEXTS.negativePrompt} label="Informazioni: Cosa evitare" />
               </span>
               <textarea
                 id="advanced-negative-prompt"
