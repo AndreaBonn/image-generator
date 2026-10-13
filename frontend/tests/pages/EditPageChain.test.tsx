@@ -57,6 +57,17 @@ describe("EditPage - chained word-based edits", () => {
     vi.restoreAllMocks();
   });
 
+  it("lets the user choose another image when the linked one cannot be loaded (R13)", async () => {
+    vi.spyOn(queries, "fetchGeneration").mockRejectedValue(new Error("not found"));
+    renderEditPage("/modifica?source=gen-gone&mode=inpaint");
+
+    expect(await screen.findByText("Impossibile aprire questa immagine: forse è stata eliminata.")).toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: "Scegli un'altra immagine" }));
+
+    expect(await screen.findByRole("button", { name: "Scegli un file" })).toBeEnabled();
+    expect(screen.getByRole("tab", { name: "Modifica una parte" })).toHaveAttribute("aria-selected", "true");
+  });
+
   it("lets the user pick the image to edit from the Galleria (M2)", async () => {
     vi.spyOn(queries, "fetchGenerations").mockResolvedValue({
       items: [buildGenerationSummary({ id: "gen-5", prompt: "un faro al tramonto" })],

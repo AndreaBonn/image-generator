@@ -212,6 +212,19 @@ function EditWorkspace() {
           />
         ) : null}
 
+        {sourceQuery.isError ? (
+          <div role="alert" className="flex flex-wrap items-center gap-2 text-sm">
+            <p className="text-danger">Impossibile aprire questa immagine: forse è stata eliminata.</p>
+            <button
+              type="button"
+              onClick={() => setSearchParams({ mode })}
+              className="min-h-11 rounded-md border border-border px-3 py-2 text-ink"
+            >
+              Scegli un&apos;altra immagine
+            </button>
+          </div>
+        ) : null}
+
         {pickingFromGallery ? (
           <GalleryReferenceDialog
             excludeIds={[]}
