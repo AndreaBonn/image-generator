@@ -17,14 +17,17 @@ STYLE_NAMES = ["Alpha", "Bravo", "Charlie"]
 
 
 @pytest.fixture(autouse=True)
-def _repo_dirs(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    """Point DATA_DIR/STYLES_DIR at a scratch tree so tests never touch data/."""
+def _repo_dirs(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, placeholder_models_dir: Path
+) -> None:
+    """Point DATA_DIR/STYLES_DIR/MODELS_DIR at a scratch tree so tests never touch the repo."""
     styles_dir = tmp_path / "styles"
     styles_dir.mkdir()
     entries = [{"name": name} for name in STYLE_NAMES]
     (styles_dir / "a.json").write_text(json.dumps(entries), encoding="utf-8")
     monkeypatch.setenv("DATA_DIR", str(tmp_path / "data"))
     monkeypatch.setenv("STYLES_DIR", str(styles_dir))
+    monkeypatch.setenv("MODELS_DIR", str(placeholder_models_dir))
 
 
 def _asset_repository() -> AssetRepository:

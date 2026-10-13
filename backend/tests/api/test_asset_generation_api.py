@@ -2,17 +2,20 @@
 
 import asyncio
 import json
-from collections.abc import AsyncGenerator
+from collections.abc import AsyncGenerator, AsyncIterator
 from pathlib import Path
 from typing import Any
 
 import httpx
+import pytest
 from test_jobs import JobApp
 from test_jobs import job_app as job_app
 
+from app.config import Settings
 from app.engine.fake_engine import FakeEngine
 from app.engine.types import EngineEvent, EngineRequest, Failed
 from app.errors import EngineUnavailableError
+from app.main import create_app
 from app.repositories.asset_repository import AssetRepository
 
 STYLE_NAMES = ["Alpha", "Bravo", "Charlie"]
@@ -43,6 +46,23 @@ def _write_styles(styles_dir: Path) -> None:
     styles_dir.mkdir(parents=True, exist_ok=True)
     entries = [{"name": name} for name in STYLE_NAMES]
     (styles_dir / "a.json").write_text(json.dumps(entries), encoding="utf-8")
+
+
+@pytest.fixture
+async def examples_app(tmp_path: Path, placeholder_models_dir: Path) -> AsyncIterator[JobApp]:
+    """Like job_app, but with every model present, so examples have tasks to cover."""
+    config = Settings(
+        engine_mode="fake",
+        data_dir=tmp_path,
+        styles_dir=tmp_path / "styles",
+        models_dir=placeholder_models_dir,
+    )
+    application = create_app(config=config)
+    async with application.router.lifespan_context(application):
+        async with httpx.AsyncClient(
+            transport=httpx.ASGITransport(app=application), base_url="http://test"
+        ) as client:
+            yield application, client
 
 
 async def _wait_terminal(client: httpx.AsyncClient) -> dict[str, Any]:
@@ -87,8 +107,8 @@ async def test_generate_styles_renders_every_missing_preview(job_app: JobApp) ->
     assert all(repository.exists(style_name=name) for name in STYLE_NAMES)
 
 
-async def test_generate_examples_writes_the_manifest(job_app: JobApp) -> None:
-    application, client = job_app
+async def test_generate_examples_writes_the_manifest(examples_app: JobApp) -> None:
+    application, client = examples_app
     application.state.engine = FakeEngine(step_delay_s=0)
 
     await client.post(url="/api/v1/assets/examples/generate")
