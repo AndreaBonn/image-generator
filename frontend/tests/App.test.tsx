@@ -13,6 +13,7 @@ vi.mock("@/pages/EditPage", () => ({ EditPage: () => <p>Stub Modifica</p> }));
 vi.mock("@/pages/ImprovePage", () => ({ ImprovePage: () => <p>Stub Migliora</p> }));
 vi.mock("@/pages/GalleryPage", () => ({ GalleryPage: () => <p>Stub Galleria</p> }));
 vi.mock("@/pages/SettingsPage", () => ({ SettingsPage: () => <p>Stub Impostazioni</p> }));
+vi.mock("@/pages/GuidePage", () => ({ GuidePage: () => <p>Stub Guida</p> }));
 
 function renderAppAt(path: string) {
   vi.spyOn(queries, "fetchHealth").mockResolvedValue({ backend: "ok", engine: "ok" });
@@ -55,6 +56,12 @@ describe("App routing", () => {
     renderAppAt("/impostazioni");
 
     expect(screen.getByText("Stub Impostazioni")).toBeInTheDocument();
+  });
+
+  it("renders GuidePage at /guida (N3)", () => {
+    renderAppAt("/guida");
+
+    expect(screen.getByText("Stub Guida")).toBeInTheDocument();
   });
 
   it("wraps every route in the AppShell, with the nav bar always visible", () => {

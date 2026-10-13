@@ -49,6 +49,12 @@ describe("NavBar", () => {
     expect(list).not.toHaveClass("overflow-x-auto");
   });
 
+  it("links to the guide from every page (N3)", () => {
+    renderNavBar();
+
+    expect(screen.getByRole("link", { name: "Come funziona" })).toHaveAttribute("href", "/guida");
+  });
+
   it("marks only the link matching the current route as active", () => {
     renderNavBar("/modifica");
 

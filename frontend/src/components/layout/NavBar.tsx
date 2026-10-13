@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import { useTheme } from "@/hooks/useTheme";
 import { CreateIcon, EditIcon, GalleryIcon, ImproveIcon, SettingsIcon } from "@/components/layout/NavIcons";
 
@@ -37,10 +37,16 @@ export function NavBar() {
           </li>
         ))}
       </ul>
+      <Link
+        to="/guida"
+        className="order-2 ml-auto flex min-h-11 shrink-0 items-center px-2 text-sm text-ink-muted underline hover:text-ink sm:order-3"
+      >
+        Come funziona
+      </Link>
       <button
         type="button"
         onClick={toggleTheme}
-        className="order-2 ml-auto flex min-h-11 shrink-0 items-center rounded-md border border-border px-3 py-2 text-sm text-ink-muted hover:text-ink sm:order-3"
+        className="order-2 flex min-h-11 shrink-0 items-center rounded-md border border-border px-3 py-2 text-sm text-ink-muted hover:text-ink sm:order-3"
         aria-label={theme === "dark" ? "Passa al tema chiaro" : "Passa al tema scuro"}
       >
         {theme === "dark" ? "Tema chiaro" : "Tema scuro"}

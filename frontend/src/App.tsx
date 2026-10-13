@@ -5,6 +5,7 @@ import { EditPage } from "@/pages/EditPage";
 import { ImprovePage } from "@/pages/ImprovePage";
 import { GalleryPage } from "@/pages/GalleryPage";
 import { SettingsPage } from "@/pages/SettingsPage";
+import { GuidePage } from "@/pages/GuidePage";
 
 export function App() {
   return (
@@ -15,6 +16,7 @@ export function App() {
         <Route path="migliora" element={<ImprovePage />} />
         <Route path="galleria" element={<GalleryPage />} />
         <Route path="impostazioni" element={<SettingsPage />} />
+        <Route path="guida" element={<GuidePage />} />
       </Route>
     </Routes>
   );
