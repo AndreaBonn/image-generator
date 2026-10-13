@@ -1,5 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
-import { fetchSystem, fetchTrashSummary } from "@/api/queries";
+import { fetchSystem, fetchTasks, fetchTrashSummary } from "@/api/queries";
+import { SystemSummary } from "@/components/settings/SystemSummary";
+import { readinessChecks } from "@/lib/readiness";
 import { EngineStatusCard } from "@/components/settings/EngineStatusCard";
 import { GpuCard } from "@/components/settings/GpuCard";
 import { DiskCard } from "@/components/settings/DiskCard";
@@ -24,6 +26,8 @@ export function SettingsPage() {
     queryKey: ["trash-summary"],
     queryFn: ({ signal }) => fetchTrashSummary(signal),
   });
+
+  const tasksQuery = useQuery({ queryKey: ["tasks"], queryFn: ({ signal }) => fetchTasks(signal) });
 
   if (systemQuery.isLoading) {
     return (
@@ -56,6 +60,7 @@ export function SettingsPage() {
     <div className="flex flex-col gap-4">
       <PageTitle>Impostazioni</PageTitle>
 
+      {tasksQuery.data ? <SystemSummary checks={readinessChecks(system, tasksQuery.data)} /> : null}
       <EngineStatusCard engine={system.engine} />
       {system.gpu ? <GpuCard gpu={system.gpu} /> : null}
       <DiskCard disk={system.disk} trashSummary={trashSummaryQuery.data} />

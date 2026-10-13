@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { SettingsPage } from "@/pages/SettingsPage";
 import * as queries from "@/api/queries";
 import { buildModelInfo, buildSystemInfo } from "../fixtures/system";
+import { buildTask } from "../fixtures/task";
 import { installMockEventSource } from "../mocks/mockEventSource";
 
 function renderSettingsPage() {
@@ -23,6 +24,29 @@ describe("SettingsPage", () => {
     installMockEventSource();
   });
 
+  it("answers 'can I work now?' at the top (I1)", async () => {
+    vi.spyOn(queries, "fetchSystem").mockResolvedValue(buildSystemInfo());
+    vi.spyOn(queries, "fetchTasks").mockResolvedValue([buildTask()]);
+
+    renderSettingsPage();
+
+    const summary = await screen.findByRole("region", { name: "Tutto pronto" });
+    expect(summary).toHaveTextContent("Motore acceso");
+    expect(await screen.findByText("1 lavoro disponibile su 1")).toBeInTheDocument();
+  });
+
+  it("names what to fix when something is wrong (I1)", async () => {
+    vi.spyOn(queries, "fetchSystem").mockResolvedValue(
+      buildSystemInfo({ engine: { status: "unreachable", comfyui_version: null } }),
+    );
+    vi.spyOn(queries, "fetchTasks").mockResolvedValue([buildTask()]);
+
+    renderSettingsPage();
+
+    const summary = await screen.findByRole("region", { name: "Da sistemare" });
+    expect(summary).toHaveTextContent("Motore spento");
+  });
+
   it("shows the disk space in red when it is below the configured minimum", async () => {
     vi.spyOn(queries, "fetchSystem").mockResolvedValue(
       buildSystemInfo({ disk: { free_gb: 3, min_free_gb: 10 } }),
@@ -30,7 +54,7 @@ describe("SettingsPage", () => {
 
     renderSettingsPage();
 
-    const diskText = await screen.findByText(/3,0 GB liberi/);
+    const diskText = await screen.findByText(/^3,0 GB liberi/);
     expect(diskText).toHaveClass("text-danger");
     expect(diskText).toHaveTextContent("minimo consigliato 10,0 GB");
   });
@@ -42,7 +66,7 @@ describe("SettingsPage", () => {
 
     renderSettingsPage();
 
-    const diskText = await screen.findByText(/40,0 GB liberi/);
+    const diskText = await screen.findByText(/^40,0 GB liberi/);
     expect(diskText).toHaveTextContent("40,0 GB liberi");
     expect(diskText).not.toHaveTextContent(/minimo consigliato/);
   });
