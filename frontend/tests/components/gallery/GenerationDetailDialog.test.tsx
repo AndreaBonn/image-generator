@@ -41,6 +41,7 @@ function renderDialog(props: Partial<Parameters<typeof GenerationDetailDialog>[0
           generationId={props.generationId ?? "gen-1"}
           onClose={onClose}
           onOpenGeneration={onOpenGeneration}
+          taskLabels={props.taskLabels}
         />
       </MemoryRouter>
     </QueryClientProvider>,
@@ -98,29 +99,42 @@ describe("GenerationDetailDialog", () => {
     expect(await screen.findByAltText(/portrait of an old fisherman/)).toBeInTheDocument();
   });
 
-  it("renders the image and metadata once the detail has loaded", async () => {
+  it("shows description, task, size and age up front (G4)", async () => {
+    vi.useFakeTimers({ now: new Date("2026-10-01T12:00:00Z"), shouldAdvanceTime: true });
+    vi.spyOn(queries, "fetchGeneration").mockResolvedValue(
+      buildGeneration({ id: "gen-9", prompt: "portrait of an old fisherman, golden hour", width: 1152, height: 896 }),
+    );
+
+    renderDialog({ generationId: "gen-9", taskLabels: new Map([["qualita", "Immagine di qualità"]]) });
+
+    const img = await screen.findByAltText("portrait of an old fisherman, golden hour");
+    expect(img).toHaveAttribute("src", imageUrl("gen-9"));
+    expect(screen.getByText("Descrizione").nextElementSibling).toHaveTextContent(
+      "portrait of an old fisherman, golden hour",
+    );
+    expect(screen.getByText("Immagine di qualità · 1152×896 px · 2 ore fa")).toBeInTheDocument();
+    vi.useRealTimers();
+  });
+
+  it("keeps the technical details in a closed section (G4)", async () => {
     vi.spyOn(queries, "fetchGeneration").mockResolvedValue(
       buildGeneration({
-        id: "gen-9",
-        prompt: "portrait of an old fisherman, golden hour",
         prompt_final: "portrait of an old fisherman, golden hour, detailed",
         seed: 777,
         model_ids: ["juggernaut-xl-v8", "flux2-klein"],
-        width: 1152,
-        height: 896,
         duration_ms: 12_500,
       }),
     );
 
-    renderDialog({ generationId: "gen-9" });
+    renderDialog();
 
-    const img = await screen.findByAltText("portrait of an old fisherman, golden hour");
-    expect(img).toHaveAttribute("src", imageUrl("gen-9"));
-    expect(screen.getByText("portrait of an old fisherman, golden hour, detailed")).toBeInTheDocument();
-    expect(screen.getByText("777")).toBeInTheDocument();
-    expect(screen.getByText("juggernaut-xl-v8, flux2-klein")).toBeInTheDocument();
-    expect(screen.getByText("1152×896 px")).toBeInTheDocument();
-    expect(screen.getByText("12.5 s")).toBeInTheDocument();
+    const seed = await screen.findByText("777");
+    expect(seed).not.toBeVisible();
+    await userEvent.click(screen.getByText("Dettagli tecnici"));
+    expect(seed).toBeVisible();
+    expect(screen.getByText("portrait of an old fisherman, golden hour, detailed")).toBeVisible();
+    expect(screen.getByText("juggernaut-xl-v8, flux2-klein")).toBeVisible();
+    expect(screen.getByText("12.5 s")).toBeVisible();
   });
 
   it("shows placeholders for an empty prompt, empty final prompt, no model and no duration", async () => {

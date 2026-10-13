@@ -131,6 +131,7 @@ export function GalleryPage() {
               generationId={selectedGenerationId}
               onClose={() => setSelectedGenerationId(null)}
               onOpenGeneration={setSelectedGenerationId}
+              taskLabels={taskLabels}
             />
           ) : null}
         </>

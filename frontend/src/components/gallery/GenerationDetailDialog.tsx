@@ -9,11 +9,14 @@ import {
   setFavorite,
 } from "@/api/queries";
 import { useModalFocus } from "@/hooks/useModalFocus";
+import { formatRelativeTime } from "@/lib/format";
 
 interface GenerationDetailDialogProps {
   generationId: string;
   onClose: () => void;
   onOpenGeneration: (id: string) => void;
+  /** task_id → plain task name, for the "made with" line (G4). */
+  taskLabels?: ReadonlyMap<string, string>;
 }
 
 /**
@@ -25,6 +28,7 @@ export function GenerationDetailDialog({
   generationId,
   onClose,
   onOpenGeneration,
+  taskLabels,
 }: GenerationDetailDialogProps) {
   const dialogRef = useRef<HTMLDivElement | null>(null);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
@@ -123,17 +127,30 @@ export function GenerationDetailDialog({
               />
             </div>
 
-            <dl className="grid grid-cols-1 gap-2 text-sm sm:grid-cols-2">
+            <dl className="flex flex-col gap-2 text-sm">
               <DetailRow label="Descrizione" value={detail.prompt || "(vuoto)"} />
-              <DetailRow label="Descrizione completa" value={detail.prompt_final || "(vuoto)"} />
-              <DetailRow label="Codice del risultato" value={String(detail.seed)} />
-              <DetailRow label="Modello" value={detail.model_ids.join(", ") || "-"} />
-              <DetailRow label="Dimensioni" value={`${detail.width}×${detail.height} px`} />
-              <DetailRow
-                label="Durata"
-                value={detail.duration_ms !== null ? `${(detail.duration_ms / 1000).toFixed(1)} s` : "-"}
-              />
             </dl>
+            <p className="text-sm text-ink-muted">
+              {[
+                taskLabels?.get(detail.task_id),
+                `${detail.width}×${detail.height} px`,
+                formatRelativeTime(detail.created_at),
+              ]
+                .filter(Boolean)
+                .join(" · ")}
+            </p>
+            <details className="text-sm">
+              <summary className="min-h-11 cursor-pointer py-2 text-ink-muted">Dettagli tecnici</summary>
+              <dl className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                <DetailRow label="Descrizione completa" value={detail.prompt_final || "(vuoto)"} />
+                <DetailRow label="Codice del risultato" value={String(detail.seed)} />
+                <DetailRow label="Modello" value={detail.model_ids.join(", ") || "-"} />
+                <DetailRow
+                  label="Durata"
+                  value={detail.duration_ms !== null ? `${(detail.duration_ms / 1000).toFixed(1)} s` : "-"}
+                />
+              </dl>
+            </details>
 
             {detail.parent_id ? (
               <button
