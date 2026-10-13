@@ -4,9 +4,9 @@ import type { EditMode } from "@/lib/editMode";
 export type { EditMode };
 
 const TABS: TabItem<EditMode>[] = [
-  { id: "modifica_libera", label: "Modifica con le parole" },
-  { id: "inpaint", label: "Modifica una parte" },
-  { id: "outpaint", label: "Allarga l'immagine" },
+  { id: "modifica_libera", label: "Modifica con le parole", description: "Scrivi cosa cambiare, anche in italiano" },
+  { id: "inpaint", label: "Modifica una parte", description: "Colora la zona da rifare" },
+  { id: "outpaint", label: "Allarga l'immagine", description: "Aggiungi spazio ai lati" },
 ];
 
 interface EditModeTabsProps {
