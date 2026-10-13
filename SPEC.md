@@ -637,32 +637,38 @@ DIAL: strumento creativo personale per un utente non tecnico, linguaggio da tool
 
 ### 11.2 Pagine
 
+**Navigazione**: cinque schede con icona e nome (su telefono in una riga da cinque colonne), link "Come funziona" verso `/guida` e tema. I titoli di pagina restano solo per gli screen reader: la scheda attiva nomina già la pagina. Revisione UX del 2026-10-13: proposte e scelte in `docs/ux-proposte/index.html`, i codici fra parentesi qui sotto rimandano lì.
+
 **Crea** (pagina iniziale)
-- A sinistra (in alto su mobile): selettore del compito a schede con etichetta, descrizione di una riga, modello usato in piccolo, icona "pronto subito" se il modello è in memoria, stato disattivato con motivo.
-- Guida al prompt (§ 3.3), casella prompt, prompt negativo in "Opzioni avanzate".
-- Proporzioni, numero di immagini, stili (solo SDXL), seed (campo + "casuale" + lucchetto per fissarlo).
-- "Opzioni avanzate" chiuse di default: passi, aderenza, negativo.
-- Bottone "Genera" con stato di attesa e "Annulla" durante il job.
-- A destra: area risultato con avanzamento (barra con passo N di M, anteprima se disponibile, messaggio di cambio modello con tempo stimato), poi griglia dei risultati con azioni: scarica, preferito, modifica, variazione, ingrandisci, rigenera.
+- "Cosa vuoi creare?": schede dei compiti su due colonne, in due gruppi ("Da una descrizione", "Partendo da tue immagini", per `min_references`); ogni scheda porta etichetta, descrizione, tempo indicativo (`duration_hint`), lingua ("in inglese" / "anche in italiano") e "pronto subito" se la famiglia del modello è già in memoria; stato disattivato con motivo (C3, C4).
+- Guida alla lingua in una riga: badge con l'etichetta del compito, nota breve per i compiti solo inglesi, motivo e consigli nel pannello "Mostra consigli" (C6). Con una descrizione che sembra italiana su un compito inglese, accanto all'avviso c'è il passaggio al primo compito che capisce l'italiano (C7).
+- "Descrivi l'immagine che vuoi": casella di cinque righe subito dopo la guida, esempi cliccabili sotto, link "Riprendi le impostazioni da un'immagine creata qui" (importazione ricetta) (C5).
+- Proporzioni con forma disegnata e uso tipico, pixel nel tooltip (C10); numero di immagini a bottoni 1-4 (C11); stili chiusi in un catalogo da aprire con "Sfoglia tutti gli stili" (C9). Aiuti brevi sempre visibili sotto i campi principali, i "?" restano sulle opzioni avanzate (S3).
+- "Opzioni avanzate" chiuse di default: codice del risultato (il seed: "Casuale" e "Tieni questo codice"), passi, aderenza alla descrizione, cosa evitare. Un codice fissato resta visibile come riga di riepilogo a pannello chiuso (C12, L1).
+- Barra "Genera" fissa in fondo alla colonna, con il riepilogo di cosa parte (compito, numero di immagini, tempo) (C2).
+- Il modulo sopravvive al cambio di pagina: bozza in `sessionStorage` della scheda del browser, riferimenti esclusi, nota "Ripresa da dove avevi lasciato" con "Svuota la descrizione" (C16).
+- A destra, a tutta colonna e fissa allo scorrimento (C1): a vuoto le ultime quattro immagini e "Apri la Galleria" (C14); durante il lavoro barra di avanzamento con percentuale e messaggio di preparazione del modello (C15); poi i risultati con "Aggiungi ai preferiti" (stato nel testo), Scarica, "Un'altra variante", Modifica, Migliora (C13).
 - Primo avvio (§ 11.3): al posto della griglia, esempi generati in locale, uno per compito di generazione disponibile, ciascuno col proprio prompt e un bottone "Prova questo" che compila compito, prompt, seed e formato senza avviare la generazione. Regola "mai immagini inventate" (`ui-ux.md` § Onestà del contenuto): gli esempi sono immagini vere, generate sulla macchina dell'utente con `uv run python -m app.cli.assets examples`; se il comando non è ancora stato eseguito la pagina mostra solo i prompt di esempio come testo cliccabile, senza miniature.
 
-**Modifica** (inpaint e outpaint)
-- Input: trascina un file, oppure "usa come input" dalla galleria o da Crea.
-- Editor maschera su canvas sopra l'immagine: pennello con dimensione regolabile, gomma, "inverti", "cancella tutto", annulla/ripeti (almeno 20 passi), zoom adatta/100%. Zona mascherata in sovrapposizione semitrasparente. Esportazione: PNG della stessa risoluzione dell'immagine, bianco = da rigenerare.
+**Modifica** (parole, inpaint e outpaint)
+- Passi numerati: 1 "Cosa vuoi fare?" (modalità con una riga di spiegazione; si apre su "Modifica con le parole", `?mode=` sceglie un'altra scheda), 2 "L'immagine", 3 "Descrivi la modifica" (M1, M3, M5).
+- Input: trascina un file, "Scegli dalla Galleria" (M2), oppure arrivo da Galleria o da un risultato con `?source=`. Se l'immagine collegata non si apre, messaggio e "Scegli un'altra immagine".
+- Editor maschera su canvas sopra l'immagine, con l'istruzione "Colora con il pennello la zona da cambiare" finché la maschera è vuota (M4): pennello con dimensione regolabile, gomma, "inverti", "cancella tutto", annulla/ripeti (almeno 20 passi), zoom adatta/100%. Zona mascherata in sovrapposizione semitrasparente. Esportazione: PNG della stessa risoluzione dell'immagine, bianco = da rigenerare.
 - Modalità "Allarga": 4 interruttori (sopra, sotto, sinistra, destra) con anteprima del nuovo riquadro.
-- Prompt con guida della lingua del compito.
 
-**Migliora**: input come sopra; azioni "Variazione leggera", "Variazione forte", "Ingrandisci ×2 / ×4", con risultato affiancato all'originale e cursore di confronto prima/dopo.
+**Migliora**: input come sopra; tre schede per risultato voluto (P1): "Cambiala un po'" (descrizione facoltativa, codice del risultato, variazione leggera o forte), "Rendila più grande" (×2 / ×4 con la dimensione d'arrivo calcolata, P4; rifinitura con intensità a parole fra "Fedele all'originale" e "Più inventiva", P3), "Togli lo sfondo". Senza immagine un solo avviso sopra le azioni (P2). Risultato affiancato all'originale con cursore di confronto prima/dopo.
 
-**Galleria**: griglia di miniature, filtri per compito e preferiti, ricerca nel prompt, paginazione a scorrimento. Il dettaglio mostra l'immagine grande, prompt originale e finale, parametri, seed, modello, durata, catena padre → figli, azioni.
+**Galleria**: ricerca nelle descrizioni a tutta larghezza, filtri rapidi per tipo di lavoro (Tutte, Create, Modificate, Migliorate, inviati come `task_ids`) e "Preferite" (G3); griglia di miniature con compito e tempo relativo (G1) e azioni rapide preferito, scarica, modifica (al passaggio del mouse, sempre visibili al tocco) (G2); paginazione a scorrimento. Il dettaglio mostra l'immagine grande, descrizione, compito, dimensioni ed età, con "Dettagli tecnici" chiusi (descrizione completa, codice del risultato, modelli, durata) (G4); azioni "Continua da qui" (Modifica, Migliora, Un'altra variante) prima di Scarica e preferiti, Elimina in disparte (G5). Una variante avviata dal dettaglio chiude il dettaglio, viene seguita dalla pagina e la Galleria si aggiorna a lavoro finito (G6).
 
-**Impostazioni**: stato del motore, VRAM, disco libero (in rosso sotto `MIN_FREE_DISK_GB`), modello in memoria, elenco modelli con stato installato/mancante e spazio richiesto, "Svuota cartella output del motore", tema. Per ogni modello mancante c'è il bottone "Installa · <dimensione>" (FN16): chiede conferma mostrando dimensione e spazio che resterà, poi mostra la barra di avanzamento con "Annulla", la verifica e l'esito ("Installato", oppure l'errore con "Riprova"). Un solo download alla volta: durante un download gli altri bottoni sono disattivati. Se dopo il download resterebbe meno di `MIN_FREE_DISK_GB`, al posto del bottone compare il conto ("Servono X più Y di margine, liberi Z"). Il comando da terminale resta disponibile sotto "Da terminale".
+**Come funziona** (`/guida`): tabella dei compiti di creazione dal catalogo (a cosa serve, lingua, tempo), perché a volte in inglese, come continuare da un'immagine, il codice del risultato, cosa fare se qualcosa non va (N3).
+
+**Impostazioni**: in cima il riepilogo "Tutto pronto" / "Da sistemare" (motore, lavori disponibili, disco, scheda video condivisa) (I1); stato del motore, VRAM, disco libero (in rosso sotto `MIN_FREE_DISK_GB`), modello in memoria; "Cosa puoi fare con i modelli installati" per famiglia di modelli, con licenze a parole (I2, I3) e l'elenco tecnico dei file in una sezione che si apre da sola se manca un modello; "Copie di lavoro del motore" con "Cancella le copie di lavoro" (I5); tema. Per ogni modello mancante c'è il bottone "Installa · <dimensione>" (FN16): chiede conferma mostrando dimensione e spazio che resterà, poi mostra la barra di avanzamento con "Annulla", la verifica e l'esito ("Installato", oppure l'errore con "Riprova"). Un solo download alla volta: durante un download gli altri bottoni sono disattivati. Se dopo il download resterebbe meno di `MIN_FREE_DISK_GB`, al posto del bottone compare il conto ("Servono X più Y di margine, liberi Z"). Il comando da terminale resta disponibile sotto "Da terminale".
 
 ### 11.3 Stati obbligatori
 
 Ogni superficie dati ha Loading, Empty, Error, Populated, Edge (`ui-ux.md` dell'utente). Casi specifici:
 
-- Motore spento: banner persistente in testa con il comando per avviarlo; "Genera" disattivato con il motivo.
+- Motore spento: banner persistente in testa che spiega come riavviarlo dal menu delle applicazioni ("Chiudi Image Generator", poi riaprirlo), con i comandi da terminale come seconda via (N2); "Genera" disattivato con il motivo.
 - Galleria vuota (primo uso): spiegazione e bottone verso Crea.
 - Crea, stato primo uso: galleria senza nessuna generazione (cestino incluso, non un flag salvato, AS-P11) → mostra gli esempi al posto della griglia risultati, invece della griglia vuota.
 - Errore di generazione: messaggio in italiano dalla tabella § 7.5, **prompt e parametri preservati**, bottone "Riprova".
