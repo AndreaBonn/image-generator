@@ -27,23 +27,7 @@ export interface UseImageSourceResult {
  */
 export function useImageSource(sourceGenerationId: string | null): UseImageSourceResult {
   const [image, setImage] = useState<SourceImage | null>(null);
-
-  const sourceQuery = useQuery({
-    queryKey: ["generation", sourceGenerationId],
-    queryFn: ({ signal }) => fetchGeneration(sourceGenerationId as string, signal),
-    enabled: sourceGenerationId !== null,
-  });
-
-  useEffect(() => {
-    if (sourceQuery.data) {
-      setImage({
-        url: imageUrl(sourceQuery.data.id),
-        width: sourceQuery.data.width,
-        height: sourceQuery.data.height,
-        uploadId: null,
-      });
-    }
-  }, [sourceQuery.data]);
+  const sourceQuery = useCarriedOverGeneration(sourceGenerationId, setImage);
 
   const uploadMutation = useMutation({
     mutationFn: (file: File) => uploadFile(file, "image"),
@@ -65,4 +49,25 @@ export function useImageSource(sourceGenerationId: string | null): UseImageSourc
     uploadError: uploadMutation.isError,
     selectFile: (file: File) => uploadMutation.mutate(file),
   };
+}
+
+/** Loads the `?source=<id>` generation and hands it over as the source image once it arrives. */
+function useCarriedOverGeneration(sourceGenerationId: string | null, onLoaded: (image: SourceImage) => void) {
+  const sourceQuery = useQuery({
+    queryKey: ["generation", sourceGenerationId],
+    queryFn: ({ signal }) => fetchGeneration(sourceGenerationId as string, signal),
+    enabled: sourceGenerationId !== null,
+  });
+
+  useEffect(() => {
+    if (sourceQuery.data) {
+      onLoaded({
+        url: imageUrl(sourceQuery.data.id),
+        width: sourceQuery.data.width,
+        height: sourceQuery.data.height,
+        uploadId: null,
+      });
+    }
+  }, [sourceQuery.data, onLoaded]);
+  return sourceQuery;
 }

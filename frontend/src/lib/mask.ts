@@ -69,27 +69,33 @@ export function paintStroke(
   value: MaskValue,
 ): Uint8Array {
   const result = new Uint8Array(mask);
-  const radiusSq = radius * radius;
-
   for (const point of interpolateStroke(points, Math.max(1, radius / 2))) {
-    const minX = Math.max(0, Math.floor(point.x - radius));
-    const maxX = Math.min(width - 1, Math.ceil(point.x + radius));
-    const minY = Math.max(0, Math.floor(point.y - radius));
-    const maxY = Math.min(height - 1, Math.ceil(point.y + radius));
+    stampCircle({ pixels: result, width, height }, point, radius, value);
+  }
+  return result;
+}
 
-    for (let y = minY; y <= maxY; y++) {
-      const dy = y - point.y;
-      const rowOffset = y * width;
-      for (let x = minX; x <= maxX; x++) {
-        const dx = x - point.x;
-        if (dx * dx + dy * dy <= radiusSq) {
-          result[rowOffset + x] = value;
-        }
-      }
+/** Sets every pixel within `radius` of `point` to `value`, in place on `target.pixels`. */
+function stampCircle(
+  target: { pixels: Uint8Array; width: number; height: number },
+  point: MaskPoint,
+  radius: number,
+  value: MaskValue,
+): void {
+  const radiusSq = radius * radius;
+  const minX = Math.max(0, Math.floor(point.x - radius));
+  const maxX = Math.min(target.width - 1, Math.ceil(point.x + radius));
+  const minY = Math.max(0, Math.floor(point.y - radius));
+  const maxY = Math.min(target.height - 1, Math.ceil(point.y + radius));
+
+  for (let y = minY; y <= maxY; y++) {
+    const dy = y - point.y;
+    const rowOffset = y * target.width;
+    for (let x = minX; x <= maxX; x++) {
+      const dx = x - point.x;
+      if (dx * dx + dy * dy <= radiusSq) target.pixels[rowOffset + x] = value;
     }
   }
-
-  return result;
 }
 
 /** Grayscale RGBA export: white/black PNG at the mask's own resolution. */
