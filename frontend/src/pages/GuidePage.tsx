@@ -19,6 +19,19 @@ export function GuidePage() {
       </p>
 
       <GuideSection title="Quale lavoro scegliere">
+        {tasksQuery.isLoading ? <p className="text-ink-muted">Caricamento dei lavori...</p> : null}
+        {tasksQuery.isError ? (
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="text-danger">Impossibile caricare l&apos;elenco dei lavori.</p>
+            <button
+              type="button"
+              onClick={() => tasksQuery.refetch()}
+              className="min-h-11 rounded-md border border-border px-3 py-2 text-sm text-ink"
+            >
+              Riprova
+            </button>
+          </div>
+        ) : null}
         <div className="overflow-x-auto" role="region" aria-label="Tabella dei lavori">
           <table className="w-full min-w-[32rem] text-left">
             <caption className="sr-only">Quale lavoro scegliere</caption>

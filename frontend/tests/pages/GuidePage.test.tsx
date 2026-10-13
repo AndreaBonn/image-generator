@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { screen, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { GuidePage } from "@/pages/GuidePage";
 import * as queries from "@/api/queries";
 import { buildTask } from "../fixtures/task";
@@ -36,5 +37,27 @@ describe("GuidePage (N3)", () => {
 
     expect(await screen.findByRole("heading", { name: "Perché a volte in inglese" })).toBeInTheDocument();
     expect(screen.getByText(/Chiudi Image Generator/)).toBeInTheDocument();
+  });
+});
+
+describe("GuidePage task table states (R7)", () => {
+  afterEach(() => vi.restoreAllMocks());
+
+  it("says the list is loading", () => {
+    vi.spyOn(queries, "fetchTasks").mockReturnValue(new Promise(() => {}));
+
+    renderWithProviders(<GuidePage />);
+
+    expect(screen.getByText("Caricamento dei lavori...")).toBeInTheDocument();
+  });
+
+  it("says the list could not be loaded and offers a retry", async () => {
+    const fetchTasks = vi.spyOn(queries, "fetchTasks").mockRejectedValue(new Error("boom"));
+
+    renderWithProviders(<GuidePage />);
+
+    expect(await screen.findByText("Impossibile caricare l'elenco dei lavori.")).toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: "Riprova" }));
+    expect(fetchTasks).toHaveBeenCalledTimes(2);
   });
 });
