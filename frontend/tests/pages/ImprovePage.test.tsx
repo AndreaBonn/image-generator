@@ -25,7 +25,7 @@ function allImproveTasks(): Task[] {
       label: "Rimuovi lo sfondo",
       family: "background",
       supports_negative: false,
-      prompt_language: { required: "any", label: "Nessun prompt necessario", reason: "Non serve testo." },
+      prompt_language: { required: "any", label: "Nessuna descrizione necessaria", reason: "Non serve testo." },
     }),
     buildTask({
       id: "ingrandisci_rifinito",
@@ -240,7 +240,7 @@ describe("ImprovePage", () => {
     await userEvent.click(screen.getByRole("button", { name: "Variazione leggera" }));
 
     expect(
-      await screen.findByText("Il prompt supera i 2000 caratteri."),
+      await screen.findByText("La descrizione supera i 2000 caratteri."),
     ).toBeInTheDocument();
     expect(createJob).not.toHaveBeenCalled();
   });
@@ -487,7 +487,7 @@ describe("ImprovePage - rimuovi lo sfondo e ingrandisci con rifinitura", () => {
     });
     await userEvent.click(screen.getByRole("button", { name: "Ingrandisci con rifinitura" }));
 
-    expect(await screen.findByText("Il prompt supera i 2000 caratteri.")).toBeInTheDocument();
+    expect(await screen.findByText("La descrizione supera i 2000 caratteri.")).toBeInTheDocument();
     expect(createJob).not.toHaveBeenCalled();
   });
 

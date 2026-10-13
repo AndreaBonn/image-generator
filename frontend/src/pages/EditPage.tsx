@@ -142,7 +142,7 @@ function EditWorkspace() {
       return false;
     }
     if (prompt.length > MAX_PROMPT_LENGTH) {
-      setPromptError(`Il prompt supera i ${MAX_PROMPT_LENGTH} caratteri.`);
+      setPromptError(`La descrizione supera i ${MAX_PROMPT_LENGTH} caratteri.`);
       return false;
     }
     setPromptError(null);

@@ -121,11 +121,11 @@ export function ImprovePage() {
     if (!task || disabledReasonFor(task) !== null || isGenerating) return;
 
     if (PROMPT_VALIDATED_ACTIONS.includes(actionId) && prompt.length > MAX_PROMPT_LENGTH) {
-      setPromptError(`Il prompt supera i ${MAX_PROMPT_LENGTH} caratteri.`);
+      setPromptError(`La descrizione supera i ${MAX_PROMPT_LENGTH} caratteri.`);
       return;
     }
     if (actionId === "ingrandisci_rifinito" && refinedPrompt.length > MAX_PROMPT_LENGTH) {
-      setRefinedPromptError(`Il prompt supera i ${MAX_PROMPT_LENGTH} caratteri.`);
+      setRefinedPromptError(`La descrizione supera i ${MAX_PROMPT_LENGTH} caratteri.`);
       return;
     }
     setPromptError(null);

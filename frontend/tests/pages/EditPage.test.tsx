@@ -352,7 +352,7 @@ describe("EditPage", () => {
     await userEvent.click(screen.getByRole("button", { name: "Genera" }));
 
     expect(
-      await screen.findByText("Il prompt supera i 2000 caratteri."),
+      await screen.findByText("La descrizione supera i 2000 caratteri."),
     ).toBeInTheDocument();
     expect(createJobSpy).not.toHaveBeenCalled();
   });
