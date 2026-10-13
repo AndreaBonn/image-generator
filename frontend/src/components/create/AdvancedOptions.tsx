@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import type { Task } from "@/api/types";
 import { InfoTip } from "@/components/ui/InfoTip";
 import { HELP_TEXTS } from "@/lib/helpTexts";
@@ -11,6 +11,10 @@ interface AdvancedOptionsProps {
   onStepsChange: (steps: number | null) => void;
   onCfgChange: (cfg: number | null) => void;
   onNegativePromptChange: (value: string) => void;
+  /** Shown under the toggle while closed, e.g. a fixed result code (C12). */
+  closedSummary?: string | null;
+  /** Extra controls rendered first inside the panel (the result code on Crea). */
+  children?: ReactNode;
 }
 
 /** Closed by default (SPEC.md § 11.2): steps, CFG with a plain-language tooltip, negative prompt. */
@@ -22,6 +26,8 @@ export function AdvancedOptions({
   onStepsChange,
   onCfgChange,
   onNegativePromptChange,
+  closedSummary = null,
+  children,
 }: AdvancedOptionsProps) {
   const [open, setOpen] = useState(false);
 
@@ -35,8 +41,10 @@ export function AdvancedOptions({
       >
         {open ? "▾" : "▸"} Opzioni avanzate
       </button>
+      {!open && closedSummary ? <p className="-mt-2 text-xs text-ink-muted">{closedSummary}</p> : null}
       {open ? (
         <div className="flex flex-col gap-3 rounded-md border border-border bg-paper-2 p-3">
+          {children}
           <div className="flex flex-col gap-1 text-sm text-ink">
             <span className="flex items-center gap-1">
               <label htmlFor="advanced-steps-input">Passi di generazione</label>

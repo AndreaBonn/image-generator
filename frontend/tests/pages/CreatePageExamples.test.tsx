@@ -61,7 +61,7 @@ describe("CreatePage examples panel (SPEC.md § 11.3)", () => {
     await userEvent.click(await screen.findByRole("button", { name: "Prova questo" }));
 
     await waitFor(() => expect(screen.getByLabelText("Descrivi l'immagine che vuoi")).toHaveValue(example.prompt));
-    expect(screen.getByLabelText("Codice del risultato")).toHaveValue(777);
+    expect(screen.getByText("Codice del risultato: 777, tenuto")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Genera" })).toHaveFocus();
     expect(createJobSpy).not.toHaveBeenCalled();
   });

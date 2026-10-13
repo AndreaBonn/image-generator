@@ -168,8 +168,6 @@ export function CreateForm({
 
       {selectedTask.supports_styles ? <StyleSelector selected={styleIds} onChange={onStyleIdsChange} /> : null}
 
-      <SeedField seed={seed} locked={seedLocked} onChange={onSeedChange} onToggleLocked={onSeedLockedChange} />
-
       <AdvancedOptions
         task={selectedTask}
         steps={steps}
@@ -178,7 +176,10 @@ export function CreateForm({
         onStepsChange={onStepsChange}
         onCfgChange={onCfgChange}
         onNegativePromptChange={onNegativePromptChange}
-      />
+        closedSummary={seed === null ? null : `Codice del risultato: ${seed}${seedLocked ? ", tenuto" : ""}`}
+      >
+        <SeedField seed={seed} locked={seedLocked} onChange={onSeedChange} onToggleLocked={onSeedLockedChange} />
+      </AdvancedOptions>
 
       <GpuWarning />
 

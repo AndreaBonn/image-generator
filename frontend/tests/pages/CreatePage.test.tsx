@@ -28,6 +28,18 @@ describe("CreatePage validation and task list", () => {
     expect(textarea.compareDocumentPosition(example) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
+  it("keeps the result code inside the advanced options (C12)", async () => {
+    vi.spyOn(queries, "fetchTasks").mockResolvedValue([buildTask()]);
+    renderCreatePage();
+
+    await screen.findByRole("button", { name: "Genera" });
+    expect(screen.queryByLabelText("Codice del risultato")).not.toBeInTheDocument();
+    expect(screen.queryByText(/^Codice del risultato:/)).not.toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole("button", { name: /Opzioni avanzate/ }));
+    expect(screen.getByLabelText("Codice del risultato")).toBeInTheDocument();
+  });
+
   it("explains the number of images in plain text (S3)", async () => {
     vi.spyOn(queries, "fetchTasks").mockResolvedValue([buildTask()]);
     renderCreatePage();

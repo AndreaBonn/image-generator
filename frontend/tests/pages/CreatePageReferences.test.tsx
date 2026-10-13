@@ -43,6 +43,7 @@ describe("CreatePage recipe import", () => {
     await waitFor(() => expect(screen.getByLabelText("Descrivi l'immagine che vuoi")).toHaveValue("a lighthouse at dusk"));
     expect(uploadFile).toHaveBeenCalledWith(file, "image");
     expect(screen.getByRole("button", { name: /^Immagine di qualità/ })).toHaveAttribute("aria-pressed", "true");
+    await userEvent.click(screen.getByRole("button", { name: /Opzioni avanzate/ }));
     expect(screen.getByLabelText("Codice del risultato")).toHaveValue(12345);
   });
 });
