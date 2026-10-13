@@ -7,6 +7,7 @@ import { GalleryPage } from "@/pages/GalleryPage";
 import * as queries from "@/api/queries";
 import { buildTask } from "../fixtures/task";
 import { buildGenerationSummary } from "../fixtures/generation";
+import { installMockEventSource, latestEventSource } from "../mocks/mockEventSource";
 import type { Generation, PaginationMeta } from "@/api/types";
 
 function meta(overrides: Partial<PaginationMeta> = {}): PaginationMeta {
@@ -213,6 +214,28 @@ describe("GalleryPage", () => {
     expect(fetchGenerationsSpy.mock.calls[1]?.[0]).toEqual(expect.objectContaining({ page: 2 }));
     expect(await screen.findByAltText("page two")).toBeInTheDocument();
 
+  });
+
+  it("follows a variant started from the detail and refreshes the gallery when it is ready (G6)", async () => {
+    installMockEventSource();
+    const fetchGenerationsSpy = vi.spyOn(queries, "fetchGenerations").mockResolvedValue({
+      items: [buildGenerationSummary({ id: "gen-1", prompt: "portrait of an old fisherman" })],
+      meta: meta({ total: 1, total_pages: 1 }),
+    });
+    vi.spyOn(queries, "fetchGeneration").mockResolvedValue(buildGenerationDetail());
+    vi.spyOn(queries, "rerunGeneration").mockResolvedValue({ job_id: "job-7" });
+
+    renderGalleryPage();
+    await userEvent.click(await screen.findByRole("button", { name: /portrait of an old fisherman/ }));
+    await userEvent.click(await screen.findByRole("button", { name: "Un'altra variante" }));
+    await userEvent.click(screen.getByRole("button", { name: "Chiudi" }));
+
+    expect(await screen.findByText("Nuova variante in preparazione...")).toBeInTheDocument();
+    const callsBefore = fetchGenerationsSpy.mock.calls.length;
+    latestEventSource().emit("completed", { generation_ids: ["gen-8"] });
+
+    expect(await screen.findByText("Nuova variante pronta: è in cima alla Galleria.")).toBeInTheDocument();
+    await waitFor(() => expect(fetchGenerationsSpy.mock.calls.length).toBeGreaterThan(callsBefore));
   });
 
   it("opens the detail dialog on a thumbnail click and closes it", async () => {

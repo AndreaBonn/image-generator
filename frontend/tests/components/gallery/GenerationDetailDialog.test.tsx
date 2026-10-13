@@ -42,6 +42,7 @@ function renderDialog(props: Partial<Parameters<typeof GenerationDetailDialog>[0
           onClose={onClose}
           onOpenGeneration={onOpenGeneration}
           taskLabels={props.taskLabels}
+          onRerunStarted={props.onRerunStarted}
         />
       </MemoryRouter>
     </QueryClientProvider>,
@@ -240,7 +241,8 @@ describe("GenerationDetailDialog", () => {
       .spyOn(queries, "rerunGeneration")
       .mockResolvedValue({ job_id: "job-99" });
 
-    renderDialog({ generationId: "gen-3" });
+    const onRerunStarted = vi.fn();
+    renderDialog({ generationId: "gen-3", onRerunStarted });
 
     const rerunButton = await screen.findByRole("button", { name: "Un'altra variante" });
     expect(screen.queryByRole("status")).not.toBeInTheDocument();
@@ -249,8 +251,9 @@ describe("GenerationDetailDialog", () => {
 
     expect(rerunGeneration).toHaveBeenCalledWith("gen-3", true);
     expect(await screen.findByRole("status")).toHaveTextContent(
-      "Nuova generazione avviata. Segui l'avanzamento nella pagina Crea.",
+      "Nuova variante in preparazione: comparirà in cima alla Galleria appena pronta.",
     );
+    expect(onRerunStarted).toHaveBeenCalledWith("job-99");
   });
 
   it("asks for confirmation before deleting, and does not delete on Annulla", async () => {

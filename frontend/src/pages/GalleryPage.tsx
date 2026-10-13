@@ -7,6 +7,7 @@ import { GalleryFilters, type GalleryKind } from "@/components/gallery/GalleryFi
 import { GenerationGrid } from "@/components/gallery/GenerationGrid";
 import { GenerationDetailDialog } from "@/components/gallery/GenerationDetailDialog";
 import { TrashView } from "@/components/gallery/TrashView";
+import { VariantWatcher } from "@/components/gallery/VariantWatcher";
 import { TabList, type TabItem } from "@/components/ui/TabList";
 import { PageTitle } from "@/components/layout/PageTitle";
 
@@ -25,6 +26,7 @@ export function GalleryPage() {
   const [favoriteOnly, setFavoriteOnly] = useState(false);
   const [searchInput, setSearchInput] = useState("");
   const [selectedGenerationId, setSelectedGenerationId] = useState<string | null>(null);
+  const [variantJobId, setVariantJobId] = useState<string | null>(null);
   const debouncedQuery = useDebouncedValue(searchInput, SEARCH_DEBOUNCE_MS).trim();
 
   const tasksQuery = useQuery({ queryKey: ["tasks"], queryFn: ({ signal }) => fetchTasks(signal) });
@@ -66,6 +68,8 @@ export function GalleryPage() {
         <TrashView />
       ) : (
         <>
+          {variantJobId ? <VariantWatcher key={variantJobId} jobId={variantJobId} /> : null}
+
           <GalleryFilters
             kind={kind}
             onKindChange={setKind}
@@ -132,6 +136,7 @@ export function GalleryPage() {
               onClose={() => setSelectedGenerationId(null)}
               onOpenGeneration={setSelectedGenerationId}
               taskLabels={taskLabels}
+              onRerunStarted={setVariantJobId}
             />
           ) : null}
         </>

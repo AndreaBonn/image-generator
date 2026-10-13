@@ -17,6 +17,8 @@ interface GenerationDetailDialogProps {
   onOpenGeneration: (id: string) => void;
   /** task_id → plain task name, for the "made with" line (G4). */
   taskLabels?: ReadonlyMap<string, string>;
+  /** Hands the new job to the page, which follows it after the dialog closes (G6). */
+  onRerunStarted?: (jobId: string) => void;
 }
 
 /**
@@ -29,6 +31,7 @@ export function GenerationDetailDialog({
   onClose,
   onOpenGeneration,
   taskLabels,
+  onRerunStarted,
 }: GenerationDetailDialogProps) {
   const dialogRef = useRef<HTMLDivElement | null>(null);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
@@ -57,7 +60,10 @@ export function GenerationDetailDialog({
 
   const rerunMutation = useMutation({
     mutationFn: (newSeed: boolean) => rerunGeneration(generationId, newSeed),
-    onSuccess: () => setRerunDone(true),
+    onSuccess: (response) => {
+      setRerunDone(true);
+      onRerunStarted?.(response.job_id);
+    },
   });
 
   const deleteMutation = useMutation({
@@ -242,7 +248,7 @@ export function GenerationDetailDialog({
 
             {rerunDone ? (
               <p role="status" className="text-sm text-accent-text">
-                Nuova generazione avviata. Segui l'avanzamento nella pagina Crea.
+                Nuova variante in preparazione: comparirà in cima alla Galleria appena pronta.
               </p>
             ) : null}
             {deleteMutation.isError ? (
