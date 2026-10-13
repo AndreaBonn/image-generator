@@ -296,3 +296,48 @@ describe("PromptGuide examples", () => {
     expect(onUseExample).toHaveBeenCalledWith(example);
   });
 });
+
+describe("PromptGuide compact language line (C6)", () => {
+  function renderGuide(overrides: Partial<Parameters<typeof PromptGuide>[0]> = {}) {
+    render(
+      <PromptGuide
+        promptLanguage={basePromptLanguage}
+        tips={["Un consiglio."]}
+        examples={[]}
+        prompt=""
+        onUseExample={vi.fn()}
+        {...overrides}
+      />,
+    );
+  }
+
+  it("shows the task's language label and a short note for English-only tasks", () => {
+    renderGuide();
+
+    expect(screen.getByText("Scrivi in inglese")).toBeInTheDocument();
+    expect(screen.getByText("in italiano perde dettagli")).toBeInTheDocument();
+  });
+
+  it("adds no note when the task understands Italian", () => {
+    renderGuide({
+      promptLanguage: { required: "any", label: "Italiano o inglese", reason: "Capisce entrambe." },
+    });
+
+    expect(screen.getByText("Italiano o inglese")).toBeInTheDocument();
+    expect(screen.queryByText("in italiano perde dettagli")).not.toBeInTheDocument();
+  });
+
+  it("moves the long reason into the tips panel", async () => {
+    renderGuide();
+
+    expect(screen.queryByText(basePromptLanguage.reason)).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: "Mostra consigli" }));
+    expect(screen.getByText(basePromptLanguage.reason)).toBeInTheDocument();
+  });
+
+  it("keeps the reason visible when there are no tips to open", () => {
+    renderGuide({ tips: [] });
+
+    expect(screen.getByText(basePromptLanguage.reason)).toBeInTheDocument();
+  });
+});
