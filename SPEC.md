@@ -535,7 +535,7 @@ Gerarchia `AppError(code, message, http_status)` in `errors.py`, catturata solo 
 | `VALIDATION_ERROR` | 422 | per campo |
 | `NOT_FOUND` | 404 | "Generazione non trovata." |
 | `MODEL_NOT_INSTALLED` | 409 | "Il modello per «Foto realistica» non è installato." |
-| `ENGINE_UNAVAILABLE` | 503 | "Il motore che crea le immagini non risponde: dal menu delle applicazioni scegli “Chiudi Image Generator” e poi riaprilo, oppure avvialo con scripts/start.sh." |
+| `ENGINE_UNAVAILABLE` | 503 | "Il motore che crea le immagini non risponde: dal menu delle applicazioni scegli "Chiudi Image Generator" e poi riaprilo, oppure avvialo con scripts/start.sh." |
 | `ENGINE_REJECTED` | 502 | `node_errors` di ComfyUI riassunti; dettaglio completo nel log |
 | `OUT_OF_MEMORY` | 507 | "Memoria della GPU esaurita. Prova un formato più piccolo o 1 immagine alla volta." Riconosciuto dal testo di `execution_error` (pattern **DA VERIFICARE** con un OOM provocato in Fase 0) |
 | `JOB_TIMEOUT` | 504 | "La generazione ha superato i 10 minuti ed è stata interrotta." |

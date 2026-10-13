@@ -12,7 +12,10 @@ from app.config import REPO_ROOT
 read_yaml = cast(Callable[[str], Any], yaml.safe_load)
 
 # Words that occur in English prose but never in Italian ("a", "in" are shared).
-ENGLISH_ONLY_WORDS = frozenset("the and of to with you your should for is are only that".split())
+ENGLISH_ONLY_WORDS = frozenset(
+    "the and of to with you your should for is are only that "
+    "describe use keep leave when each other into".split()
+)
 WORD_PATTERN = re.compile(pattern=r"[^\W\d_]+", flags=re.UNICODE)
 
 
