@@ -151,4 +151,35 @@ describe("ExamplesCard", () => {
     expect(await screen.findByText("Esempi: 8 immagini create.", undefined, { timeout: 3000 })).toBeInTheDocument();
     await waitFor(() => expect(fetchExamples).toHaveBeenCalledTimes(2));
   });
+
+  it("does not count kept images when a run is cancelled before the first one (I4)", async () => {
+    vi.spyOn(queries, "fetchExamples").mockResolvedValue(buildExamplesResponse({ examples: [] }));
+    vi.spyOn(queries, "fetchAssetGeneration").mockResolvedValue(
+      generation({ kind: "examples", status: "cancelled", done: 0, total: 8 }),
+    );
+    renderExamplesCard();
+
+    expect(await screen.findByText("Creazione degli esempi annullata.")).toBeInTheDocument();
+  });
+
+  it("keeps the images already made when a run is cancelled midway (I4)", async () => {
+    vi.spyOn(queries, "fetchExamples").mockResolvedValue(buildExamplesResponse({ examples: [] }));
+    vi.spyOn(queries, "fetchAssetGeneration").mockResolvedValue(
+      generation({ kind: "styles", status: "cancelled", done: 3, total: 45 }),
+    );
+    renderExamplesCard();
+
+    expect(
+      await screen.findByText("Creazione delle anteprime degli stili annullata: le 3 immagini già pronte restano."),
+    ).toBeInTheDocument();
+  });
+
+  it("shows an indeterminate bar until the run knows how many images it will make (I4)", async () => {
+    vi.spyOn(queries, "fetchExamples").mockResolvedValue(buildExamplesResponse({ examples: [] }));
+    vi.spyOn(queries, "fetchAssetGeneration").mockResolvedValue(generation({ kind: "styles", status: "running" }));
+    renderExamplesCard();
+
+    const bar = await screen.findByRole("progressbar", { name: "Anteprime degli stili: preparazione..." });
+    expect(bar).not.toHaveAttribute("value");
+  });
 });

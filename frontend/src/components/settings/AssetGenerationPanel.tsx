@@ -80,7 +80,13 @@ function GenerationStatus({
       <div role="status" className="flex flex-col gap-2">
         <p className="text-sm text-ink">{text}</p>
         <div className="flex flex-wrap items-center gap-3">
-          <progress value={done} max={Math.max(total, 1)} aria-label={text} className="h-2 w-full max-w-sm accent-accent" />
+          {/* Without a value the bar is indeterminate: the run has not counted its images yet. */}
+          <progress
+            value={total > 0 ? done : undefined}
+            max={Math.max(total, 1)}
+            aria-label={text}
+            className="h-2 w-full max-w-sm accent-accent"
+          />
           <button type="button" onClick={onCancel} disabled={cancelling} className={BUTTON_CLASS}>
             Annulla
           </button>
@@ -93,11 +99,8 @@ function GenerationStatus({
     return <p role="status" className="text-sm text-ink">{text}</p>;
   }
   if (status === "cancelled") {
-    return (
-      <p role="status" className="text-sm text-ink-muted">
-        Creazione {of} annullata: le {done} immagini già pronte restano.
-      </p>
-    );
+    const kept = done > 0 ? `: le ${done} immagini già pronte restano.` : ".";
+    return <p role="status" className="text-sm text-ink-muted">{`Creazione ${of} annullata${kept}`}</p>;
   }
   return (
     <p role="alert" className="text-sm text-danger">
