@@ -14,6 +14,8 @@ import { MAX_PROMPT_LENGTH, MIN_BATCH, MAX_BATCH } from "@/lib/createFormLimits"
 import type { RecipeImportPatch } from "@/lib/recipeImport";
 import type { Task } from "@/api/types";
 
+const BATCH_OPTIONS = Array.from({ length: MAX_BATCH - MIN_BATCH + 1 }, (_, index) => MIN_BATCH + index);
+
 interface CreateFormProps {
   selectedTask: Task;
   creationTasks: Task[];
@@ -142,24 +144,27 @@ export function CreateForm({
 
       <AspectRatioPicker ratios={selectedTask.aspect_ratios} value={aspectRatio} onChange={onAspectRatioChange} />
 
-      <div className="flex flex-col gap-1 text-sm text-ink">
-        <label htmlFor="batch-input" className="font-semibold">
-          Numero di immagini
-        </label>
+      <fieldset className="flex flex-col gap-1 text-sm text-ink" aria-describedby="batch-hint">
+        <legend className="font-semibold">Numero di immagini</legend>
         <p id="batch-hint" className="text-xs text-ink-muted">
           {FIELD_HINTS.batch}
         </p>
-        <input
-          id="batch-input"
-          type="number"
-          min={MIN_BATCH}
-          max={MAX_BATCH}
-          aria-describedby="batch-hint"
-          value={batch}
-          onChange={(event) => onBatchChange(Math.min(MAX_BATCH, Math.max(MIN_BATCH, Number(event.target.value))))}
-          className="min-h-11 w-24 rounded-md border border-border bg-paper-2 px-2 py-1"
-        />
-      </div>
+        <div className="flex w-fit overflow-hidden rounded-md border border-border">
+          {BATCH_OPTIONS.map((count) => (
+            <button
+              key={count}
+              type="button"
+              aria-pressed={batch === count}
+              onClick={() => onBatchChange(count)}
+              className={`min-h-11 min-w-11 border-r border-border px-3 last:border-r-0 ${
+                batch === count ? "bg-paper-3 font-semibold text-ink" : "bg-paper-2 text-ink-muted hover:bg-paper-3"
+              }`}
+            >
+              {count}
+            </button>
+          ))}
+        </div>
+      </fieldset>
 
       {selectedTask.supports_styles ? <StyleSelector selected={styleIds} onChange={onStyleIdsChange} /> : null}
 

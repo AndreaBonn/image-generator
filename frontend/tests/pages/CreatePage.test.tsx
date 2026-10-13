@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
-import { screen, waitFor, fireEvent } from "@testing-library/react";
+import { screen, waitFor, fireEvent, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import * as queries from "@/api/queries";
 import { buildTask } from "../fixtures/task";
@@ -155,20 +155,19 @@ describe("CreatePage validation and task list", () => {
     expect(screen.queryByText(/Stili \(massimo/)).not.toBeInTheDocument();
   });
 
-  it("clamps the batch count to the 1-4 range and sends the clamped value", async () => {
+  it("offers the number of images as four buttons and sends the chosen one (C11)", async () => {
     vi.spyOn(queries, "fetchTasks").mockResolvedValue([buildTask()]);
     const createJobSpy = vi.spyOn(queries, "createJob").mockResolvedValue({ job_id: "job-batch" });
     renderCreatePage();
 
-    const batchInput = await screen.findByLabelText("Numero di immagini");
-    fireEvent.change(batchInput, { target: { value: "10" } });
-    expect(batchInput).toHaveValue(4);
+    const group = await screen.findByRole("group", { name: "Numero di immagini" });
+    const buttons = within(group).getAllByRole("button");
+    expect(buttons.map((button) => button.textContent)).toEqual(["1", "2", "3", "4"]);
+    expect(within(group).getByRole("button", { name: "1" })).toHaveAttribute("aria-pressed", "true");
 
-    fireEvent.change(batchInput, { target: { value: "0" } });
-    expect(batchInput).toHaveValue(1);
-
-    fireEvent.change(batchInput, { target: { value: "3" } });
-    expect(batchInput).toHaveValue(3);
+    await userEvent.click(within(group).getByRole("button", { name: "3" }));
+    expect(within(group).getByRole("button", { name: "3" })).toHaveAttribute("aria-pressed", "true");
+    expect(within(group).getByRole("button", { name: "1" })).toHaveAttribute("aria-pressed", "false");
 
     await userEvent.type(screen.getByLabelText("Descrivi l'immagine che vuoi"), "a cozy reading corner");
     await userEvent.click(screen.getByRole("button", { name: "Genera" }));
