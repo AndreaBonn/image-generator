@@ -213,7 +213,11 @@ export function ResultCardActions({ generationId }: { generationId: string }) {
         <button
           type="button"
           disabled={rerunMutation.isPending}
-          onClick={() => rerunMutation.mutate(true)}
+          onClick={() => {
+            // Reset first so the confirmation is removed and announced again for each new variant (R6).
+            rerunMutation.reset();
+            rerunMutation.mutate(true);
+          }}
           className={ACTION_CLASS}
         >
           Un&apos;altra variante
