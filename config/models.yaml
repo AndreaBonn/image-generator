@@ -20,17 +20,20 @@ models:
     license: "RunDiffusion, da verificare prima di un uso commerciale"
 
   - id: lustify_sdxl
-    label: Lustify SDXL
-    family: sdxl
+    label: Lustify SDXL (OLT)
+    family: sdxl_libero
     folder: checkpoints
-    # Downloaded by hand from the author's Civitai page and renamed to this fixed name,
-    # so a newer version replaces the file without touching the registry or the workflow.
+    # The author's Civitai page now lists only the Krea-based V10; the SDXL "OLT (fixed
+    # textures)" file survives in this third-party repo. Its sha256 matches the one
+    # CivArchive records for the Civitai upload (model 573152, version 1569593), checked
+    # 2026-10-13. Saved under a neutral name so the workflow does not depend on the version.
     filename: lustifySDXL.safetensors
-    source: local
-    license: "Civitai, verificare la licenza della versione scaricata"
-    manual_install: >-
-      Scarica Lustify dalla pagina dell'autore su Civitai, rinomina il file in
-      lustifySDXL.safetensors e mettilo in engine/models/checkpoints.
+    source: huggingface
+    repo: NSFW-API/Lustify
+    repo_path: lustify.safetensors
+    size_bytes: 6938043264
+    sha256: d7e7e35b0f60c42ad427ce81e30569a3881143ecf2f9cb50021a52947f69d22f
+    license: "Civitai (coyotte416K), da verificare prima di un uso commerciale"
 
   - id: sdxl_offset_lora
     label: SDXL offset LoRA

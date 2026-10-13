@@ -13,8 +13,6 @@ export type ModelStatus = "installed" | "missing";
 
 export interface ModelInfo {
   install_command?: string;
-  /** Steps for a model the app cannot download (e.g. from Civitai). */
-  manual_install?: string | null;
   id: string;
   label: string;
   family: string;

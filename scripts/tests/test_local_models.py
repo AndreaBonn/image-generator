@@ -29,19 +29,3 @@ def test_local_download_and_remove_refuse(tmp_path: Path) -> None:
     with pytest.raises(SystemExit, match="modello locale.*rimozione"):
         install_models.remove(entry=entry, paths=paths, assume_yes=True)
     assert target.read_bytes() == b"user-provided"
-
-
-MANUAL = "Scarica il file a mano e mettilo in engine/models/checkpoints."
-
-
-def test_manual_local_model_shows_its_own_instructions_not_the_migration(
-    tmp_path: Path, capsys: pytest.CaptureFixture[str]
-) -> None:
-    paths = install_models.Paths(models_dir=tmp_path)
-    entry = make_entry(source="local", manual_install=MANUAL)
-    install_models.print_listing(entries=[entry], paths=paths)
-    out = capsys.readouterr().out
-    assert MANUAL in out
-    assert COMMAND not in out
-    with pytest.raises(SystemExit, match="Scarica il file a mano"):
-        install_models.download(entry=entry, paths=paths, min_free_gb=5)

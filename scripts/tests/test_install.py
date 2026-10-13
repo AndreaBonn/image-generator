@@ -90,6 +90,14 @@ def test_plan_steps_profile_base_includes_models_inside_the_base_set():
     assert "flux2_klein_4b" not in steps[0].description
 
 
+def test_base_profile_leaves_out_the_optional_lustify_checkpoint():
+    """Lustify only serves the optional `libero` task: the base profile must not pull 7 GB."""
+    registry = install_models.load_registry()
+    base_ids = install.base_profile_model_ids(registry)
+    assert "lustify_sdxl" not in base_ids
+    assert set(BASE_MODEL_IDS) <= base_ids
+
+
 def test_plan_steps_profile_completo_includes_every_missing_model():
     state = install.InstallState(
         engine_installed=True,

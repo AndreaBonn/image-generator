@@ -183,12 +183,11 @@ class TaskCatalog:
         ]
         if missing:
             labels = ", ".join(model.label for model in missing)
-            commands = dict.fromkeys(
-                model_install_hint(model=model) for model in missing if not model.manual_install
+            commands = dict.fromkeys(model_install_hint(model=model) for model in missing)
+            return (
+                f"Modelli non installati: {labels}. "
+                f"Esegui {'; '.join(commands)}. Vedi Impostazioni."
             )
-            steps = [f"Esegui {'; '.join(commands)}."] if commands else []
-            steps += [model.manual_install for model in missing if model.manual_install]
-            return f"Modelli non installati: {labels}. {' '.join(steps)} Vedi Impostazioni."
         return None
 
     def list_tasks(self) -> list[TaskView]:
