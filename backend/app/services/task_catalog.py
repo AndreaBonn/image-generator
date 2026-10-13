@@ -169,36 +169,50 @@ class TaskCatalog:
         self.models = models
         self.repository = repository
 
-    def unavailable_reason(self, task: TaskDefinition) -> str | None:
-        missing_workflow = any(
-            not self.repository.has_workflow(filename=filename)
+    def has_workflows(self, task: TaskDefinition) -> bool:
+        return all(
+            self.repository.has_workflow(filename=filename)
             for filename in task_workflow_files(task=task)
         )
-        if missing_workflow:
-            return "Il workflow per questo compito non è ancora disponibile."
-        missing = [
+
+    def missing_models(self, task: TaskDefinition) -> list[ModelEntry]:
+        return [
             self.models[model_id]
             for model_id in task.model_ids
             if not self.repository.has_model(model=self.models[model_id])
         ]
-        if missing:
-            labels = ", ".join(model.label for model in missing)
-            commands = dict.fromkeys(model_install_hint(model=model) for model in missing)
-            return (
-                f"Modelli non installati: {labels}. "
-                f"Esegui {'; '.join(commands)}. Vedi Impostazioni."
-            )
-        return None
+
+    def blockers(self, task: TaskDefinition) -> tuple[str | None, list[ModelEntry]]:
+        """Why the task cannot run, and the missing models a download would fix.
+
+        The model list is empty when the workflow itself is missing: downloading
+        models would not make the task runnable, so none are offered.
+        """
+        if not self.has_workflows(task=task):
+            return "Il workflow per questo compito non è ancora disponibile.", []
+        missing = self.missing_models(task=task)
+        if not missing:
+            return None, []
+        labels = ", ".join(model.label for model in missing)
+        commands = dict.fromkeys(model_install_hint(model=model) for model in missing)
+        reason = (
+            f"Modelli non installati: {labels}. Esegui {'; '.join(commands)}. Vedi Impostazioni."
+        )
+        return reason, missing
+
+    def unavailable_reason(self, task: TaskDefinition) -> str | None:
+        return self.blockers(task=task)[0]
 
     def list_tasks(self) -> list[TaskView]:
         result: list[TaskView] = []
         for task in self.tasks:
-            reason = self.unavailable_reason(task=task)
+            reason, missing = self.blockers(task=task)
             result.append(
                 TaskView(
                     **task.model_dump(),
                     available=reason is None,
                     unavailable_reason=reason,
+                    missing_model_ids=[model.id for model in missing],
                     parameters=build_parameters(task=task),
                 )
             )

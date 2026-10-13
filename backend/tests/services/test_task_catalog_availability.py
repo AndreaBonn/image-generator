@@ -95,3 +95,19 @@ def test_unavailable_reason_omits_migrate_command_when_model_not_migratable(
     assert reason is not None
     assert "migrate_from_fooocus" not in reason
     assert "uv run --script scripts/install_models.py --install sdxl_lightning_lora" in reason
+
+
+def test_list_tasks_reports_missing_model_ids_until_installed(catalog_settings: Settings) -> None:
+    catalog = load_catalog(settings=catalog_settings)
+    task = next(task for task in catalog.list_tasks() if task.id == "bozza")
+    assert task.missing_model_ids == ["juggernaut_xl_v8", "sdxl_lightning_lora"]
+    lora = catalog_settings.models_dir / "loras/sdxl_lightning_4step_lora.safetensors"
+    lora.parent.mkdir(parents=True, exist_ok=True)
+    lora.touch()
+    task = next(task for task in catalog.list_tasks() if task.id == "bozza")
+    assert task.missing_model_ids == ["juggernaut_xl_v8"]
+    checkpoint = catalog_settings.models_dir / "checkpoints/juggernautXL_v8Rundiffusion.safetensors"
+    checkpoint.parent.mkdir(parents=True, exist_ok=True)
+    checkpoint.touch()
+    task = next(task for task in catalog.list_tasks() if task.id == "bozza")
+    assert task.missing_model_ids == []

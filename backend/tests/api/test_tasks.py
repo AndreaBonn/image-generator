@@ -31,6 +31,7 @@ def test_list_tasks_returns_groups_guidance_parameters_and_availability(tmp_path
     draft = data["data"][0]
     assert draft["available"] is False
     assert "Modelli non installati" in draft["unavailable_reason"]
+    assert draft["missing_model_ids"] == ["juggernaut_xl_v8", "sdxl_lightning_lora"]
     assert draft["parameters"]["steps"] == {"default": 4, "min": 2, "max": 8, "options": []}
     assert draft["prompt_language"]["label"] == "Scrivi in inglese"
     assert len(draft["parameters"]["aspect_ratio"]["options"]) == 26

@@ -29,6 +29,7 @@ class TaskOut(BaseModel):
     family: str
     available: bool
     unavailable_reason: str | None
+    missing_model_ids: list[str]
     prompt_language: PromptLanguage
     prompt_tips: list[str]
     prompt_examples: list[str]

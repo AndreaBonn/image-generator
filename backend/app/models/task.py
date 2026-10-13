@@ -176,4 +176,5 @@ class TaskDocument(CatalogModel):
 class TaskView(TaskDefinition):
     available: bool
     unavailable_reason: str | None
+    missing_model_ids: list[str]
     parameters: dict[str, ParameterSchema]
