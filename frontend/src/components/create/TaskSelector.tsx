@@ -1,5 +1,5 @@
 import type { Task } from "@/api/types";
-import { groupTasksBySource } from "@/lib/taskGroups";
+import { groupTasksBySource, languageTag } from "@/lib/taskGroups";
 
 interface TaskSelectorProps {
   tasks: Task[];
@@ -63,7 +63,7 @@ function TaskCard({ task, isSelected, isReady, onSelect }: TaskCardProps) {
           <span className={`${TAG_CLASS} border-border text-ink-muted`}>{task.duration_hint}</span>
         ) : null}
         <span className={`${TAG_CLASS} border-accent text-accent-text`}>
-          {task.prompt_language.required === "en" ? "in inglese" : "anche in italiano"}
+          {languageTag(task.prompt_language.required)}
         </span>
         {isReady ? <span className={`${TAG_CLASS} border-success text-success`}>pronto subito</span> : null}
       </span>

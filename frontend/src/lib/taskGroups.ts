@@ -27,3 +27,14 @@ export function italianFriendlyTask(tasks: Task[]): Task | undefined {
     (task) => task.available && task.min_references === 0 && task.prompt_language.required !== "en",
   );
 }
+
+const LANGUAGE_TAGS: Record<Task["prompt_language"]["required"], string> = {
+  en: "in inglese",
+  it: "in italiano",
+  any: "anche in italiano",
+};
+
+/** Short language tag for a task card or the guide table (C4, N3). */
+export function languageTag(required: Task["prompt_language"]["required"]): string {
+  return LANGUAGE_TAGS[required];
+}

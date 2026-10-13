@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { groupTasksBySource, italianFriendlyTask } from "@/lib/taskGroups";
+import { groupTasksBySource, italianFriendlyTask, languageTag } from "@/lib/taskGroups";
 import { buildTask } from "../fixtures/task";
 
 describe("groupTasksBySource (C3)", () => {
@@ -45,5 +45,15 @@ describe("italianFriendlyTask (C7)", () => {
 
   it("returns undefined when no task fits", () => {
     expect(italianFriendlyTask([buildTask({ id: "bozza" })])).toBeUndefined();
+  });
+});
+
+describe("languageTag (R5)", () => {
+  it.each([
+    ["en", "in inglese"],
+    ["it", "in italiano"],
+    ["any", "anche in italiano"],
+  ] as const)("says %s as %s", (required, tag) => {
+    expect(languageTag(required)).toBe(tag);
   });
 });

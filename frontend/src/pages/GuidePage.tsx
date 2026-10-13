@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { fetchTasks } from "@/api/queries";
 import { PageTitle } from "@/components/layout/PageTitle";
+import { languageTag } from "@/lib/taskGroups";
 
 /** "Come funziona" (N3): a short guide always one click away, unlike the first-run examples. */
 export function GuidePage() {
@@ -34,7 +35,7 @@ export function GuidePage() {
                 <tr key={task.id} className="border-b border-border/50 align-top">
                   <th scope="row" className="py-2 pr-3 font-medium">{task.label}</th>
                   <td className="py-2 pr-3 text-ink-muted">{task.description}</td>
-                  <td className="py-2 pr-3">{task.prompt_language.required === "en" ? "in inglese" : "anche in italiano"}</td>
+                  <td className="py-2 pr-3">{languageTag(task.prompt_language.required)}</td>
                   <td className="py-2">{task.duration_hint ?? "-"}</td>
                 </tr>
               ))}
