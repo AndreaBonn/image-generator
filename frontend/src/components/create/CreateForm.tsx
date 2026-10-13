@@ -1,5 +1,6 @@
 import type { RefObject } from "react";
 import { PromptGuide } from "@/components/create/PromptGuide";
+import { PromptExamples } from "@/components/create/PromptExamples";
 import { AspectRatioPicker } from "@/components/create/AspectRatioPicker";
 import { SeedField } from "@/components/create/SeedField";
 import { StyleSelector } from "@/components/create/StyleSelector";
@@ -96,7 +97,7 @@ export function CreateForm({
       <PromptGuide
         promptLanguage={selectedTask.prompt_language}
         tips={selectedTask.prompt_tips}
-        examples={selectedTask.prompt_examples}
+        examples={[]}
         prompt={prompt}
         onUseExample={onPromptChange}
       />
@@ -118,15 +119,15 @@ export function CreateForm({
       <RecipeImport tasks={creationTasks} onApply={onApplyRecipe}>
         <div className="flex flex-col gap-1">
           <label htmlFor="prompt-input" className="text-sm font-semibold text-ink">
-            Descrizione
+            Descrivi l'immagine che vuoi
           </label>
           <textarea
             id="prompt-input"
             value={prompt}
             onChange={(event) => onPromptChange(event.target.value)}
-            rows={3}
+            rows={5}
             maxLength={MAX_PROMPT_LENGTH}
-            className="rounded-md border border-border bg-paper-2 px-2 py-1 text-sm text-ink"
+            className="rounded-md border border-border bg-paper-2 px-3 py-2 text-base text-ink"
             aria-invalid={promptError !== null}
             aria-describedby={promptError ? "prompt-error" : undefined}
           />
@@ -135,6 +136,7 @@ export function CreateForm({
               {promptError}
             </p>
           ) : null}
+          <PromptExamples examples={selectedTask.prompt_examples} onUseExample={onPromptChange} />
         </div>
       </RecipeImport>
 

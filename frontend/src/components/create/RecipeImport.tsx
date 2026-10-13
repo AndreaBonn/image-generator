@@ -3,8 +3,6 @@ import { useMutation } from "@tanstack/react-query";
 import { fetchStyles, uploadFile } from "@/api/queries";
 import { ApiError } from "@/api/errors";
 import { resolveRecipeImport, type RecipeImportPatch } from "@/lib/recipeImport";
-import { InfoTip } from "@/components/ui/InfoTip";
-import { HELP_TEXTS } from "@/lib/helpTexts";
 import type { Task } from "@/api/types";
 
 const ACCEPTED_TYPES = ["image/png", "image/jpeg", "image/webp"];
@@ -77,17 +75,6 @@ export function RecipeImport({ tasks, onApply, children }: RecipeImportProps) {
       onDrop={handleDrop}
       className={`flex flex-col gap-2 rounded-md ${isDragging ? "ring-2 ring-accent" : ""}`}
     >
-      <div className="flex items-center gap-1">
-        <button
-          type="button"
-          onClick={() => inputRef.current?.click()}
-          disabled={importMutation.isPending}
-          className="min-h-11 w-fit rounded-md border border-border bg-paper-2 px-3 py-2 text-sm font-medium text-ink hover:bg-paper-3 disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {importMutation.isPending ? "Importazione..." : "Importa da immagine"}
-        </button>
-        <InfoTip text={HELP_TEXTS.recipeImport} label="Informazioni: Importa da immagine" />
-      </div>
       <input
         ref={inputRef}
         type="file"
@@ -98,6 +85,15 @@ export function RecipeImport({ tasks, onApply, children }: RecipeImportProps) {
       />
 
       {children}
+
+      <button
+        type="button"
+        onClick={() => inputRef.current?.click()}
+        disabled={importMutation.isPending}
+        className="min-h-11 w-fit text-left text-sm text-accent-text underline disabled:cursor-not-allowed disabled:opacity-60"
+      >
+        {importMutation.isPending ? "Importazione..." : "Riprendi le impostazioni da un'immagine creata qui"}
+      </button>
 
       {message ? (
         <p role={message.kind === "error" ? "alert" : "status"} className={message.kind === "error" ? "text-sm text-danger" : "text-sm text-ink-muted"}>

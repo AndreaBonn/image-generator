@@ -40,7 +40,7 @@ describe("CreatePage recipe import", () => {
     const file = new File(["png"], "recipe.png", { type: "image/png" });
     await userEvent.upload(screen.getByLabelText("Importa da immagine"), file);
 
-    await waitFor(() => expect(screen.getByLabelText("Descrizione")).toHaveValue("a lighthouse at dusk"));
+    await waitFor(() => expect(screen.getByLabelText("Descrivi l'immagine che vuoi")).toHaveValue("a lighthouse at dusk"));
     expect(uploadFile).toHaveBeenCalledWith(file, "image");
     expect(screen.getByRole("button", { name: /^Immagine di qualità/ })).toHaveAttribute("aria-pressed", "true");
     expect(screen.getByLabelText("Codice del risultato")).toHaveValue(12345);
@@ -69,7 +69,7 @@ describe("CreatePage crea_da_riferimenti", () => {
     vi.spyOn(queries, "uploadFile").mockResolvedValue({ upload_id: "up-ref", width: 1024, height: 1024 });
     renderCreatePage();
 
-    await userEvent.type(await screen.findByLabelText("Descrizione"), "a cafe in Paris, morning light");
+    await userEvent.type(await screen.findByLabelText("Descrivi l'immagine che vuoi"), "a cafe in Paris, morning light");
     expect(screen.getByText("0 di 3")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Genera" })).toBeDisabled();
     expect(
@@ -88,7 +88,7 @@ describe("CreatePage crea_da_riferimenti", () => {
     const createJobSpy = vi.spyOn(queries, "createJob").mockResolvedValue({ job_id: "job-refs" });
     renderCreatePage();
 
-    await userEvent.type(await screen.findByLabelText("Descrizione"), "a cafe in Paris, morning light");
+    await userEvent.type(await screen.findByLabelText("Descrivi l'immagine che vuoi"), "a cafe in Paris, morning light");
     await userEvent.upload(
       screen.getByLabelText("Aggiungi riferimento da file"),
       new File(["bytes"], "ref.png", { type: "image/png" }),

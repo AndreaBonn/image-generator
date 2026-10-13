@@ -66,8 +66,6 @@ export const HELP_TEXTS = {
     "Riporta questa immagine nella Galleria, come se non fosse mai stata eliminata.",
   trashEmpty:
     "Elimina per sempre tutte le immagini nel cestino e libera lo spazio su disco che occupavano. Questa operazione non si può annullare.",
-  recipeImport:
-    "Trascina qui un'immagine creata con questa app per ricaricare automaticamente la descrizione e le impostazioni usate per generarla.",
   livePreview:
     "Un'anteprima sfocata dell'immagine mentre viene generata, che si affina progressivamente fino al risultato finale.",
   modificaLibera:

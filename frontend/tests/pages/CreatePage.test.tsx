@@ -16,6 +16,18 @@ describe("CreatePage validation and task list", () => {
     vi.restoreAllMocks();
   });
 
+  it("puts a larger description field before the examples (C5)", async () => {
+    vi.spyOn(queries, "fetchTasks").mockResolvedValue([
+      buildTask({ prompt_examples: ["portrait of an old fisherman, golden hour"] }),
+    ]);
+    renderCreatePage();
+
+    const textarea = await screen.findByLabelText("Descrivi l'immagine che vuoi");
+    const example = screen.getByRole("button", { name: "portrait of an old fisherman, golden hour" });
+    expect(textarea).toHaveAttribute("rows", "5");
+    expect(textarea.compareDocumentPosition(example) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
   it("explains the number of images in plain text (S3)", async () => {
     vi.spyOn(queries, "fetchTasks").mockResolvedValue([buildTask()]);
     renderCreatePage();
@@ -44,7 +56,7 @@ describe("CreatePage validation and task list", () => {
     const createJobSpy = vi.spyOn(queries, "createJob");
     renderCreatePage();
 
-    const textarea = await screen.findByLabelText("Descrizione");
+    const textarea = await screen.findByLabelText("Descrivi l'immagine che vuoi");
     fireEvent.change(textarea, { target: { value: "a".repeat(2001) } });
     await userEvent.click(screen.getByRole("button", { name: "Genera" }));
 
@@ -65,7 +77,7 @@ describe("CreatePage validation and task list", () => {
     await userEvent.click(screen.getByRole("button", { name: "Riprova" }));
 
     await waitFor(() => expect(fetchTasksSpy).toHaveBeenCalledTimes(2));
-    await screen.findByLabelText("Descrizione");
+    await screen.findByLabelText("Descrivi l'immagine che vuoi");
   });
 
   it("shows a message when the catalog has no creation tasks", async () => {
@@ -89,7 +101,7 @@ describe("CreatePage validation and task list", () => {
 
     expect({
       reasonShown: reason.isConnected,
-      promptShown: screen.queryByLabelText("Descrizione") !== null,
+      promptShown: screen.queryByLabelText("Descrivi l'immagine che vuoi") !== null,
     }).toEqual({ reasonShown: true, promptShown: false });
   });
 
@@ -139,7 +151,7 @@ describe("CreatePage validation and task list", () => {
     vi.spyOn(queries, "fetchTasks").mockResolvedValue([buildTask({ supports_styles: false })]);
     renderCreatePage();
 
-    await screen.findByLabelText("Descrizione");
+    await screen.findByLabelText("Descrivi l'immagine che vuoi");
     expect(screen.queryByText(/Stili \(massimo/)).not.toBeInTheDocument();
   });
 
@@ -158,7 +170,7 @@ describe("CreatePage validation and task list", () => {
     fireEvent.change(batchInput, { target: { value: "3" } });
     expect(batchInput).toHaveValue(3);
 
-    await userEvent.type(screen.getByLabelText("Descrizione"), "a cozy reading corner");
+    await userEvent.type(screen.getByLabelText("Descrivi l'immagine che vuoi"), "a cozy reading corner");
     await userEvent.click(screen.getByRole("button", { name: "Genera" }));
 
     await waitFor(() => expect(createJobSpy).toHaveBeenCalledTimes(1));

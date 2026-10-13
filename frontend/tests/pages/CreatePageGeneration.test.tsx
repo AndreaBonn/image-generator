@@ -19,7 +19,7 @@ describe("CreatePage generation error", () => {
 
     renderCreatePage();
 
-    const textarea = await screen.findByLabelText("Descrizione");
+    const textarea = await screen.findByLabelText("Descrivi l'immagine che vuoi");
     await userEvent.type(textarea, "portrait of an old fisherman");
     await userEvent.click(screen.getByRole("button", { name: "Genera" }));
 
@@ -51,7 +51,7 @@ describe("CreatePage job lifecycle", () => {
 
   async function submitPrompt(text = "portrait of an old fisherman") {
     renderCreatePage();
-    const textarea = await screen.findByLabelText("Descrizione");
+    const textarea = await screen.findByLabelText("Descrivi l'immagine che vuoi");
     await userEvent.type(textarea, text);
     await userEvent.click(screen.getByRole("button", { name: "Genera" }));
     return textarea;

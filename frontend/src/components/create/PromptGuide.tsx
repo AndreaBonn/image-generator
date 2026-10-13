@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import { checkPromptLanguage } from "@/api/queries";
 import type { PromptLanguage } from "@/api/types";
+import { PromptExamples } from "@/components/create/PromptExamples";
 
 // Short note next to the language badge (C6); the full reason lives with the tips.
 const LANGUAGE_NOTES: Record<PromptLanguage["required"], string | null> = {
@@ -85,21 +86,7 @@ export function PromptGuide({
         </div>
       ) : null}
 
-      {examples.length > 0 ? (
-        <div className="flex flex-col gap-1">
-          <span className="text-xs font-medium text-ink-muted">Esempi (clicca per usarli)</span>
-          {examples.map((example) => (
-            <button
-              key={example}
-              type="button"
-              onClick={() => onUseExample(example)}
-              className="min-h-11 rounded-md border border-border bg-paper-2 px-2 py-1 text-left text-xs text-ink-muted hover:bg-paper-3"
-            >
-              {example}
-            </button>
-          ))}
-        </div>
-      ) : null}
+      <PromptExamples examples={examples} onUseExample={onUseExample} />
 
       {looksItalian ? (
         <p role="status" className="text-warning">

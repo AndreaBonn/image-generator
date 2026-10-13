@@ -41,7 +41,7 @@ describe("CreatePage examples panel (SPEC.md § 11.3)", () => {
     vi.spyOn(queries, "fetchExamples").mockResolvedValue(buildExamplesResponse({ first_use: false }));
     renderCreatePage();
 
-    await screen.findByLabelText("Descrizione");
+    await screen.findByLabelText("Descrivi l'immagine che vuoi");
     expect(screen.queryByText("Prova un esempio")).not.toBeInTheDocument();
   });
 
@@ -60,7 +60,7 @@ describe("CreatePage examples panel (SPEC.md § 11.3)", () => {
 
     await userEvent.click(await screen.findByRole("button", { name: "Prova questo" }));
 
-    await waitFor(() => expect(screen.getByLabelText("Descrizione")).toHaveValue(example.prompt));
+    await waitFor(() => expect(screen.getByLabelText("Descrivi l'immagine che vuoi")).toHaveValue(example.prompt));
     expect(screen.getByLabelText("Codice del risultato")).toHaveValue(777);
     expect(screen.getByRole("button", { name: "Genera" })).toHaveFocus();
     expect(createJobSpy).not.toHaveBeenCalled();
@@ -74,7 +74,7 @@ describe("CreatePage examples panel (SPEC.md § 11.3)", () => {
     renderCreatePage();
     expect(await screen.findByRole("heading", { name: "Prova un esempio" })).toBeInTheDocument();
 
-    await userEvent.type(screen.getByLabelText("Descrizione"), "a red fox");
+    await userEvent.type(screen.getByLabelText("Descrivi l'immagine che vuoi"), "a red fox");
     await userEvent.click(screen.getByRole("button", { name: "Genera" }));
     const source = await waitFor(() => latestEventSource());
     source.emit("completed", { generation_ids: [] });

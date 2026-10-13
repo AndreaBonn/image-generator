@@ -9,6 +9,8 @@ import { buildTask } from "../../fixtures/task";
 import type { RecipeImportPatch } from "@/lib/recipeImport";
 import type { UploadRecipe } from "@/api/types";
 
+const IMPORT_LABEL = "Riprendi le impostazioni da un'immagine creata qui";
+
 function renderRecipeImport(onApply: (patch: RecipeImportPatch) => void) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return render(
@@ -77,10 +79,19 @@ describe("RecipeImport", () => {
     expect(await screen.findByRole("alert")).toHaveTextContent(/^Impossibile leggere l'immagine\.$/);
   });
 
+  it("offers the import as a plain-language link after the description area (C5)", () => {
+    renderRecipeImport(vi.fn());
+
+    const button = screen.getByRole("button", { name: IMPORT_LABEL });
+    const promptArea = screen.getByText("prompt area");
+    expect(promptArea.compareDocumentPosition(button) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(screen.queryByRole("button", { name: /^Informazioni/ })).not.toBeInTheDocument();
+  });
+
   it("disables the import button and shows progress while the upload is pending", async () => {
     vi.spyOn(queries, "uploadFile").mockReturnValue(new Promise(() => {}));
     renderRecipeImport(vi.fn());
-    expect(screen.getByRole("button", { name: "Importa da immagine" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: IMPORT_LABEL })).toBeEnabled();
 
     await uploadPng();
 
