@@ -18,6 +18,8 @@ def gallery_filters(query: GalleryQuery) -> list[ColumnElement[bool]]:
     filters: list[ColumnElement[bool]] = [visibility]
     if query.task_id is not None:
         filters.append(GenerationRecord.task_id == query.task_id)
+    if query.task_ids:
+        filters.append(GenerationRecord.task_id.in_(query.task_ids))
     if query.q is not None:
         filters.append(GenerationRecord.prompt.contains(query.q, autoescape=True))
     if query.favorite is not None:

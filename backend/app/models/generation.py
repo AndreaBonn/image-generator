@@ -14,6 +14,7 @@ class GalleryQuery(BaseModel):
     page: int = Field(default=1, ge=1)
     per_page: int = Field(default=24, ge=1, le=100)
     task_id: str | None = None
+    task_ids: list[str] | None = None
     q: str | None = None
     favorite: bool | None = None
     trashed: bool = False

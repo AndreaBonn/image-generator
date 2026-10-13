@@ -110,3 +110,24 @@ async def test_rerun_different_generations_conflict_with_same_key(job_app: JobAp
     )
     assert first_response.status_code == 202
     assert second_response.status_code == 409
+
+
+async def test_gallery_filters_by_any_of_several_tasks(job_app: JobApp) -> None:
+    _, client = job_app
+    sketch_like = await generate(client=client, prompt="cat")
+    response = await client.post(
+        url="/api/v1/jobs",
+        json={"task_id": "qualita", "prompt": "dog", "params": {"seed": 1, "style_ids": []}},
+    )
+    result = await wait_terminal(client=client, job_id=response.json()["data"]["job_id"])
+    quality = result["generation_ids"][0]
+
+    both = await client.get(
+        url="/api/v1/generations", params=[("task_ids", "bozza"), ("task_ids", "qualita")]
+    )
+    only_quality = await client.get(
+        url="/api/v1/generations", params=[("task_ids", "qualita"), ("task_ids", "foto")]
+    )
+
+    assert {item["id"] for item in both.json()["data"]} == {sketch_like, quality}
+    assert [item["id"] for item in only_quality.json()["data"]] == [quality]

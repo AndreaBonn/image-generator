@@ -467,7 +467,7 @@ Base `/api/v1`. Formato di successo `{"data": ..., "meta": {...}}`, di errore `{
 | GET | `/jobs/{id}/events` | SSE: `queued{position}`, `model_switch{family, eta_s}`, `progress{step, total}`, `preview{url}` (v1.1), `completed{generation_ids}`, `failed{code, message}`, `cancelled` |
 | GET | `/jobs/{id}/preview` | (v1.1) Ultima anteprima del job in esecuzione (JPEG, `Cache-Control: no-store`), 404 quando non c'è o il job è finito. Il backend chiede le anteprime a ComfyUI con `extra_data.preview_method` (`PREVIEW_METHOD`, default `latent2rgb`, `none` le disattiva) |
 | POST | `/jobs/{id}/cancel` | Annulla: rimuove dalla coda o interrompe |
-| GET | `/generations` | Galleria paginata: `page`, `per_page` (default 24, massimo 100), filtri `task_id`, `q` (testo nel prompt), `favorite`. `meta`: `page`, `per_page`, `total`, `total_pages` |
+| GET | `/generations` | Galleria paginata: `page`, `per_page` (default 24, massimo 100), filtri `task_id`, `task_ids` (ripetibile: uno qualsiasi dei compiti elencati, usato dai filtri a gruppi della Galleria), `q` (testo nel prompt), `favorite`. `meta`: `page`, `per_page`, `total`, `total_pages` |
 | GET | `/generations/{id}` | Dettaglio con parametri completi e `parent_id` |
 | GET | `/generations/{id}/image` e `/thumbnail` | File |
 | PATCH | `/generations/{id}` | `{"favorite": bool}` |
