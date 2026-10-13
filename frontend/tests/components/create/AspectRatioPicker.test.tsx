@@ -20,6 +20,15 @@ const otherRatio: AspectRatio = {
 };
 
 describe("AspectRatioPicker", () => {
+  it("draws the shape and names a typical use instead of the pixel size (C10)", () => {
+    render(<AspectRatioPicker ratios={[featuredRatio]} value={featuredRatio.value} onChange={vi.fn()} />);
+
+    const button = screen.getByRole("button", { name: "Orizzontale 4:3, foto classica" });
+    expect(button.querySelector("[data-shape]")).not.toBeNull();
+    expect(button).not.toHaveTextContent("1152×896");
+    expect(button).toHaveAttribute("title", "1152×896 pixel");
+  });
+
   it("explains the field in plain text instead of a ? button (S3)", () => {
     render(<AspectRatioPicker ratios={[featuredRatio]} value={featuredRatio.value} onChange={vi.fn()} />);
 
@@ -34,8 +43,8 @@ describe("AspectRatioPicker", () => {
       <AspectRatioPicker ratios={[featuredRatio, otherRatio]} value={featuredRatio.value} onChange={vi.fn()} />,
     );
 
-    expect(screen.getByRole("button", { name: featuredRatio.label })).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: otherRatio.label })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Orizzontale 4:3/ })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Panoramico 16:9/ })).not.toBeInTheDocument();
   });
 
   it("marks the selected ratio with aria-pressed, others as not pressed", () => {
@@ -43,7 +52,7 @@ describe("AspectRatioPicker", () => {
       <AspectRatioPicker ratios={[featuredRatio, otherRatio]} value={featuredRatio.value} onChange={vi.fn()} />,
     );
 
-    expect(screen.getByRole("button", { name: featuredRatio.label })).toHaveAttribute(
+    expect(screen.getByRole("button", { name: /Orizzontale 4:3/ })).toHaveAttribute(
       "aria-pressed",
       "true",
     );
@@ -62,17 +71,17 @@ describe("AspectRatioPicker", () => {
 
     const toggle = screen.getByRole("button", { name: "Altri formati" });
     expect(toggle).toHaveAttribute("aria-expanded", "false");
-    expect(screen.queryByRole("button", { name: otherRatio.label })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Panoramico 16:9/ })).not.toBeInTheDocument();
 
     await userEvent.click(toggle);
     expect(screen.getByRole("button", { name: "Nascondi altri formati" })).toHaveAttribute(
       "aria-expanded",
       "true",
     );
-    expect(screen.getByRole("button", { name: otherRatio.label })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Panoramico 16:9/ })).toBeInTheDocument();
 
     await userEvent.click(screen.getByRole("button", { name: "Nascondi altri formati" }));
-    expect(screen.queryByRole("button", { name: otherRatio.label })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Panoramico 16:9/ })).not.toBeInTheDocument();
   });
 
   it("calls onChange with the ratio value when a featured ratio is clicked", async () => {
@@ -81,7 +90,7 @@ describe("AspectRatioPicker", () => {
       <AspectRatioPicker ratios={[featuredRatio, otherRatio]} value={otherRatio.value} onChange={onChange} />,
     );
 
-    await userEvent.click(screen.getByRole("button", { name: featuredRatio.label }));
+    await userEvent.click(screen.getByRole("button", { name: /Orizzontale 4:3/ }));
     expect(onChange).toHaveBeenCalledWith(featuredRatio.value);
   });
 
@@ -92,7 +101,7 @@ describe("AspectRatioPicker", () => {
     );
 
     await userEvent.click(screen.getByRole("button", { name: "Altri formati" }));
-    await userEvent.click(screen.getByRole("button", { name: otherRatio.label }));
+    await userEvent.click(screen.getByRole("button", { name: /Panoramico 16:9/ }));
     expect(onChange).toHaveBeenCalledWith(otherRatio.value);
   });
 });

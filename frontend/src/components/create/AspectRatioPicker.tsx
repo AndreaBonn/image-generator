@@ -1,6 +1,9 @@
 import { useState } from "react";
 import type { AspectRatio } from "@/api/types";
 import { FIELD_HINTS } from "@/lib/helpTexts";
+import { ratioName, ratioUse } from "@/lib/aspectRatioDisplay";
+
+const SHAPE_MAX_PX = 16;
 
 interface AspectRatioPickerProps {
   ratios: AspectRatio[];
@@ -57,16 +60,37 @@ function RatioButton({
   selected: boolean;
   onChange: (value: string) => void;
 }) {
+  const name = ratioName(ratio.label);
+  const use = ratioUse(ratio.width, ratio.height);
   return (
     <button
       type="button"
       aria-pressed={selected}
+      aria-label={use ? `${name}, ${use}` : name}
+      title={`${ratio.width}×${ratio.height} pixel`}
       onClick={() => onChange(ratio.value)}
-      className={`min-h-11 rounded-md border px-3 py-2 text-xs font-medium ${
+      className={`flex min-h-11 items-center gap-2 rounded-md border px-3 py-2 text-xs font-medium ${
         selected ? "border-accent bg-paper-3 text-ink" : "border-border bg-paper-2 text-ink-muted hover:bg-paper-3"
       }`}
     >
-      {ratio.label}
+      <RatioShape width={ratio.width} height={ratio.height} />
+      <span>
+        {name}
+        {use ? <span className="font-normal text-ink-muted">, {use}</span> : null}
+      </span>
     </button>
+  );
+}
+
+/** Small outline of the format, scaled so its longer side is SHAPE_MAX_PX. */
+function RatioShape({ width, height }: { width: number; height: number }) {
+  const scale = SHAPE_MAX_PX / Math.max(width, height);
+  return (
+    <span
+      data-shape
+      aria-hidden="true"
+      className="shrink-0 rounded-[2px] border-[1.5px] border-current"
+      style={{ width: Math.round(width * scale), height: Math.round(height * scale) }}
+    />
   );
 }

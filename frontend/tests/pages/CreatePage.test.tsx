@@ -130,7 +130,7 @@ describe("CreatePage validation and task list", () => {
     // cards include the description text in their accessible name, so match
     // on the label as a substring rather than the full (longer) name.
     await screen.findByRole("button", { name: /^Bozza veloce/ });
-    expect(screen.getByRole("button", { name: "Orizzontale 4:3 · 1152×896" })).toHaveAttribute(
+    expect(screen.getByRole("button", { name: /Orizzontale 4:3/ })).toHaveAttribute(
       "aria-pressed",
       "true",
     );
@@ -141,7 +141,7 @@ describe("CreatePage validation and task list", () => {
       "aria-pressed",
       "true",
     );
-    expect(screen.getByRole("button", { name: "Quadrato 1:1 · 1024×1024" })).toHaveAttribute(
+    expect(screen.getByRole("button", { name: /Quadrato 1:1/ })).toHaveAttribute(
       "aria-pressed",
       "true",
     );
