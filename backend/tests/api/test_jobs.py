@@ -50,7 +50,9 @@ async def wait_terminal(client: httpx.AsyncClient, job_id: str) -> dict[str, Any
             await asyncio.sleep(delay=0.01)
 
 
-@pytest.mark.parametrize("task_id,batch", [("bozza", 2), ("qualita", 1), ("testo", 3)])
+@pytest.mark.parametrize(
+    "task_id,batch", [("bozza", 2), ("qualita", 1), ("libero", 1), ("testo", 3)]
+)
 async def test_jobs_complete_persist_metadata_and_replay_sse(
     job_app: JobApp, task_id: str, batch: int
 ) -> None:
