@@ -80,7 +80,10 @@ class AssetJobs:
         if task is None:
             return
         task.cancel()
-        try:
-            await task
-        except asyncio.CancelledError:
-            pass
+        # wait() does not re-raise the task's cancellation, yet still lets the caller's own
+        # cancellation (client gone, shutdown) propagate instead of swallowing it.
+        await asyncio.wait([task])
+        if self.task is task:
+            # Cancelled before its first step, _run never reached its finally.
+            self.task = None
+            self.state = replace(self.state, status="cancelled")
