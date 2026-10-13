@@ -28,7 +28,7 @@ export function UpscaleAction({
   sourceSize,
 }: UpscaleActionProps) {
   return (
-    <fieldset className="flex flex-col gap-2">
+    <fieldset className="flex min-w-0 flex-col gap-2">
       <legend className="flex items-center gap-1 text-sm font-semibold text-ink">
         Ingrandisci
         <InfoTip text={HELP_TEXTS.upscaleFactor} label="Informazioni: Ingrandisci" />

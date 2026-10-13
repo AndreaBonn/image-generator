@@ -44,7 +44,7 @@ export function RefinedUpscaleAction({
   const denoiseValue = denoise ?? task?.defaults.denoise ?? DEFAULT_DENOISE;
 
   return (
-    <fieldset className="flex flex-col gap-2">
+    <fieldset className="flex min-w-0 flex-col gap-2">
       <legend className="flex items-center gap-1 text-sm font-semibold text-ink">
         Ingrandisci con rifinitura
         <InfoTip text={HELP_TEXTS.ingrandisciRifinito} label="Informazioni: Ingrandisci con rifinitura" />
