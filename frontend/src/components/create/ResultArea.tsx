@@ -5,6 +5,8 @@ import { useMutation } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 
 const SLOW_JOB_THRESHOLD_MS = 60_000;
+const ACTION_CLASS =
+  "inline-flex min-h-11 items-center rounded-md border border-border px-3 text-sm text-ink-muted hover:bg-paper-3 disabled:opacity-60";
 
 interface ResultAreaProps {
   latestEvent: JobEvent | null;
@@ -179,42 +181,51 @@ function ResultCard({ generationId }: { generationId: string }) {
  * the same actions instead of duplicating the mutations.
  */
 export function ResultCardActions({ generationId }: { generationId: string }) {
+  const [isFavorite, setIsFavorite] = useState(false);
   const favoriteMutation = useMutation({
     mutationFn: (favorite: boolean) => setFavorite(generationId, favorite),
+    onSuccess: (generation) => setIsFavorite(generation.favorite),
   });
   const rerunMutation = useMutation({
     mutationFn: (newSeed: boolean) => rerunGeneration(generationId, newSeed),
   });
 
   return (
-    <div className="flex flex-wrap gap-1">
-      <a
-        href={imageUrl(generationId)}
-        download
-        className="inline-flex min-h-11 items-center rounded-md border border-border px-3 text-sm text-ink-muted hover:bg-paper-3"
-      >
-        Scarica
-      </a>
-      <button
-        type="button"
-        onClick={() => favoriteMutation.mutate(true)}
-        className="inline-flex min-h-11 items-center rounded-md border border-border px-3 text-sm text-ink-muted hover:bg-paper-3"
-      >
-        Preferito
-      </button>
-      <button
-        type="button"
-        onClick={() => rerunMutation.mutate(true)}
-        className="inline-flex min-h-11 items-center rounded-md border border-border px-3 text-sm text-ink-muted hover:bg-paper-3"
-      >
-        Rigenera
-      </button>
-      <Link
-        to={`/modifica?source=${generationId}&mode=modifica_libera`}
-        className="inline-flex min-h-11 items-center rounded-md border border-border px-3 text-sm text-ink-muted hover:bg-paper-3"
-      >
-        Modifica con le parole
-      </Link>
+    <div className="flex flex-col gap-1">
+      <div className="flex flex-wrap gap-1">
+        <button
+          type="button"
+          aria-pressed={isFavorite}
+          disabled={favoriteMutation.isPending}
+          onClick={() => favoriteMutation.mutate(!isFavorite)}
+          className={`${ACTION_CLASS} ${isFavorite ? "border-accent text-ink" : ""}`}
+        >
+          <span aria-hidden="true">{isFavorite ? "★ " : "☆ "}</span>
+          {isFavorite ? "Nei preferiti" : "Aggiungi ai preferiti"}
+        </button>
+        <a href={imageUrl(generationId)} download className={ACTION_CLASS}>
+          Scarica
+        </a>
+        <button
+          type="button"
+          disabled={rerunMutation.isPending}
+          onClick={() => rerunMutation.mutate(true)}
+          className={ACTION_CLASS}
+        >
+          Un&apos;altra variante
+        </button>
+        <Link to={`/modifica?source=${generationId}&mode=modifica_libera`} className={ACTION_CLASS}>
+          Modifica
+        </Link>
+        <Link to={`/migliora?source=${generationId}`} className={ACTION_CLASS}>
+          Migliora
+        </Link>
+      </div>
+      {rerunMutation.isSuccess ? (
+        <p role="status" className="text-xs text-accent-text">
+          Nuova variante avviata: la trovi in Galleria quando è pronta.
+        </p>
+      ) : null}
     </div>
   );
 }

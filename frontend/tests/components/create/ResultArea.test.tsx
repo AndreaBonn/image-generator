@@ -200,26 +200,39 @@ describe("ResultArea results grid and per-result actions", () => {
     expect(link).toHaveAttribute("download");
   });
 
-  it("links each result to the word-based edit with that image as source", () => {
+  it("links each result to Modifica (word-based edit) and Migliora with that image as source (C13)", () => {
     renderResultArea({ generationIds: ["gen-1"] });
 
-    const link = screen.getByRole("link", { name: "Modifica con le parole" });
-    expect(link).toHaveAttribute("href", "/modifica?source=gen-1&mode=modifica_libera");
+    expect(screen.getByRole("link", { name: "Modifica" })).toHaveAttribute(
+      "href",
+      "/modifica?source=gen-1&mode=modifica_libera",
+    );
+    expect(screen.getByRole("link", { name: "Migliora" })).toHaveAttribute("href", "/migliora?source=gen-1");
   });
 
-  it("marks a generation as favorite via the API when 'Preferito' is clicked", async () => {
-    const setFavorite = vi.spyOn(queries, "setFavorite").mockResolvedValue({} as never);
+  it("toggles the favorite and shows its state (C13)", async () => {
+    const setFavorite = vi
+      .spyOn(queries, "setFavorite")
+      .mockImplementation(async (_id, favorite) => ({ favorite }) as never);
     renderResultArea({ generationIds: ["gen-1"] });
 
-    await userEvent.click(screen.getByRole("button", { name: "Preferito" }));
-    expect(setFavorite).toHaveBeenCalledWith("gen-1", true);
+    const button = screen.getByRole("button", { name: "Aggiungi ai preferiti" });
+    expect(button).toHaveAttribute("aria-pressed", "false");
+    await userEvent.click(button);
+    expect(setFavorite).toHaveBeenLastCalledWith("gen-1", true);
+    expect(await screen.findByRole("button", { name: "Nei preferiti" })).toHaveAttribute("aria-pressed", "true");
+
+    await userEvent.click(screen.getByRole("button", { name: "Nei preferiti" }));
+    expect(setFavorite).toHaveBeenLastCalledWith("gen-1", false);
+    expect(await screen.findByRole("button", { name: "Aggiungi ai preferiti" })).toBeInTheDocument();
   });
 
-  it("triggers a rerun with a new seed via the API when 'Rigenera' is clicked", async () => {
+  it("starts another variant and says where it will appear (C13)", async () => {
     const rerunGeneration = vi.spyOn(queries, "rerunGeneration").mockResolvedValue({ job_id: "job-2" });
     renderResultArea({ generationIds: ["gen-1"] });
 
-    await userEvent.click(screen.getByRole("button", { name: "Rigenera" }));
+    await userEvent.click(screen.getByRole("button", { name: "Un'altra variante" }));
     expect(rerunGeneration).toHaveBeenCalledWith("gen-1", true);
+    expect(await screen.findByText("Nuova variante avviata: la trovi in Galleria quando è pronta.")).toBeInTheDocument();
   });
 });

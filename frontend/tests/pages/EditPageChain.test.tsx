@@ -89,12 +89,12 @@ describe("EditPage - chained word-based edits", () => {
     await userEvent.click(screen.getByRole("button", { name: "Genera" }));
     await waitFor(() => latestEventSource());
     latestEventSource().emit("completed", { generation_ids: ["gen-2"] });
-    expect(await screen.findByRole("link", { name: "Modifica con le parole" })).toBeInTheDocument();
+    expect(await screen.findByRole("link", { name: "Modifica" })).toBeInTheDocument();
 
     await userEvent.click(screen.getByRole("button", { name: "Genera" }));
 
     await screen.findByRole("button", { name: "Annulla" });
-    expect(screen.queryByRole("link", { name: "Modifica con le parole" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Modifica" })).not.toBeInTheDocument();
   });
 
   it("edits the result of an edit: the new result becomes the source of the next job", async () => {
@@ -110,7 +110,7 @@ describe("EditPage - chained word-based edits", () => {
     await waitFor(() => expect(createJobSpy).toHaveBeenCalledTimes(1));
     latestEventSource().emit("completed", { generation_ids: ["gen-2"] });
 
-    await userEvent.click(await screen.findByRole("link", { name: "Modifica con le parole" }));
+    await userEvent.click(await screen.findByRole("link", { name: "Modifica" }));
 
     await waitFor(() =>
       expect(screen.getByAltText("Immagine da modificare")).toHaveAttribute("src", queries.imageUrl("gen-2")),
