@@ -38,6 +38,11 @@ async def create_job(
     return {"data": {"job_id": job_id}}
 
 
+@router.get(path="/active")
+async def list_active_jobs(service: ServiceDependency) -> dict[str, Any]:
+    return {"data": await service.active()}
+
+
 @router.get(path="/{job_id}")
 async def get_job(job_id: UUID, service: ServiceDependency) -> dict[str, Any]:
     return {"data": await service.status(job_id=str(job_id))}

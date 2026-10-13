@@ -89,6 +89,18 @@ class JobService:
             "updated_at": record.updated_at.isoformat(),
         }
 
+    async def active(self) -> list[dict[str, str]]:
+        """Jobs this process is running now (N1), read from memory so a job left
+        'running' in the database by a crashed process is never reported."""
+        records = await asyncio.gather(
+            *(asyncio.to_thread(self.repository.get, job_id=job_id) for job_id in list(self.runs))
+        )
+        return [
+            {"job_id": record.id, "task_id": record.task_id, "status": record.status}
+            for record in records
+            if record.status not in TERMINAL_STATUSES
+        ]
+
     async def cancel(self, job_id: str) -> dict[str, Any]:
         await asyncio.to_thread(self.repository.get, job_id=job_id)
         run = self.runs.get(job_id)

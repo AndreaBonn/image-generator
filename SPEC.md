@@ -464,6 +464,7 @@ Base `/api/v1`. Formato di successo `{"data": ..., "meta": {...}}`, di errore `{
 | POST | `/uploads` | Multipart `file`, `kind=image\|mask` → `{upload_id, width, height, recipe}`. Solo PNG/JPEG/WebP, massimo 20 MB, massimo 4096 px per lato. `recipe` (v1.1) è la ricetta letta dal chunk `studio_immagini` di un PNG creato dall'app (`task_id`, prompt, negativo, `params` con proporzioni, seed, stili, passi, cfg) oppure `null`; massimo 64 KB, un campo non valido scarta tutta la ricetta |
 | POST | `/jobs` | Crea un job (corpo in § 7.3) → `202` con `{job_id}` |
 | GET | `/jobs/{id}` | Stato del job |
+| GET | `/jobs/active` | Lavori in corso in questo processo (`job_id`, `task_id`, `status`), letti dalla memoria e non dal database: un job rimasto `running` dopo un crash non compare. Alimenta l'indicatore nella barra (N1) |
 | GET | `/jobs/{id}/events` | SSE: `queued{position}`, `model_switch{family, eta_s}`, `progress{step, total}`, `preview{url}` (v1.1), `completed{generation_ids}`, `failed{code, message}`, `cancelled` |
 | GET | `/jobs/{id}/preview` | (v1.1) Ultima anteprima del job in esecuzione (JPEG, `Cache-Control: no-store`), 404 quando non c'è o il job è finito. Il backend chiede le anteprime a ComfyUI con `extra_data.preview_method` (`PREVIEW_METHOD`, default `latent2rgb`, `none` le disattiva) |
 | POST | `/jobs/{id}/cancel` | Annulla: rimuove dalla coda o interrompe |
