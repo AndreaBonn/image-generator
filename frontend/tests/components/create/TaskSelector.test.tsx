@@ -5,6 +5,13 @@ import { TaskSelector } from "@/components/create/TaskSelector";
 import { buildTask } from "../../fixtures/task";
 
 describe("TaskSelector", () => {
+  it("asks what to create instead of naming a 'compito'", () => {
+    render(<TaskSelector tasks={[buildTask({})]} selectedTaskId={null} onSelect={vi.fn()} />);
+
+    expect(screen.getByRole("group", { name: /Cosa vuoi creare\?/ })).toBeInTheDocument();
+    expect(screen.queryByText("Compito")).not.toBeInTheDocument();
+  });
+
   it("shows the unavailable reason and disables the card", () => {
     const tasks = [
       buildTask({

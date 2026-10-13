@@ -13,8 +13,8 @@ export function TaskSelector({ tasks, selectedTaskId, onSelect }: TaskSelectorPr
   return (
     <fieldset className="flex flex-col gap-2">
       <legend className="mb-1 flex items-center gap-1 text-sm font-semibold text-ink">
-        Compito
-        <InfoTip text={HELP_TEXTS.taskSelector} label="Informazioni: Compito" />
+        Cosa vuoi creare?
+        <InfoTip text={HELP_TEXTS.taskSelector} label="Informazioni: Cosa vuoi creare" />
       </legend>
       <div className="flex flex-col gap-2">
         {tasks.map((task) => {
