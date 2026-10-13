@@ -2,6 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchSystem, fetchTasks, fetchTrashSummary } from "@/api/queries";
 import { SystemSummary } from "@/components/settings/SystemSummary";
 import { readinessChecks } from "@/lib/readiness";
+import { featureGroups } from "@/lib/modelFeatures";
+import { ModelsByFeature } from "@/components/settings/ModelsByFeature";
 import { EngineStatusCard } from "@/components/settings/EngineStatusCard";
 import { GpuCard } from "@/components/settings/GpuCard";
 import { DiskCard } from "@/components/settings/DiskCard";
@@ -65,7 +67,13 @@ export function SettingsPage() {
       {system.gpu ? <GpuCard gpu={system.gpu} /> : null}
       <DiskCard disk={system.disk} trashSummary={trashSummaryQuery.data} />
       <LoadedModelCard family={system.loaded_family} />
-      <ModelsTable models={system.models} installCommand={system.install_command} disk={system.disk} />
+      <ModelsByFeature
+        groups={featureGroups(system.models, tasksQuery.data ?? [])}
+        modelCount={system.models.length}
+        hasMissingModels={system.models.some((model) => model.enabled && model.status === "missing")}
+      >
+        <ModelsTable models={system.models} installCommand={system.install_command} disk={system.disk} />
+      </ModelsByFeature>
       <ExamplesCard />
       <ClearOutputCard />
       <ThemeCard />

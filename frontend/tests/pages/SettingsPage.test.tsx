@@ -47,6 +47,40 @@ describe("SettingsPage", () => {
     expect(summary).toHaveTextContent("Motore spento");
   });
 
+  it("lists what the installed models make possible, technical files folded away (I2)", async () => {
+    vi.spyOn(queries, "fetchSystem").mockResolvedValue(
+      buildSystemInfo({ models: [buildModelInfo({ family: "sdxl", license: "apache-2.0" })] }),
+    );
+    vi.spyOn(queries, "fetchTasks").mockResolvedValue([
+      buildTask({ id: "bozza", label: "Bozza veloce", family: "sdxl" }),
+      buildTask({ id: "qualita", label: "Immagine di qualità", family: "sdxl" }),
+    ]);
+
+    renderSettingsPage();
+
+    const features = await screen.findByRole("region", { name: "Cosa puoi fare con i modelli installati" });
+    expect(features).toHaveTextContent("Bozza veloce, Immagine di qualità");
+    expect(features).toHaveTextContent("Pronto");
+    expect(features).toHaveTextContent("Libera, anche commerciale (Apache 2.0)");
+    const technical = screen.getByText(/Tutti i file dei modelli \(1\)/).closest("details");
+    expect(technical).not.toHaveAttribute("open");
+  });
+
+  it("opens the technical list when a model is missing, so the install button shows (I2)", async () => {
+    vi.spyOn(queries, "fetchSystem").mockResolvedValue(
+      buildSystemInfo({ models: [buildModelInfo({ family: "sdxl", status: "missing", enabled: true })] }),
+    );
+    vi.spyOn(queries, "fetchTasks").mockResolvedValue([
+      buildTask({ id: "bozza", label: "Bozza veloce", family: "sdxl", available: false }),
+    ]);
+
+    renderSettingsPage();
+
+    const features = await screen.findByRole("region", { name: "Cosa puoi fare con i modelli installati" });
+    expect(features).toHaveTextContent("Manca un modello");
+    expect(screen.getByText(/Tutti i file dei modelli/).closest("details")).toHaveAttribute("open");
+  });
+
   it("shows the disk space in red when it is below the configured minimum", async () => {
     vi.spyOn(queries, "fetchSystem").mockResolvedValue(
       buildSystemInfo({ disk: { free_gb: 3, min_free_gb: 10 } }),
