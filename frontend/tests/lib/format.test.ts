@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { cleanGpuName, formatBytes, formatMbAsGb, formatSizeGb } from "@/lib/format";
+import { cleanGpuName, formatBytes, formatMbAsGb, formatSizeGb, formatRelativeTime } from "@/lib/format";
 
 describe("format helpers", () => {
   it("formats sizes in Italian with one decimal", () => {
@@ -27,5 +27,23 @@ describe("format helpers", () => {
     expect(formatBytes(12 * 1024 ** 2)).toBe("12 MB");
     expect(formatBytes(2.5 * 1024 ** 3)).toBe("2,5 GB");
     expect(formatBytes(0)).toBe("0 kB");
+  });
+});
+
+describe("formatRelativeTime (G1)", () => {
+  const now = new Date("2026-10-13T18:00:00Z");
+
+  it.each([
+    ["2026-10-13T17:59:40Z", "adesso"],
+    ["2026-10-13T17:55:00Z", "5 minuti fa"],
+    ["2026-10-13T15:00:00Z", "3 ore fa"],
+    ["2026-10-12T12:00:00Z", "ieri"],
+    ["2026-10-10T12:00:00Z", "3 giorni fa"],
+  ])("says %s as %s", (iso, expected) => {
+    expect(formatRelativeTime(iso, now)).toBe(expected);
+  });
+
+  it("falls back to the date after a week", () => {
+    expect(formatRelativeTime("2026-09-01T12:00:00Z", now)).toBe("1 set 2026");
   });
 });

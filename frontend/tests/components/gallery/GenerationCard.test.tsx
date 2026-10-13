@@ -6,6 +6,16 @@ import { thumbnailUrl } from "@/api/queries";
 import { buildGenerationSummary } from "../../fixtures/generation";
 
 describe("GenerationCard", () => {
+  it("tells what kind of work it is and when it was made (G1)", () => {
+    vi.useFakeTimers({ now: new Date("2026-10-13T18:00:00Z") });
+    const generation = buildGenerationSummary({ task_id: "foto", created_at: "2026-10-13T15:00:00Z" });
+
+    render(<GenerationCard generation={generation} taskLabel="Foto realistica" onOpen={vi.fn()} />);
+
+    expect(screen.getByText("Foto realistica · 3 ore fa")).toBeInTheDocument();
+    vi.useRealTimers();
+  });
+
   it("shows a checkerboard behind the image for background removal", () => {
     const generation = buildGenerationSummary({ task_id: "rimuovi_sfondo" });
 

@@ -1,8 +1,11 @@
 import type { GenerationSummary } from "@/api/types";
 import { thumbnailUrl } from "@/api/queries";
+import { formatRelativeTime } from "@/lib/format";
 
 interface GenerationCardProps {
   generation: GenerationSummary;
+  /** Plain name of the task that made it, e.g. "Foto realistica" (G1); omitted when the catalog is not loaded. */
+  taskLabel?: string;
   onOpen: (id: string) => void;
 }
 
@@ -11,7 +14,7 @@ interface GenerationCardProps {
  * "Rimuovi lo sfondo" results are transparent PNGs (thumbnail keeps alpha):
  * shown on a checkerboard so the transparency is visible at a glance.
  */
-export function GenerationCard({ generation, onOpen }: GenerationCardProps) {
+export function GenerationCard({ generation, taskLabel, onOpen }: GenerationCardProps) {
   const isTransparent = generation.task_id === "rimuovi_sfondo";
 
   return (
@@ -32,6 +35,10 @@ export function GenerationCard({ generation, onOpen }: GenerationCardProps) {
       </div>
       <span className="line-clamp-2 px-1 text-xs text-ink-muted">
         {generation.prompt || "(senza descrizione)"}
+      </span>
+      <span className="px-1 text-[11px] text-ink-muted">
+        {taskLabel ? `${taskLabel} · ` : ""}
+        {formatRelativeTime(generation.created_at)}
       </span>
       {generation.favorite ? (
         <span className="px-1 text-xs text-accent-text">★ Preferito</span>

@@ -4,6 +4,8 @@ import { GenerationCard } from "@/components/gallery/GenerationCard";
 
 interface GenerationGridProps {
   items: GenerationSummary[];
+  /** task_id → plain task name, for the card captions (G1). */
+  taskLabels?: ReadonlyMap<string, string>;
   onOpen: (id: string) => void;
   hasNextPage: boolean;
   isFetchingNextPage: boolean;
@@ -13,6 +15,7 @@ interface GenerationGridProps {
 /** Thumbnail grid with scroll-triggered pagination (SPEC.md § 11.2, § 7.2). */
 export function GenerationGrid({
   items,
+  taskLabels,
   onOpen,
   hasNextPage,
   isFetchingNextPage,
@@ -38,7 +41,12 @@ export function GenerationGrid({
     <div className="flex flex-col gap-3">
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-6">
         {items.map((generation) => (
-          <GenerationCard key={generation.id} generation={generation} onOpen={onOpen} />
+          <GenerationCard
+            key={generation.id}
+            generation={generation}
+            taskLabel={taskLabels?.get(generation.task_id)}
+            onOpen={onOpen}
+          />
         ))}
       </div>
       {hasNextPage ? <div ref={sentinelRef} className="h-1" aria-hidden="true" /> : null}

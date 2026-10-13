@@ -27,3 +27,26 @@ export function formatSizeGb(gb: number): string {
 export function cleanGpuName(raw: string): string {
   return raw.replace(/^cuda:\d+\s+/, "").replace(/\s+:\s+\S+$/, "");
 }
+
+const RELATIVE = new Intl.RelativeTimeFormat("it-IT", { numeric: "auto" });
+const SHORT_DATE = new Intl.DateTimeFormat("it-IT", { day: "numeric", month: "short", year: "numeric" });
+const MINUTE_MS = 60_000;
+const HOUR_MS = 60 * MINUTE_MS;
+const DAY_MS = 24 * HOUR_MS;
+const RELATIVE_DAYS_LIMIT = 7;
+
+/** "adesso", "5 minuti fa", "3 ore fa", "ieri", "3 giorni fa", then the date (G1). */
+export function formatRelativeTime(iso: string, now: Date = new Date()): string {
+  const date = new Date(iso);
+  const elapsed = now.getTime() - date.getTime();
+  if (elapsed < MINUTE_MS) return "adesso";
+  if (elapsed < HOUR_MS) return RELATIVE.format(-Math.floor(elapsed / MINUTE_MS), "minute");
+  if (elapsed < DAY_MS) return RELATIVE.format(-Math.floor(elapsed / HOUR_MS), "hour");
+  const days = Math.round((startOfDay(now) - startOfDay(date)) / DAY_MS);
+  if (days < RELATIVE_DAYS_LIMIT) return RELATIVE.format(-days, "day");
+  return SHORT_DATE.format(date);
+}
+
+function startOfDay(date: Date): number {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+}

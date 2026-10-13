@@ -45,6 +45,7 @@ export function GalleryPage() {
   });
 
   const items = generationsQuery.data?.pages.flatMap((page) => page.items) ?? [];
+  const taskLabels = new Map((tasksQuery.data ?? []).map((task) => [task.id, task.label]));
   const hasFilters = taskId !== "" || favoriteOnly || debouncedQuery !== "";
 
   return (
@@ -116,6 +117,7 @@ export function GalleryPage() {
           {items.length > 0 ? (
             <GenerationGrid
               items={items}
+              taskLabels={taskLabels}
               onOpen={setSelectedGenerationId}
               hasNextPage={generationsQuery.hasNextPage}
               isFetchingNextPage={generationsQuery.isFetchingNextPage}
