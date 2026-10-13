@@ -100,6 +100,21 @@ def is_url_responding(url: str, *, timeout_s: float = 1.0) -> bool:
         return False
 
 
+def is_port_in_use(port: int, *, timeout_s: float = 1.0) -> bool:
+    """True if something accepts TCP connections on 127.0.0.1:`port`.
+
+    A connect probe, not an HTTP one: a foreign non-HTTP listener must count
+    as taken too, since uvicorn would fail to bind either way.
+    """
+    import socket
+
+    try:
+        with socket.create_connection(("127.0.0.1", port), timeout=timeout_s):
+            return True
+    except OSError:
+        return False
+
+
 class EngineNotInstalledError(RuntimeError):
     pass
 
@@ -279,6 +294,16 @@ def main(argv: Sequence[str] | None = None) -> int:
         comfy_port=int(os.environ.get("COMFY_PORT", "8188")),
         app_port=int(os.environ.get("PORT", "8000")),
     )
+
+    # Checked before anything else: otherwise the running instance answers the
+    # health probe, the new backend's bind failure goes unnoticed, and cleanup
+    # deletes the run-state file that stop.sh needs for the running instance.
+    if is_port_in_use(config.app_port):
+        log(
+            f"La porta {config.app_port} è già in uso: l'applicazione è forse già "
+            "attiva. Fermala con ./scripts/stop.sh e riprova."
+        )
+        return 1
 
     _warn_if_ollama_running()
     _ensure_frontend_built(repo_root, os_name, force=args.build)

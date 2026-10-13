@@ -1,6 +1,60 @@
+import socket
 from pathlib import Path
 
+import pytest
 from start_support import FakeProcess, platform_support, start
+
+REAL_IS_PORT_IN_USE = start.is_port_in_use
+
+
+@pytest.fixture(autouse=True)
+def app_port_free(monkeypatch):
+    # main() probes the real app port: stub it free so these tests do not
+    # depend on whether the developer's own app is running on :8000.
+    monkeypatch.setattr(start, "is_port_in_use", lambda port: False)
+
+
+# --- is_port_in_use -------------------------------------------------------
+
+
+def test_is_port_in_use_true_when_something_listens():
+    with socket.socket() as listener:
+        listener.bind(("127.0.0.1", 0))
+        listener.listen()
+        port = listener.getsockname()[1]
+
+        assert REAL_IS_PORT_IN_USE(port) is True
+
+
+def test_is_port_in_use_false_when_nothing_listens():
+    with socket.socket() as probe:
+        probe.bind(("127.0.0.1", 0))
+        port = probe.getsockname()[1]  # bound but not listening: refuses connects
+
+        assert REAL_IS_PORT_IN_USE(port) is False
+
+
+# --- main(): app port already taken --------------------------------------
+
+
+def test_main_refuses_to_start_when_app_port_is_taken(monkeypatch, capsys):
+    calls: list[str] = []
+    monkeypatch.setattr(start, "is_port_in_use", lambda port: port == 8000)
+    monkeypatch.setattr(start, "default_running_ollama_models", list)
+    monkeypatch.setattr(start, "needs_frontend_build", lambda *a, **k: False)
+    monkeypatch.setattr(start, "start_engine", lambda *a, **k: calls.append("engine"))
+    monkeypatch.setattr(start, "start_backend", lambda *a, **k: calls.append("backend"))
+    monkeypatch.setattr(start, "write_run_state", lambda *a, **k: calls.append("write"))
+    monkeypatch.setattr(start, "remove_run_state", lambda *a, **k: calls.append("remove"))
+
+    code = start.main([])
+
+    assert code == 1
+    # The run-state file belongs to the instance already running: touching it
+    # would leave that instance unstoppable by stop.sh.
+    assert calls == []
+    assert "8000" in capsys.readouterr().out
+
 
 # --- main(): error surfaced as exit 1 ------------------------------------
 
