@@ -46,6 +46,27 @@ describe("CreatePage validation and task list", () => {
     expect(screen.queryByText("Ripresa da dove avevi lasciato.")).not.toBeInTheDocument();
   });
 
+  it("falls back to an available task when the restored one is no longer available (R1)", async () => {
+    window.sessionStorage.setItem(
+      "image-generator-create-draft-v1",
+      JSON.stringify({
+        taskId: "foto", prompt: "", negativePrompt: "", aspectRatio: "", batch: 1, styleIds: [],
+        seed: null, seedLocked: false, steps: null, cfg: null,
+      }),
+    );
+    vi.spyOn(queries, "fetchTasks").mockResolvedValue([
+      buildTask({ id: "bozza", label: "Bozza veloce" }),
+      buildTask({ id: "foto", label: "Foto realistica", available: false, unavailable_reason: "Manca il modello." }),
+    ]);
+
+    renderCreatePage();
+
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: /^Bozza veloce/ })).toHaveAttribute("aria-pressed", "true"),
+    );
+    expect(screen.getByRole("button", { name: /^Foto realistica/ })).toHaveAttribute("aria-pressed", "false");
+  });
+
   it("keeps Genera in a sticky bar that sums up what will start (C2)", async () => {
     vi.spyOn(queries, "fetchTasks").mockResolvedValue([
       buildTask({ label: "Bozza veloce", duration_hint: "circa 4 s" }),

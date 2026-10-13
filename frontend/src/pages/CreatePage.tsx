@@ -69,8 +69,8 @@ export function CreatePage() {
   }, [taskId, prompt, negativePrompt, aspectRatio, batch, styleIds, seed, seedLocked, steps, cfg]);
 
   useEffect(() => {
-    // A restored task that left the catalog falls back to the first available one.
-    const knownTask = taskId !== null && creationTasks.some((t) => t.id === taskId);
+    // A restored task that left the catalog, or lost its model, falls back to the first available one.
+    const knownTask = creationTasks.some((t) => t.id === taskId && t.available);
     if (!knownTask && creationTasks.length > 0) {
       const firstAvailable = creationTasks.find((t) => t.available);
       if (firstAvailable) {
