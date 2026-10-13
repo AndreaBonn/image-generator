@@ -5,7 +5,7 @@ import { imageUrl, setFavorite, thumbnailUrl } from "@/api/queries";
 import { formatRelativeTime } from "@/lib/format";
 
 const QUICK_ACTION_CLASS =
-  "flex h-11 w-11 items-center justify-center rounded-md border border-border bg-paper/90 text-base text-ink hover:bg-paper-3";
+  "flex h-11 w-11 items-center justify-center rounded-md border border-border bg-paper/90 text-base text-ink hover:bg-paper-3 sm:h-8 sm:w-8 sm:text-sm";
 
 interface GenerationCardProps {
   generation: GenerationSummary;
@@ -25,7 +25,7 @@ export function GenerationCard({ generation, taskLabel, onOpen }: GenerationCard
   const description = generation.prompt || "Immagine generata";
 
   return (
-    <div className="relative">
+    <div className="group relative">
       <button
         type="button"
         onClick={() => onOpen(generation.id)}
@@ -66,7 +66,13 @@ function QuickActions({ generation }: { generation: GenerationSummary }) {
   });
 
   return (
-    <div role="group" aria-label="Azioni rapide" className="absolute right-2 top-2 flex gap-1">
+    // With a mouse the actions appear on hover or keyboard focus, so thumbnails stay clean (R9);
+    // touch screens have no hover and keep them visible.
+    <div
+      role="group"
+      aria-label="Azioni rapide"
+      className="absolute right-2 top-2 flex gap-1 transition-opacity [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-focus-within:opacity-100 [@media(hover:hover)]:group-hover:opacity-100"
+    >
       <button
         type="button"
         aria-label={generation.favorite ? "Rimuovi dai preferiti" : "Aggiungi ai preferiti"}
