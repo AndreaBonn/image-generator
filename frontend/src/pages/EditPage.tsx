@@ -19,6 +19,7 @@ import { toggleDirection, type OutpaintDirection } from "@/lib/outpaint";
 import type { CreateJobBody, Task } from "@/api/types";
 import { PageTitle } from "@/components/layout/PageTitle";
 import { StepHeading } from "@/components/edit/StepHeading";
+import { GalleryReferenceDialog } from "@/components/create/GalleryReferenceDialog";
 
 const MAX_PROMPT_LENGTH = 2000;
 const INPAINT_REQUIRED_MESSAGE = "Descrivi cosa deve apparire nella zona scelta.";
@@ -38,7 +39,8 @@ export function EditPage() {
 }
 
 function EditWorkspace() {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [pickingFromGallery, setPickingFromGallery] = useState(false);
   const sourceGenerationId = searchParams.get("source");
   const [mode, setMode] = useState<EditMode>(() => parseEditMode(searchParams.get("mode")) ?? "modifica_libera");
   const [image, setImage] = useState<SourceImage | null>(null);
@@ -203,7 +205,21 @@ function EditWorkspace() {
 
         <StepHeading step={2}>L&apos;immagine</StepHeading>
         {!hasImage ? (
-          <ImageInput onFileSelected={(file) => uploadImageMutation.mutate(file)} disabled={sourceGenerationId !== null} />
+          <ImageInput
+            onFileSelected={(file) => uploadImageMutation.mutate(file)}
+            disabled={sourceGenerationId !== null}
+            onPickFromGallery={() => setPickingFromGallery(true)}
+          />
+        ) : null}
+
+        {pickingFromGallery ? (
+          <GalleryReferenceDialog
+            excludeIds={[]}
+            title="Scegli l'immagine da modificare"
+            actionLabel="Modifica questa immagine"
+            onPick={(generationId) => setSearchParams({ source: generationId, mode })}
+            onClose={() => setPickingFromGallery(false)}
+          />
         ) : null}
 
         {uploadImageMutation.isError ? (

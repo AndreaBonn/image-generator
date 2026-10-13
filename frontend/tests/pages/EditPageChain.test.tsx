@@ -6,6 +6,7 @@ import { MemoryRouter } from "react-router-dom";
 import { EditPage } from "@/pages/EditPage";
 import * as queries from "@/api/queries";
 import { buildTask } from "../fixtures/task";
+import { buildGenerationSummary } from "../fixtures/generation";
 import { installMockEventSource, latestEventSource } from "../mocks/mockEventSource";
 import type { Generation } from "@/api/types";
 
@@ -54,6 +55,22 @@ describe("EditPage - chained word-based edits", () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
+  });
+
+  it("lets the user pick the image to edit from the Galleria (M2)", async () => {
+    vi.spyOn(queries, "fetchGenerations").mockResolvedValue({
+      items: [buildGenerationSummary({ id: "gen-5", prompt: "un faro al tramonto" })],
+      meta: { page: 1, per_page: 24, total: 1, total_pages: 1 },
+    });
+    renderEditPage("/modifica");
+
+    await userEvent.click(await screen.findByRole("button", { name: "Scegli dalla Galleria" }));
+    await userEvent.click(await screen.findByRole("button", { name: "Modifica questa immagine: un faro al tramonto" }));
+
+    await waitFor(() =>
+      expect(screen.getByAltText("Immagine da modificare")).toHaveAttribute("src", queries.imageUrl("gen-5")),
+    );
+    expect(screen.getByRole("tab", { name: "Modifica con le parole" })).toHaveAttribute("aria-selected", "true");
   });
 
   it("opens on the word-based tab with the source image shown when ?mode=modifica_libera", async () => {

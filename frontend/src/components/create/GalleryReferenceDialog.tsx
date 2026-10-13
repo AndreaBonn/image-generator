@@ -8,10 +8,20 @@ interface GalleryReferenceDialogProps {
   excludeIds: string[];
   onPick: (generationId: string) => void;
   onClose: () => void;
+  /** Dialog title; defaults to the reference-picker wording. */
+  title?: string;
+  /** Prefix of each thumbnail's accessible name, followed by the image's description. */
+  actionLabel?: string;
 }
 
-/** "Aggiungi dalla galleria" for ReferencePicker: a thumbnail grid of recent generations. */
-export function GalleryReferenceDialog({ excludeIds, onPick, onClose }: GalleryReferenceDialogProps) {
+/** Thumbnail grid of recent generations: references on Crea, the source image on Modifica (M2). */
+export function GalleryReferenceDialog({
+  excludeIds,
+  onPick,
+  onClose,
+  title = "Scegli un'immagine dalla galleria",
+  actionLabel = "Usa come riferimento",
+}: GalleryReferenceDialogProps) {
   const dialogRef = useRef<HTMLDivElement | null>(null);
   useModalFocus(dialogRef, onClose);
 
@@ -41,7 +51,7 @@ export function GalleryReferenceDialog({ excludeIds, onPick, onClose }: GalleryR
         className="relative flex max-h-[80vh] w-full max-w-lg flex-col gap-3 overflow-y-auto rounded-md border border-border bg-paper p-4"
       >
         <h2 id="gallery-reference-title" className="text-base font-semibold text-ink">
-          Scegli un&apos;immagine dalla galleria
+          {title}
         </h2>
 
         {generationsQuery.isLoading ? <p className="text-sm text-ink-muted">Caricamento...</p> : null}
@@ -60,7 +70,7 @@ export function GalleryReferenceDialog({ excludeIds, onPick, onClose }: GalleryR
               <button
                 type="button"
                 onClick={() => onPick(generation.id)}
-                aria-label={`Usa come riferimento: ${generation.prompt}`}
+                aria-label={`${actionLabel}: ${generation.prompt}`}
                 className="block aspect-square w-full overflow-hidden rounded-md border border-border"
               >
                 <img

@@ -6,6 +6,8 @@ interface ImageInputProps {
   onFileSelected: (file: File) => void;
   disabled?: boolean;
   inputLabel?: string;
+  /** Shows "Scegli dalla Galleria" next to the file picker (M2). */
+  onPickFromGallery?: () => void;
 }
 
 /** Drag-and-drop zone or file picker for the source image (SPEC.md § 11.2, PNG/JPEG/WebP). */
@@ -13,6 +15,7 @@ export function ImageInput({
   onFileSelected,
   disabled = false,
   inputLabel = "Scegli un'immagine da modificare",
+  onPickFromGallery,
 }: ImageInputProps) {
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -35,14 +38,26 @@ export function ImageInput({
       className="flex flex-col items-center gap-2 rounded-md border border-dashed border-border bg-paper-2 p-6 text-center"
     >
       <p className="text-sm text-ink-muted">Trascina un&apos;immagine qui, oppure</p>
-      <button
-        type="button"
-        disabled={disabled}
-        onClick={() => inputRef.current?.click()}
-        className="min-h-11 rounded-md border border-border bg-paper-3 px-3 py-2 text-sm font-medium text-ink disabled:cursor-not-allowed disabled:cursor-not-allowed disabled:bg-paper-3 disabled:text-ink-muted"
-      >
-        Scegli un file
-      </button>
+      <div className="flex flex-wrap justify-center gap-2">
+        <button
+          type="button"
+          disabled={disabled}
+          onClick={() => inputRef.current?.click()}
+          className="min-h-11 rounded-md border border-border bg-paper-3 px-3 py-2 text-sm font-medium text-ink disabled:cursor-not-allowed disabled:bg-paper-3 disabled:text-ink-muted"
+        >
+          Scegli un file
+        </button>
+        {onPickFromGallery ? (
+          <button
+            type="button"
+            disabled={disabled}
+            onClick={onPickFromGallery}
+            className="min-h-11 rounded-md border border-border bg-paper-3 px-3 py-2 text-sm font-medium text-ink disabled:cursor-not-allowed disabled:text-ink-muted"
+          >
+            Scegli dalla Galleria
+          </button>
+        ) : null}
+      </div>
       <p className="text-xs text-ink-muted">PNG, JPEG o WebP, massimo 20 MB e 4096 px per lato.</p>
       <input
         ref={inputRef}
