@@ -1,7 +1,7 @@
 #!/usr/bin/env -S uv run --script
 # /// script
 # requires-python = ">=3.12"
-# dependencies = ["pyyaml>=6.0"]
+# dependencies = ["pyyaml>=6.0", "huggingface_hub>=0.25"]
 # ///
 """Install the app from scratch: engine, backend/frontend deps, styles, models.
 
