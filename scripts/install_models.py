@@ -124,6 +124,7 @@ def download(entry: ModelEntry, paths: Paths, min_free_gb: float) -> None:
     if destination.is_file():
         print(f"{entry.id}: already installed at {destination}")
         return
+    paths.models_dir.mkdir(parents=True, exist_ok=True)
     free = shutil.disk_usage(paths.models_dir).free
     if not has_room(free_bytes=free, size_bytes=entry.size_bytes, min_free_gb=min_free_gb):
         raise SystemExit(

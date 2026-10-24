@@ -229,3 +229,20 @@ def test_remove_juggernaut_on_real_registry_keeps_file_without_y_and_removes_wit
     assert f"{entry.id}: removed" in capsys.readouterr().out
 
 
+
+def test_download_creates_missing_models_dir_before_measuring_free_space(
+    tmp_path, monkeypatch
+):
+    # install.py calls download() directly, without install_models.main()'s mkdir:
+    # on a fresh clone engine/models does not exist yet.
+    paths = install_models.Paths(models_dir=tmp_path / "engine" / "models")
+    entry = make_entry(size_bytes=1)
+    fetched = []
+    monkeypatch.setattr(
+        install_models, "fetch_and_install", lambda entry, paths: fetched.append(entry.id)
+    )
+
+    install_models.download(entry=entry, paths=paths, min_free_gb=0)
+
+    assert paths.models_dir.is_dir()
+    assert fetched == ["demo"]
